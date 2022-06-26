@@ -45,6 +45,13 @@ class PlantDetailPage extends StatelessWidget {
             Expanded(
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 10),
+                decoration: const BoxDecoration(
+                  color: Color(0xffF8ECE0),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                ),
                 child: Column(
                   children: [
                     Expanded(
@@ -82,13 +89,6 @@ class PlantDetailPage extends StatelessWidget {
                         title: "Know Your Plant", icon: UniconsLine.trees),
                     Container(height: 5)
                   ],
-                ),
-                decoration: const BoxDecoration(
-                  color: Color(0xffF8ECE0),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
                 ),
               ),
             )

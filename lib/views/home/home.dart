@@ -43,13 +43,12 @@ class _HomeState extends State<Home> {
     const MyPlantView(),
     const ProfileView(),
   ];
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: splashScreenTextColor,
+      backgroundColor: homeBackgroundColor,
       body: IndexedStack(
-        children: views,
         index: currentIndex,
+        children: views,
       ),
       bottomNavigationBar: BottomNavigationBar(
           onTap: ontap,

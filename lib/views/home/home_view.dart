@@ -22,11 +22,27 @@ class HomeView extends StatelessWidget {
                 child: notificationIcon(context: context),
               ),
             ),
-            height: MediaQuery.of(context).size.height / 3,
             decoration: BoxDecoration(
-                image: DecorationImage(image: AssetImage("images/1.png"))),
+                //image: DecorationImage(image: AssetImage("images/1.png"))
+            ),
           ),
-
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              height : MediaQuery.of(context).size.height / 3.5,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: Colors.black12
+              ),
+              child: Center(
+                child: Text(
+                  "Notice",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32),
+                )
+              ),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 15),
             child: DatePicker(
@@ -36,7 +52,7 @@ class HomeView extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.04,
+            height: MediaQuery.of(context).size.height * 0.02,
           ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 10),
@@ -49,8 +65,8 @@ class HomeView extends StatelessWidget {
                     context: context,
                     color: index % 2 == 0 ? primaryColor : Color(0xffF1CBB6)),
                 separatorBuilder: (context, index) => SizedBox(
-                      width: 15,
-                    ),
+                  width: 15,
+                ),
                 itemCount: 20),
           )
           // Text("hjvsdbvjjsdf"),

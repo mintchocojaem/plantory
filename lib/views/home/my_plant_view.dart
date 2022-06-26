@@ -29,15 +29,9 @@ class MyPlantView extends StatelessWidget {
         children: [
           searcTextField(labelText: "Search", prefixIcon: Icons.search),
           Expanded(
-              child: GridView.builder(
+              child: ListView.builder(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   itemCount: 5,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      mainAxisExtent: MediaQuery.of(context).size.height / 2.8,
-                      crossAxisSpacing: 20,
-                      mainAxisSpacing: 20,
-                      // mainAxisExtent: 100,
-                      crossAxisCount: 2),
                   itemBuilder: (context, index) => MyPlantBuilder()))
         ],
       ),
@@ -54,22 +48,20 @@ class MyPlantBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-      child: Column(
-        // mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          CircleAvatar(
-            radius: 40,
-          ),
-          Text("Plant Name"),
-          plantAgeProperties(age: "7 months old"),
-          plantLocationProperties(plantLocation: "Tamale")
-        ],
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+        decoration: BoxDecoration(
+            color: const Color(0xffE5E6E0),
+            borderRadius: BorderRadius.circular(15)),
+        child: ListTile(
+          // mainAxisAlignment: MainAxisAlignment.spaceAround,
+          leading: CircleAvatar(radius: 40,),
+          title : Text("Plant Name"),
+          trailing : Icon(Icons.delete_outline)
+        ),
       ),
-      decoration: BoxDecoration(
-          color: const Color(0xffE5E6E0),
-          borderRadius: BorderRadius.circular(15)),
     );
   }
 }

@@ -14,6 +14,7 @@ MaterialButton reUsableButton(
         horizontal: 10,
       ),
       color: primaryColor,
+      onPressed: onPressed,
       child: Center(
         child: Text(
           text,
@@ -22,8 +23,7 @@ MaterialButton reUsableButton(
             fontSize: 20,
           ),
         ),
-      ),
-      onPressed: onPressed);
+      ));
 }
 
 ///Resuable textfields
@@ -60,13 +60,14 @@ plantCard({Color? color, BuildContext? context}) {
     child: Stack(
       children: [
         Container(
+          width: double.infinity,
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
               color: navBarColor, borderRadius: BorderRadius.circular(20)),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: const [
-              Text("hjvsdhjsj,,,,gggggggggggggggggggggggggg,,"),
+              Text("Explain"),
             ],
           ),
         ),
@@ -95,7 +96,8 @@ plantCard({Color? color, BuildContext? context}) {
           decoration: BoxDecoration(
             color: color,
             borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(25),
+              bottomLeft: Radius.circular(15),
+              bottomRight: Radius.circular(15),
               topLeft: Radius.circular(15),
               topRight: Radius.circular(15),
             ),
