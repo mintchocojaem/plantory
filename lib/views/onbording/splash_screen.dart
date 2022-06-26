@@ -62,7 +62,7 @@ class _SplashScreenState extends State<SplashScreen> {
              slidingBeginOffset: Offset(-0.90, 0.0),
             delay: Duration(seconds: 2),
             child: Text(
-              "Plantery",
+              "Plantory",
               style: TextStyle(
                   color: splashScreenTextColor, fontSize: 25, letterSpacing: 6),
             ),

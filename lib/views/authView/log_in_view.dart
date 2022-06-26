@@ -50,7 +50,7 @@ class _LogInViewState extends State<LogInView> {
                       height: 5,
                     ),
                     Text(
-                      "Plantery",
+                      "Plantory",
                       style: TextStyle(
                           color: primaryColor, fontSize: 25, letterSpacing: 6),
                     ),
