@@ -10,7 +10,7 @@ class MyPlantView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffFCF7F4),
+      backgroundColor: homeBackgroundColor,
       appBar: AppBar(
         leading: const IconButton(
             onPressed: null,
@@ -19,9 +19,9 @@ class MyPlantView extends StatelessWidget {
               color: primaryColor,
             )),
         elevation: 0.0,
-        backgroundColor: const Color(0xffFCF7F4),
+        backgroundColor: homeBackgroundColor,
         title: const Text(
-          "My Plants",
+          "Plants",
           style: TextStyle(color: primaryColor),
         ),
       ),
@@ -31,21 +31,20 @@ class MyPlantView extends StatelessWidget {
           Expanded(
               child: ListView.builder(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  itemCount: 5,
-                  itemBuilder: (context, index) => MyPlantBuilder()))
+                  itemCount: 4,
+                  itemBuilder: (context, index) => MyPlantBuilder(imgPath: 'images/plant${index+1}.jpeg',)))
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: (){},
-        backgroundColor: Color(0xffC7BAA9),
-      child: Icon(UniconsLine.trees,size: 40, color: Color(0xffEAE3DA),),),
+        child: Icon(Icons.add,size: 40,),),
     );
   }
 }
 
 class MyPlantBuilder extends StatelessWidget {
-  const MyPlantBuilder({Key? key}) : super(key: key);
-
+  MyPlantBuilder({Key? key, this.imgPath}) : super(key: key);
+  String? imgPath;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -57,7 +56,23 @@ class MyPlantBuilder extends StatelessWidget {
             borderRadius: BorderRadius.circular(15)),
         child: ListTile(
           // mainAxisAlignment: MainAxisAlignment.spaceAround,
-          leading: CircleAvatar(radius: 40,),
+          leading:  CircleAvatar(
+            radius: MediaQuery.of(context).size.height * 0.03,
+            backgroundColor: navBarColor,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: Center(
+                child: imgPath == null ? const Icon(
+                  UniconsLine.flower,
+                  size: 32,
+                  color: primaryColor,
+                ) : Image.asset(
+                  imgPath!,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
           title : Text("Plant Name"),
           trailing : Icon(Icons.delete_outline)
         ),

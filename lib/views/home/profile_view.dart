@@ -9,7 +9,7 @@ class ProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: profilePageBackgroundColor,
+      color: splashScreenTextColor,
       child: SafeArea(
         child: Column(
           children: [
@@ -17,11 +17,19 @@ class ProfileView extends StatelessWidget {
               height: MediaQuery.of(context).size.height / 3,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  CircleAvatar(
-                    radius: 50,
+                children: [
+                  ClipOval(
+                    child: Image.asset(
+                      'images/user1.jpeg',
+                      fit: BoxFit.fill,
+                      width: 128,
+                      height: 128,
+                    ),
                   ),
-                  Text("User Name"),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text("User"),
                 ],
               ),
             ),
@@ -36,19 +44,6 @@ class ProfileView extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          userEnagementI(
-                              title: "Rank", icon: UniconsLine.scaling_right),
-                          userEnagementI(
-                              title: "Friends",
-                              icon: UniconsLine.scaling_right),
-                        ],
-                      ),
-                    ),
                     Expanded(
                       child: Container(
                         padding: EdgeInsets.only(top: 5),
@@ -67,7 +62,7 @@ class ProfileView extends StatelessWidget {
                           ],
                         ),
                         decoration: const BoxDecoration(
-                            color: Color(0xffFCF7F4),
+                            color: homeBackgroundColor,
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(20),
                               topRight: Radius.circular(20),
@@ -88,7 +83,7 @@ class ProfileView extends StatelessWidget {
       {String? title, Function()? onPress, IconData? icon}) {
     return Card(
       elevation: 0,
-      color: Color(0xffFCF7F4),
+      color: homeBackgroundColor,
       child: ListTile(
         onTap: onPress,
         title: Text(title!),

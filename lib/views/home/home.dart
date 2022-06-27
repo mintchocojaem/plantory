@@ -30,7 +30,7 @@ class _HomeState extends State<Home> {
         icon: Icon(
           UniconsLine.flower,
         ),
-        label: "My Plant"),
+        label: "Plants"),
     const BottomNavigationBarItem(
         icon: Icon(
           UniconsLine.user,
@@ -53,9 +53,9 @@ class _HomeState extends State<Home> {
       bottomNavigationBar: BottomNavigationBar(
           onTap: ontap,
           currentIndex: currentIndex,
+          backgroundColor: homeBackgroundColor,
           elevation: 1,
           selectedItemColor: primaryColor,
-          backgroundColor: navBarColor,
           type: BottomNavigationBarType.fixed,
           items: navBarItems),
     );

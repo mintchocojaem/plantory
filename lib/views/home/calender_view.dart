@@ -17,61 +17,69 @@ class CalenderView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  const SizedBox(
-                    width: 15,
-                  ),
-                  const Text("Calender"),
-                ],
-              ),
-              notificationIcon(context: context)
-            ],
-          ),
           Container(
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: notificationIcon(context: context),
+              ),
+            ),
+            decoration: BoxDecoration(
+              //image: DecorationImage(image: AssetImage("images/1.png"))
+            ),
+          ),
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              height: 150,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.black12
+              ),
+              child: Center(child: Text("뭐 넣을지 고민중", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),)),
+            ),
+          ),
+          Divider(),
+          /*Container(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
             height: 120,
             child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) => plantCategory(),
+                itemBuilder: (context, index) =>  plantCategory('images/plant${index+1}.jpeg'),
                 separatorBuilder: (context, index) => const SizedBox(
                       width: 25,
                     ),
-                itemCount: 10),
+                itemCount: 4),
           ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-            decoration: BoxDecoration(
-                color: profilePageBackgroundColor,
-                borderRadius: BorderRadius.circular(10)),
-            padding: const EdgeInsets.all(10),
-            child: SfCalendar(
-              todayHighlightColor: const Color(0xff588168),
-              cellBorderColor: profilePageBackgroundColor,
-              backgroundColor: profilePageBackgroundColor,
-              // showCurrentTimeIndicator: true,
-              showDatePickerButton: true,
 
-              viewHeaderStyle: const ViewHeaderStyle(
-                  dayTextStyle: TextStyle(
-                color: Color(0xff7A807A),
-                fontWeight: FontWeight.w700,
-              )),
-              view: CalendarView.month,
+           */
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.white70,
+                  borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.all(10),
+              child: SfCalendar(
+                todayHighlightColor: Colors.orangeAccent,
+                //showCurrentTimeIndicator: true,
+                showDatePickerButton: false,
+                view: CalendarView.week,
+              ),
             ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              calendedrLabel(label: "Cleaning", color: const Color(0xff588168)),
+              calendedrLabel(label: "Cleaning", color: Colors.orangeAccent),
               const SizedBox(
                 width: 15,
               ),
               calendedrLabel(
-                  label: "harvest", color: profilePageBackgroundColor),
+                  label: "Watering", color: Colors.blue),
             ],
           ),
           Container(
@@ -86,18 +94,24 @@ class CalenderView extends StatelessWidget {
 }
 
 
-plantCategory() {
+plantCategory(String? imgPath) {
   return Column(
-    children: const [
+    children:  [
       CircleAvatar(
         radius: 36,
         backgroundColor: Colors.black,
-        child: CircleAvatar(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(100),
           child: Center(
-            child: Icon(UniconsLine.flower),
+            child: imgPath == null ? const Icon(
+              UniconsLine.flower,
+              size: 40,
+              color: primaryColor,
+            ) : Image.asset(
+              imgPath,
+              fit: BoxFit.cover,
+            ),
           ),
-          backgroundColor: splashScreenTextColor,
-          radius: 34,
         ),
       ),
       Text("Plant Name")

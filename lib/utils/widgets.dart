@@ -53,45 +53,13 @@ TextField authTextField(
 
 ////////HomeView flower card function builder
 
-plantCard({Color? color, BuildContext? context}) {
+plantCard({String? name, String? imgPath,Color? color, required BuildContext context}) {
   return SizedBox(
     // height: MediaQuery.of(context!).size.height * 0.020,
     width: 150,
     child: Stack(
       children: [
         Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-              color: navBarColor, borderRadius: BorderRadius.circular(20)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: const [
-              Text("Explain"),
-            ],
-          ),
-        ),
-        Container(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                const Text("Plant Name"),
-                CircleAvatar(
-                  radius: MediaQuery.of(context!).size.height * 0.05,
-                  child: const Center(
-                    child: Icon(
-                      UniconsLine.flower,
-                      size: 40,
-                      color: primaryColor,
-                    ),
-                  ),
-                  backgroundColor: navBarColor,
-                ),
-                Container()
-              ],
-            ),
-          ),
           height: MediaQuery.of(context).size.height * 0.23,
           decoration: BoxDecoration(
             color: color,
@@ -100,6 +68,31 @@ plantCard({Color? color, BuildContext? context}) {
               bottomRight: Radius.circular(15),
               topLeft: Radius.circular(15),
               topRight: Radius.circular(15),
+            ),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                CircleAvatar(
+                  radius: MediaQuery.of(context).size.height * 0.08,
+                  backgroundColor: navBarColor,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: Center(
+                      child: imgPath == null ? const Icon(
+                        UniconsLine.flower,
+                        size: 40,
+                        color: primaryColor,
+                      ) : Image.asset(
+                          imgPath,
+                          fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+                Text(name ?? "Plant Name", style: TextStyle(fontWeight: FontWeight.bold),),
+              ],
             ),
           ),
         )
@@ -142,8 +135,6 @@ TextField searcTextField({
         hintText: labelText,
         prefixIcon: Icon(prefixIcon),
         contentPadding: const EdgeInsets.all(10),
-        fillColor: Colors.grey.shade100,
-        filled: true,
         border: OutlineInputBorder(
             borderSide: BorderSide.none,
             borderRadius: BorderRadius.circular(20))),

@@ -37,9 +37,10 @@ dependencies:
   unicons: ^2.0.2
   delayed_display: ^2.0.0
   date_picker_timeline: ^1.2.3
-  syncfusion_flutter_calendar: ^19.3.55
+  syncfusion_flutter_calendar: ^20.1.61
   page_transition: ^2.0.4
   eva_icons_flutter: ^3.0.2
+  flutter_image_slideshow: ^0.1.2
 
 dev_dependencies:
   flutter_test:
