@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:plantory/views/home/profile_view.dart';
+import 'package:plantory/views/plant/plants_page.dart';
+import 'package:plantory/views/profile_page.dart';
 import 'package:unicons/unicons.dart';
+import '../utils/colors.dart';
+import 'calendar/calendar_page.dart';
+import 'home/home_page.dart';
 
-import '../../utils/colors.dart';
-import 'calender_view.dart';
-import 'home_view.dart';
-import 'my_plant_view.dart';
-
-class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+class IndexPage extends StatefulWidget {
+  const IndexPage({Key? key}) : super(key: key);
 
   @override
-  _HomeState createState() => _HomeState();
+  _IndexPage createState() => _IndexPage();
 }
 
-class _HomeState extends State<Home> {
+class _IndexPage extends State<IndexPage> {
   ontap(index) => setState(() => currentIndex = index);
 
   int currentIndex = 0;
@@ -38,14 +37,14 @@ class _HomeState extends State<Home> {
         label: "Profile"),
   ];
   final List<Widget> views = [
-    const HomeView(),
-    const CalenderView(),
-    const MyPlantView(),
-    const ProfileView(),
+     HomePage(),
+     CalendarPage(),
+     PlantsPage(plantList: plantList,),
+     ProfilePage(),
   ];
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: homeBackgroundColor,
+      backgroundColor: Color(0xffEEF1F1),
       body: IndexedStack(
         index: currentIndex,
         children: views,
@@ -53,7 +52,7 @@ class _HomeState extends State<Home> {
       bottomNavigationBar: BottomNavigationBar(
           onTap: ontap,
           currentIndex: currentIndex,
-          backgroundColor: homeBackgroundColor,
+          backgroundColor: Color(0xffEEF1F1),
           elevation: 1,
           selectedItemColor: primaryColor,
           type: BottomNavigationBarType.fixed,

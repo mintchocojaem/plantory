@@ -1,21 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:plantory/views/authView/sign_up_view.dart';
+import 'package:plantory/views/auth/sign_up_page.dart';
 import 'package:unicons/unicons.dart';
 
 import '../../utils/colors.dart';
 import '../../utils/widgets.dart';
-import '../home/home.dart';
+import '../index_page.dart';
 
-class LogInView extends StatefulWidget {
-  const LogInView({Key? key}) : super(key: key);
+class LogInPage extends StatefulWidget {
+  const LogInPage({Key? key}) : super(key: key);
 
   @override
-  State<LogInView> createState() => _LogInViewState();
+  State<LogInPage> createState() => _LogInPage();
 }
 
-class _LogInViewState extends State<LogInView> {
+class _LogInPage extends State<LogInPage> {
   bool isVisible = false;
 
   @override
@@ -99,7 +99,7 @@ class _LogInViewState extends State<LogInView> {
                       Navigator.push(
                           context,
                           PageTransition(
-                              child: const Home(),
+                              child: const IndexPage(),
                               type: PageTransitionType.rightToLeft));
                     }),
                 SizedBox(
@@ -111,7 +111,7 @@ class _LogInViewState extends State<LogInView> {
                         Navigator.push(
                             context,
                             PageTransition(
-                                child: const SignUpView(),
+                                child: const SignUpPage(),
                                 type: PageTransitionType.rightToLeft));
                       },
                       child: const Text(

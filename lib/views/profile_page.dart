@@ -1,16 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:unicons/unicons.dart';
 
-import '../../utils/colors.dart';
+import '../utils/colors.dart';
 
-class ProfileView extends StatelessWidget {
-  const ProfileView({Key? key}) : super(key: key);
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({Key? key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    return _ProfilePage();
+  }
+}
+
+class _ProfilePage extends State<ProfilePage>{
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: splashScreenTextColor,
-      child: SafeArea(
+    return Scaffold(
+      backgroundColor: Color(0xffEEF1F1),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        backgroundColor: Color(0xffEEF1F1),
+        title: const Text(
+          "Profile",
+          style: TextStyle(color: primaryColor),
+        ),
+      ),
+      body: SafeArea(
         child: Column(
           children: [
             SizedBox(
@@ -35,13 +53,6 @@ class ProfileView extends StatelessWidget {
             ),
             Expanded(
               child: Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xffF8ECE0),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
                 child: Column(
                   children: [
                     Expanded(
@@ -61,12 +72,6 @@ class ProfileView extends StatelessWidget {
                                 icon: Icons.support_agent_outlined),
                           ],
                         ),
-                        decoration: const BoxDecoration(
-                            color: homeBackgroundColor,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              topRight: Radius.circular(20),
-                            )),
                       ),
                     )
                   ],
@@ -82,8 +87,7 @@ class ProfileView extends StatelessWidget {
   Card profileSettingsCard(
       {String? title, Function()? onPress, IconData? icon}) {
     return Card(
-      elevation: 0,
-      color: homeBackgroundColor,
+      elevation: 1,
       child: ListTile(
         onTap: onPress,
         title: Text(title!),
@@ -92,23 +96,5 @@ class ProfileView extends StatelessWidget {
       ),
     );
   }
-}
 
-userEnagementI({String? title, IconData? icon}) {
-  return Column(
-    children: [
-      Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-
-        margin: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-        decoration: BoxDecoration(
-            color: Color(0xffC7BAA9), borderRadius: BorderRadius.circular(15)),
-        // height: 60,
-        child: Center(
-          child: Icon(icon),
-        ),
-      ),
-      Text(title!)
-    ],
-  );
 }

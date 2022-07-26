@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plantory/views/index_page.dart';
 import 'package:plantory/views/onbording/splash_screen.dart';
 
 
@@ -13,21 +14,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
         theme: ThemeData.light(),
-        darkTheme: ThemeData.dark(),
-        home:
-
-        // PlantConditionDetails()
-        //  PlantDetailPage()
-        // CanScroll()
-        // const Notifications()
-        // const Home(),
-        // SignUpView()
-        //  const LogInView()
-        //  OnbordingSecondIntro()
-        // OnbordingIntro()
-         SplashScreen(),
+        home: //SplashScreen(),
+              IndexPage()
         );
   }
 }

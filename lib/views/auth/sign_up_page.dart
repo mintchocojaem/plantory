@@ -6,14 +6,14 @@ import 'package:unicons/unicons.dart';
 import '../../utils/colors.dart';
 import '../../utils/widgets.dart';
 
-class SignUpView extends StatefulWidget {
-  const SignUpView({Key? key}) : super(key: key);
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({Key? key}) : super(key: key);
 
   @override
-  State<SignUpView> createState() => _SignUpViewState();
+  State<SignUpPage> createState() => _SignUpPage();
 }
 
-class _SignUpViewState extends State<SignUpView> {
+class _SignUpPage extends State<SignUpPage> {
   bool isVisible = false;
   bool isConfirmPasswordVisible = false;
   @override

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:unicons/unicons.dart';
-import '../views/home/Notifications/notification.dart';
+import '../views/Notifications/notification.dart';
 import 'colors.dart';
 
 //this is a reusable common button function in all screens.
@@ -56,7 +56,7 @@ TextField authTextField(
 plantCard({String? name, String? imgPath,Color? color, required BuildContext context}) {
   return SizedBox(
     // height: MediaQuery.of(context!).size.height * 0.020,
-    width: 150,
+    width: 100,
     child: Stack(
       children: [
         Container(
@@ -75,7 +75,7 @@ plantCard({String? name, String? imgPath,Color? color, required BuildContext con
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 CircleAvatar(
-                  radius: MediaQuery.of(context).size.height * 0.08,
+                  radius: MediaQuery.of(context).size.height * 0.04,
                   backgroundColor: navBarColor,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(100),
@@ -106,13 +106,12 @@ Stack notificationIcon({BuildContext? context}) {
   return Stack(
     children: [
       Container(
-        decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
         child: IconButton(
             onPressed: () {
               Navigator.push(context!,
                   MaterialPageRoute(builder: (context) => Notifications()));
             },
-            icon: const Icon(Icons.notifications_none)),
+            icon: const Icon(Icons.notifications_none, color: Colors.black,)),
       ),
       const Positioned(
         left: 30,
@@ -123,20 +122,5 @@ Stack notificationIcon({BuildContext? context}) {
         ),
       )
     ],
-  );
-}
-
-TextField searcTextField({
-  String? labelText,
-  IconData? prefixIcon,
-}) {
-  return TextField(
-    decoration: InputDecoration(
-        hintText: labelText,
-        prefixIcon: Icon(prefixIcon),
-        contentPadding: const EdgeInsets.all(10),
-        border: OutlineInputBorder(
-            borderSide: BorderSide.none,
-            borderRadius: BorderRadius.circular(20))),
   );
 }

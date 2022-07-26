@@ -3,7 +3,7 @@ import 'package:page_transition/page_transition.dart';
 
 import '../../utils/colors.dart';
 import '../../utils/widgets.dart';
-import '../authView/log_in_view.dart';
+import '../auth/log_in_page.dart';
 
 class OnbordingSecondIntro extends StatelessWidget {
   const OnbordingSecondIntro({Key? key}) : super(key: key);
@@ -52,7 +52,7 @@ class OnbordingSecondIntro extends StatelessWidget {
                       Navigator.push(
                           context,
                           PageTransition(
-                              child: LogInView(),
+                              child: LogInPage(),
                               type: PageTransitionType.rightToLeft));
                     })
               ],
