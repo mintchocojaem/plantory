@@ -121,10 +121,6 @@ class _HomePage extends State<HomePage>{
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: (){},
-        heroTag: null,
-        child: Icon(Icons.chat,size: 40,),),
     );
   }
 }

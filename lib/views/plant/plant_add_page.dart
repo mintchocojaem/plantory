@@ -237,8 +237,8 @@ class _PlantAddPage extends State<PlantAddPage>{
                         startDateController.text = await showDatePicker(
                             context: context,
                             initialDate: DateFormat('yyyy-MM-dd').parse(cycles[index]["startDate"]), //초기값
-                            firstDate: DateTime(DateTime.now().year-1), //시작일
-                            lastDate: DateTime(DateTime.now().year+1), //마지막일
+                            firstDate: DateTime(DateTime.now().year), //시작일
+                            lastDate: DateTime(DateTime.now().year+1).subtract(Duration(days: 1)), //마지막일
                             builder: (BuildContext context, Widget? child) {
                               return Theme(
                                 data: ThemeData.light(),
