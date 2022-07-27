@@ -1,3 +1,4 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,36 +9,21 @@ import 'input_field.dart';
 import 'package:intl/intl.dart';
 
 
-class PlantAddPage extends StatefulWidget{
+class PlantDetailPage extends StatefulWidget{
 
-  const PlantAddPage({Key? key, required this.plantList}) : super(key: key);
+  const PlantDetailPage({Key? key, required this.plant}) : super(key: key);
 
-  final List<Plant> plantList;
+  final Plant plant;
 
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
-    return _PlantAddPage();
+    return _PlantDetailPage();
   }
 
 }
 
-class _PlantAddPage extends State<PlantAddPage>{
-
-  final List<Map> cycles = [
-    {
-      "id" : 0,
-      "type" : "물",
-      "cycle" : "14",
-      "startDate" : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-    },
-    {
-      "id" : 1,
-      "type" : "분갈이",
-      "cycle" : "60",
-      "startDate" : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-    },
-  ];
+class _PlantDetailPage extends State<PlantDetailPage>{
 
   final formKey = GlobalKey<FormState>();
 
@@ -52,18 +38,18 @@ class _PlantAddPage extends State<PlantAddPage>{
   final TextEditingController repottingStartDateController = TextEditingController();
   final TextEditingController repottingCycleController = TextEditingController();
 
-
   @override
-  initState(){
+  initState() {
+    nameController.text = widget.plant.name!;
+    if(widget.plant.type != null) typeController.text = widget.plant.type!;
+    if(widget.plant.note != null) noteController.text = widget.plant.note!;
+    dateController.text = DateFormat('yyyy-MM-dd').format(widget.plant.date!);
 
-    dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    wateringStartDateController.text = widget.plant.cycles![0]["startDate"];
+    wateringCycleController.text = widget.plant.cycles![0]["cycle"];
 
-    wateringStartDateController.text = cycles[0]["startDate"];
-    wateringCycleController.text = cycles[0]["cycle"];
-
-    repottingStartDateController.text = cycles[1]["startDate"];
-    repottingCycleController.text = cycles[1]["cycle"];
-
+    repottingStartDateController.text = widget.plant.cycles![1]["startDate"];
+    repottingCycleController.text = widget.plant.cycles![1]["cycle"];
 
     super.initState();
   }
@@ -92,7 +78,7 @@ class _PlantAddPage extends State<PlantAddPage>{
         centerTitle: true,
         backgroundColor: Color(0xffEEF1F1),
         title: const Text(
-          "식물 추가",
+          "식물 정보",
           style: TextStyle(color: primaryColor),
         ),
       ),
@@ -147,11 +133,11 @@ class _PlantAddPage extends State<PlantAddPage>{
                         lastDate: DateTime(DateTime.now().year+1), //마지막일
                         builder: (BuildContext context, Widget? child) {
                           return Theme(
-                            data: ThemeData.light(), //다크 테마
+                            data: ThemeData.dark(), //다크 테마
                             child: child!,
                           );
                         },
-                      ).then((value) => value != null ? DateFormat('yyyy-MM-dd').format(value) : dateController.text );
+                      ).then((value) => value != null ? DateFormat('yyyy-MM-dd').format(value) : dateController.text);
                     },
                     controller: dateController,
                     isEditable: false,
@@ -182,15 +168,15 @@ class _PlantAddPage extends State<PlantAddPage>{
                     shrinkWrap: true,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: cycleTile(cycles,0,wateringStartDateController,wateringCycleController)
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: cycleTile(widget.plant.cycles!,0,wateringStartDateController,wateringCycleController)
                       ),
                       Padding(
                           padding: const EdgeInsets.only(bottom: 10),
-                          child: cycleTile(cycles,1,repottingStartDateController,repottingCycleController)
+                          child: cycleTile(widget.plant.cycles!,1,repottingStartDateController,repottingCycleController)
                       )
                     ],
-                  ),
+                  )
                 ],
               ),
             ),
@@ -216,7 +202,6 @@ class _PlantAddPage extends State<PlantAddPage>{
         borderRadius: BorderRadius.circular(5),
       ),
       onTap: (){
-
         showCupertinoDialog(context: context, builder: (context) {
           return AlertDialog(
             title: const Text("주기 설정"),
@@ -279,26 +264,9 @@ class _PlantAddPage extends State<PlantAddPage>{
                 child: const Text('확인',style: TextStyle(color: Colors.red)),
                 onPressed: () {
                   setState((){
-                    if(int.parse(cycleController.text) > 0){
-                      cycles[index]["startDate"] = startDateController.text;
-                      cycles[index]["cycle"] = cycleController.text;
-                      Navigator.pop(context);
-                    }else{
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text(
-                                  '주기 값은 1 이상이어야 합니다.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: Colors.red
-                                  )
-                              )
-                          )
-                      );
-                      setState((){
-                        cycleController.text = cycles[index]["cycle"];
-                      });
-                    }
+                    cycles[index]["startDate"] = startDateController.text;
+                    cycles[index]["cycle"] = cycleController.text;
+                    Navigator.pop(context);
                   });
                 },
               ),

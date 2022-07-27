@@ -49,7 +49,10 @@ class _CalendarPage extends State<CalendarPage>{
         ],
       ),
       body: SafeArea(
-        child: Calendar(),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 10, right: 10),
+          child: Calendar(),
+        ),
       ),
     );
   }

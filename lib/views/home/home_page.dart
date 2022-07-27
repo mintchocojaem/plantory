@@ -15,7 +15,20 @@ List<Plant> plantList = [
     type: "해바라기",
     date: DateTime.now(),
     note: null,
-    cycles: null,
+    cycles:[
+      {
+        "id" : 0,
+        "type" : "물",
+        "cycle" : "14",
+        "startDate" : "2022-07-27",
+      },
+      {
+        "id" : 1,
+        "type" : "분갈이",
+        "cycle" : "60",
+        "startDate" : "2022-07-27",
+      },
+    ],
   )
 ];
 
