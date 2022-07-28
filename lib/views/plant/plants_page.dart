@@ -27,52 +27,59 @@ class _PlantsPage extends State<PlantsPage> {
       backgroundColor: Color(0xffEEF1F1),
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        centerTitle: true,
+        elevation: 0,
         backgroundColor: Color(0xffEEF1F1),
         title: const Text(
           "Plants",
           style: TextStyle(color: primaryColor),
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-              child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  itemCount: widget.plantList.length,
-                  itemBuilder: (context, index) =>
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8, bottom: 8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 10),
-                          decoration: BoxDecoration(
-                              color: const Color(0xffE5E6E0),
-                              borderRadius: BorderRadius.circular(15)),
-                          child: ListTile(
-                            // mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            leading: CircleAvatar(
-                              radius: MediaQuery.of(context).size.height * 0.03,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(100),
-                                child: const Center(
-                                    child: Icon(
-                                      UniconsLine.flower,
-                                      size: 32,
-                                    )
+      body: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: GridView.builder(
+          gridDelegate:
+          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+          itemBuilder: (context, position) {
+            return Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+              elevation: 2,
+              child: Wrap(
+                children: [
+                  Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(builder: ((context) =>
+                                PlantDetailPage(plant: widget.plantList[position]))));
+                          },
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Center(
+                                  child: ClipOval(child: Image.asset('images/plant1.jpeg',width: MediaQuery.of(context).size.width * 0.3
+                                    ,height: MediaQuery.of(context).size.width * 0.3,)),
                                 ),
-                              ),
+                                Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Container(
+                                    alignment: Alignment.bottomCenter,
+                                    child: Text(
+                                      widget.plantList[position].name!,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(),
+                                    ),
+                                  ),
+                                )
+                              ],
                             ),
-                            title: Text("${widget.plantList[index].name}"),
-                            onTap: (){
-                              Navigator.of(context).push(MaterialPageRoute(builder:
-                                  (context) => PlantDetailPage(plant: widget.plantList[index])));
-                            },
-                          ),
-                        ),
-                      ))
-          )
-        ],
+                          ))),
+                ],
+              ),
+            );
+          },
+          itemCount: widget.plantList.length,
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

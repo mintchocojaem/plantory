@@ -26,8 +26,8 @@ class _CalendarPage extends State<CalendarPage>{
     return Scaffold(
       backgroundColor: Color(0xffEEF1F1),
       appBar: AppBar(
+        elevation: 0,
         automaticallyImplyLeading: false,
-        centerTitle: true,
         backgroundColor: Color(0xffEEF1F1),
         title: const Text(
           "Calender",

@@ -30,6 +30,27 @@ List<Plant> plantList = [
         "startDate" : "2022-07-27",
       },
     ],
+  ),
+  Plant(
+    id: 0,
+    name: "잡초",
+    type: "난",
+    date: "2022-07-28",
+    note: null,
+    cycles:[
+      {
+        "id" : 0,
+        "type" : "물",
+        "cycle" : "7",
+        "startDate" : "2022-07-28",
+      },
+      {
+        "id" : 1,
+        "type" : "분갈이",
+        "cycle" : "14",
+        "startDate" : "2022-07-28",
+      },
+    ],
   )
 ];
 
@@ -58,8 +79,8 @@ class _HomePage extends State<HomePage>{
     return Scaffold(
       backgroundColor: Color(0xffEEF1F1),
       appBar: AppBar(
+        elevation: 0,
         automaticallyImplyLeading: false,
-        centerTitle: true,
         backgroundColor: Color(0xffEEF1F1),
         title: const Text(
           "Home",
@@ -78,7 +99,8 @@ class _HomePage extends State<HomePage>{
                 children: [
                   Column(
                     children: [
-                      ClipOval(child: Image.asset('images/plant1.jpeg',width: 256,height: 256,)),
+                      ClipOval(child: Image.asset('images/plant1.jpeg',width: MediaQuery.of(context).size.width * 0.6,
+                        height: MediaQuery.of(context).size.width * 0.6,)),
                       SizedBox(height: 20),
                       Text("${plantList[0].type!}", style: TextStyle(),),
                       SizedBox(height: 10),
@@ -104,7 +126,7 @@ class _HomePage extends State<HomePage>{
                           padding: EdgeInsets.only(top: 10,bottom: 10,left: 10,right: 10),
                           child: Column(
                             children: [
-                              Text("${plantList[0].type!}와 함께한 날 D +${DateFormat('yyyy-MM-dd')
+                              Text("${plantList[0].name!}와 함께한 날 D +${DateFormat('yyyy-MM-dd')
                                   .parse(DateTime.now().toString()).difference(DateFormat('yyyy-MM-dd')
                                   .parse(plantList[0].date!)).inDays}"),
                               Divider(thickness: 1,),
