@@ -25,7 +25,7 @@ List<Plant> plantList = [
       {
         "id" : 1,
         "type" : "분갈이",
-        "cycle" : "60",
+        "cycle" : "30",
         "startDate" : "2022-07-27",
       },
     ],
