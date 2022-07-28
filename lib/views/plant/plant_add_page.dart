@@ -213,7 +213,7 @@ class _PlantAddPage extends State<PlantAddPage>{
       ),
       shape: RoundedRectangleBorder(
         side: BorderSide(color: Colors.black38, width: 1),
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(20),
       ),
       onTap: (){
 

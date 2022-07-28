@@ -60,16 +60,32 @@ class _ProfilePage extends State<ProfilePage>{
                         padding: EdgeInsets.only(top: 5),
                         child: ListView(
                           children: [
-                            profileSettingsCard(
-                                title: "Accounts", icon: Icons.person),
-                            profileSettingsCard(
-                                title: "Notifications",
-                                icon: Icons.notifications_none_outlined),
-                            profileSettingsCard(
-                                title: "Settings", icon: Icons.settings),
-                            profileSettingsCard(
-                                title: "Help and Suppport",
-                                icon: Icons.support_agent_outlined),
+                            Divider(thickness: 1,),
+                            ListTile(
+                              title: Text("Accounts"),
+                              leading: Icon(Icons.person),
+                              trailing: Icon(Icons.arrow_forward_ios_rounded),
+                            ),
+                            Divider(thickness: 1,),
+                            ListTile(
+                              title: Text("Notifications"),
+                              leading: Icon(Icons.notifications_none_outlined),
+                              trailing: Icon(Icons.arrow_forward_ios_rounded),
+                            ),
+                            Divider(thickness: 1,),
+                            ListTile(
+                              title: Text("Settings"),
+                              leading: Icon(Icons.settings),
+                              trailing: Icon(Icons.arrow_forward_ios_rounded),
+                            ),
+                            Divider(thickness: 1,),
+                            ListTile(
+                              title: Text("Help and Suppport"),
+                              leading: Icon(Icons.support_agent_outlined),
+                              trailing: Icon(Icons.arrow_forward_ios_rounded),
+                            ),
+                            Divider(thickness: 1,),
+
                           ],
                         ),
                       ),
@@ -80,19 +96,6 @@ class _ProfilePage extends State<ProfilePage>{
             )
           ],
         ),
-      ),
-    );
-  }
-
-  Card profileSettingsCard(
-      {String? title, Function()? onPress, IconData? icon}) {
-    return Card(
-      elevation: 1,
-      child: ListTile(
-        onTap: onPress,
-        title: Text(title!),
-        leading: Icon(icon),
-        trailing: Icon(Icons.arrow_forward_ios_rounded),
       ),
     );
   }

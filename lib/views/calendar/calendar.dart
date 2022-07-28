@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:plantory/utils/colors.dart';
 import 'package:plantory/views/home/home_page.dart';
 import 'package:plantory/views/plant/plant_detail_page.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -132,17 +133,40 @@ class _Calendar extends State<Calendar>{
                       horizontal: 12.0,
                       vertical: 4.0,
                     ),
-                    child:ListTile(
-                        leading: Icon(value[index]["cycle"] == "물" ? Icons.water_drop : UniconsLine.shovel),
-                        title: Text('${ value[index]["plant"].name}'),
-                        subtitle: Text(value[index]["cycle"]),
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(color: Colors.black38, width: 1),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        onTap: (() => Navigator.of(context).push(MaterialPageRoute(builder: ((context) =>
-                            PlantDetailPage(plant: value[index]["plant"]))) )
-                        )
+                    child: Card(
+                      color: primaryColor,
+                      //color: value[index]["cycle"] == "물" ? Colors.blueAccent : primaryColor,
+                      elevation: 10,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Wrap(
+                        children: [
+                          Container(
+                            width: MediaQuery.of(context).size.width,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.only(
+                                    bottomRight: Radius.circular(10),
+                                    topRight: Radius.circular(10))),
+                            margin: EdgeInsets.only(left: 10),
+                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            child: ListTile(
+                              leading: Icon(value[index]["cycle"] == "물" ? Icons.water_drop : UniconsLine.shovel),
+                              title: Text('${ value[index]["plant"].name}'),
+                              subtitle: Text(value[index]["cycle"]),
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(color: Colors.black38, width: 1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              onTap: (() => Navigator.of(context).push(MaterialPageRoute(builder: ((context) =>
+                                  PlantDetailPage(plant: value[index]["plant"]))) )
+                              ),
+                              trailing: Icon(Icons.arrow_forward_ios_outlined),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },

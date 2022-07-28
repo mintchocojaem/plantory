@@ -43,7 +43,7 @@ class _PlantDetailPage extends State<PlantDetailPage>{
     nameController.text = widget.plant.name!;
     if(widget.plant.type != null) typeController.text = widget.plant.type!;
     if(widget.plant.note != null) noteController.text = widget.plant.note!;
-    dateController.text = DateFormat('yyyy-MM-dd').format(widget.plant.date!);
+    dateController.text = widget.plant.date!;
 
     wateringStartDateController.text = widget.plant.cycles![0]["startDate"];
     wateringCycleController.text = widget.plant.cycles![0]["cycle"];
@@ -199,7 +199,7 @@ class _PlantDetailPage extends State<PlantDetailPage>{
       ),
       shape: RoundedRectangleBorder(
         side: BorderSide(color: Colors.black38, width: 1),
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(20),
       ),
       onTap: (){
         showCupertinoDialog(context: context, builder: (context) {

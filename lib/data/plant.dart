@@ -6,7 +6,7 @@ class Plant{
   final int? id;
   final String? name;
   final String? type;
-  final DateTime? date;
+  final String? date;
   final String? note;
   final List? cycles;
 

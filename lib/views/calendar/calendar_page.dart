@@ -84,7 +84,7 @@ plantCategory(String? imgPath) {
 
 }
 
-calendedrLabel({String? label, Color? color}) {
+calendarLabel({String? label, Color? color}) {
   return Material(
     color: Color(0xffEEF1F1),
     shape: const StadiumBorder(),
