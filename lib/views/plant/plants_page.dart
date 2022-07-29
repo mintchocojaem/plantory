@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plantory/views/plant/plant_add_page.dart';
 import 'package:plantory/views/plant/plant_detail_page.dart';
-import 'package:unicons/unicons.dart';
-
 import '../../../utils/colors.dart';
 import '../../data/plant.dart';
 

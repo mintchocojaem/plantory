@@ -8,7 +8,6 @@ import 'package:plantory/views/home/home_page.dart';
 import 'package:plantory/views/plant/plant_detail_page.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:unicons/unicons.dart';
-
 import '../../data/plant.dart';
 
 
@@ -57,15 +56,29 @@ class _Calendar extends State<Calendar>{
         "wateringDays" : List.empty(growable: true),
         "repottingDays" : List.empty(growable: true),
       };
-      for(int i = 0; DateFormat('yyyy-MM-dd').parse(j.cycles![0]["startDate"]).add(Duration(days: i))
-          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![0]["cycle"])){
-        temp["wateringDays"].add(DateFormat('yyyy-MM-dd').parse(DateFormat('yyyy-MM-dd').parse(j.cycles![0]["startDate"])
-            .add(Duration(days: i)).toString()));
+      for(int i = 0; DateFormat('yyyy-MM-dd').parse(j.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
+          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![0][Cycles.cycle.name])){
+
+        if(!DateFormat('yyyy-MM-dd').parse(j.cycles![0][Cycles.startDate.name])
+            .add(Duration(days: i)).isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()))){
+
+          temp["wateringDays"].add(DateFormat('yyyy-MM-dd').parse(DateFormat('yyyy-MM-dd').parse(j.cycles![0][Cycles.startDate.name])
+              .add(Duration(days: i)).toString()));
+
+        }
+
       }
-      for(int i = 0; DateFormat('yyyy-MM-dd').parse(j.cycles![1]["startDate"]).add(Duration(days: i))
-          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![1]["cycle"])){
-        temp["repottingDays"].add(DateFormat('yyyy-MM-dd').parse(DateFormat('yyyy-MM-dd').parse(j.cycles![1]["startDate"])
-            .add(Duration(days: i)).toString()));
+      for(int i = 0; DateFormat('yyyy-MM-dd').parse(j.cycles![1][Cycles.startDate.name]).add(Duration(days: i))
+          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![1][Cycles.cycle.name])){
+
+        if(!DateFormat('yyyy-MM-dd').parse(j.cycles![1][Cycles.startDate.name])
+            .add(Duration(days: i)).isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()))){
+
+          temp["repottingDays"].add(DateFormat('yyyy-MM-dd').parse(DateFormat('yyyy-MM-dd').parse(j.cycles![1][Cycles.startDate.name])
+              .add(Duration(days: i)).toString()));
+
+        }
+
       }
       plants.add(temp);
     }

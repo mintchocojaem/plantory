@@ -16,16 +16,18 @@ List<Plant> plantList = [
     note: null,
     cycles:[
       {
-        "id" : 0,
-        "type" : "물",
-        "cycle" : "14",
-        "startDate" : "2022-07-27",
+        Cycles.id.name : 0,
+        Cycles.type.name : "물",
+        Cycles.cycle.name : "2",
+        Cycles.startDate.name : "2022-07-27",
+        Cycles.init.name : false,
       },
       {
-        "id" : 1,
-        "type" : "분갈이",
-        "cycle" : "30",
-        "startDate" : "2022-07-27",
+        Cycles.id.name : 1,
+        Cycles.type.name : "분갈이",
+        Cycles.cycle.name : "30",
+        Cycles.startDate.name : "2022-07-28",
+        Cycles.init.name : false
       },
     ],
   ),
@@ -37,16 +39,18 @@ List<Plant> plantList = [
     note: null,
     cycles:[
       {
-        "id" : 0,
-        "type" : "물",
-        "cycle" : "7",
-        "startDate" : "2022-07-28",
+        Cycles.id.name : 0,
+        Cycles.type.name : "물",
+        Cycles.cycle.name : "7",
+        Cycles.startDate.name : "2022-07-28",
+        Cycles.init.name : false,
       },
       {
-        "id" : 1,
-        "type" : "분갈이",
-        "cycle" : "14",
-        "startDate" : "2022-07-28",
+        Cycles.id.name : 1,
+        Cycles.type.name : "분갈이",
+        Cycles.cycle.name : "14",
+        Cycles.startDate.name : "2022-07-28",
+        Cycles.init.name : false
       },
     ],
   )
@@ -145,76 +149,18 @@ class _HomePage extends State<HomePage>{
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text("${plantList[pagePosition].name!}와 함께한 날 ",),
-                                      Text("D +${DateFormat('yyyy-MM-dd')
+                                      Text("${plantList[pagePosition].name!}와 함께한지 ",),
+                                      Text("${DateFormat('yyyy-MM-dd')
                                           .parse(DateTime.now().toString()).difference(DateFormat('yyyy-MM-dd')
-                                          .parse(plantList[pagePosition].date!)).inDays}",
+                                          .parse(plantList[pagePosition].date!)).inDays}일이 지났어요!",
                                         style: TextStyle(fontWeight: FontWeight.w500),)
                                     ],
                                   ),
                                   SizedBox(height: 10,),
                                   Divider(thickness: 1,color: Colors.black38,),
                                   SizedBox(height: 10,),
-                                  Card(
-                                    color: primaryColor,
-                                    elevation: 5,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Wrap(
-                                      children: [
-                                        Container(
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.only(
-                                                  bottomRight: Radius.circular(10),
-                                                  topRight: Radius.circular(10))),
-                                          margin: EdgeInsets.only(left: 10),
-                                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                          child: ListTile(
-                                            leading: Icon(Icons.water_drop),
-                                            title: Text('물'),
-                                            shape: RoundedRectangleBorder(
-                                              side: BorderSide(color: Colors.black38, width: 1),
-                                              borderRadius: BorderRadius.circular(20),
-                                            ),
-                                            trailing: Text("D -"+getFastWateringDate(plantList[pagePosition])),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Card(
-                                    color: primaryColor,
-                                    elevation: 5,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Wrap(
-                                      children: [
-                                        Container(
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.only(
-                                                  bottomRight: Radius.circular(10),
-                                                  topRight: Radius.circular(10))),
-                                          margin: EdgeInsets.only(left: 10),
-                                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                          child: ListTile(
-                                            leading: Icon(UniconsLine.shovel),
-                                            title: Text('분갈이'),
-                                            shape: RoundedRectangleBorder(
-                                              side: BorderSide(color: Colors.black38, width: 1),
-                                              borderRadius: BorderRadius.circular(20),
-                                            ),
-                                            trailing: Text( "D -"+ getFastRepottingDate(plantList[pagePosition])),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                  cycleTile(plantList[pagePosition], pagePosition, CycleType.watering),
+                                  cycleTile(plantList[pagePosition], pagePosition, CycleType.repotting)
                                 ],
                               ),
                             ),
@@ -230,26 +176,82 @@ class _HomePage extends State<HomePage>{
     );
   }
 
-  String getFastWateringDate(Plant plant){
-    for(int i = 0; DateFormat('yyyy-MM-dd').parse(plant.cycles![0]["startDate"]).add(Duration(days: i))
-        .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(plant.cycles![0]["cycle"])){
-      if(DateTime.now().isBefore( DateFormat('yyyy-MM-dd').parse(plant.cycles![0]["startDate"]).add(Duration(days: i)))){
-        return  DateFormat('yyyy-MM-dd').parse(plant.cycles![0]["startDate"]).add(Duration(days: i)).difference(DateTime.now()).inDays.toString();
-      }
-
-    }
-    return "없음";
+  Widget cycleTile(Plant plant, int position, CycleType cycleType){
+    return GestureDetector(
+      child: Card(
+        color: primaryColor,
+        elevation: 5,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Wrap(
+          children: [
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      bottomRight: Radius.circular(10),
+                      topRight: Radius.circular(10))),
+              margin: EdgeInsets.only(left: 10),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: ListTile(
+                  leading: cycleType == CycleType.watering ? Icon(Icons.water_drop) : Icon(UniconsLine.shovel),
+                  title: Text(cycleType ==  CycleType.watering ? "물" : "분갈이"),
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(color: Colors.black38, width: 1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  trailing: !plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.init.name] &&
+                      (cycleType == CycleType.watering ? getFastWateringDate(plant,position)
+                          : -getFastRepottingDate(plant, position)) == int.parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name])
+                      ? IconButton(
+                      onPressed: (){
+                        setState((){
+                          plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.init.name] = true;
+                        });
+                      },
+                      icon: Icon(Icons.check_circle_outline)
+                  )
+                      : Text("D ${cycleType == CycleType.watering ? -getFastWateringDate(plant,position) : -getFastRepottingDate(plant, position)}")
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  String getFastRepottingDate(Plant plant){
-    for(int i = 0; DateFormat('yyyy-MM-dd').parse(plant.cycles![1]["startDate"]).add(Duration(days: i))
-        .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(plant.cycles![1]["cycle"])){
-      if(DateTime.now().isBefore( DateFormat('yyyy-MM-dd').parse(plant.cycles![1]["startDate"]).add(Duration(days: i)))){
-        return  DateFormat('yyyy-MM-dd').parse(plant.cycles![1]["startDate"]).add(Duration(days: i)).difference(DateTime.now()).inDays.toString();
+  int getFastWateringDate(Plant plant, int position){
+    for(int i = 0; DateFormat('yyyy-MM-dd').parse(plant.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
+        .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(plant.cycles![0][Cycles.cycle.name])){
+
+      if(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()).isBefore( DateFormat('yyyy-MM-dd')
+          .parse(plant.cycles![0][Cycles.startDate.name]).add(Duration(days: i)))){
+
+        return  DateFormat('yyyy-MM-dd').parse(plant.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
+            .difference(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())).inDays;
+
       }
 
     }
-    return "없음";
+    return 0;
+  }
+
+  int getFastRepottingDate(Plant plant, int position){
+    for(int i = 0; DateFormat('yyyy-MM-dd').parse(plant.cycles![1][Cycles.startDate.name]).add(Duration(days: i))
+        .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(plant.cycles![1][Cycles.cycle.name])){
+
+      if(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()).isBefore( DateFormat('yyyy-MM-dd')
+          .parse(plant.cycles![1][Cycles.startDate.name]).add(Duration(days: i)))){
+
+        return  DateFormat('yyyy-MM-dd').parse(plant.cycles![1][Cycles.startDate.name]).add(Duration(days: i))
+            .difference(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())).inDays;
+
+      }
+
+    }
+    return 0;
   }
 
 }

@@ -26,16 +26,16 @@ class _PlantAddPage extends State<PlantAddPage>{
 
   final List<Map> cycles = [
     {
-      "id" : 0,
-      "type" : "물",
-      "cycle" : "14",
-      "startDate" : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+      Cycles.id.name : 0,
+      Cycles.type.name : "물",
+      Cycles.cycle.name : "14",
+      Cycles.startDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
     },
     {
-      "id" : 1,
-      "type" : "분갈이",
-      "cycle" : "60",
-      "startDate" : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+      Cycles.id.name : 1,
+      Cycles.type.name : "분갈이",
+      Cycles.cycle.name : "60",
+      Cycles.startDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
     },
   ];
 
@@ -58,11 +58,11 @@ class _PlantAddPage extends State<PlantAddPage>{
 
     dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
-    wateringStartDateController.text = cycles[0]["startDate"];
-    wateringCycleController.text = cycles[0]["cycle"];
+    wateringStartDateController.text = cycles[0][Cycles.startDate.name];
+    wateringCycleController.text = cycles[0][Cycles.cycle.name];
 
-    repottingStartDateController.text = cycles[1]["startDate"];
-    repottingCycleController.text = cycles[1]["cycle"];
+    repottingStartDateController.text = cycles[1][Cycles.startDate.name];
+    repottingCycleController.text = cycles[1][Cycles.cycle.name];
 
 
     super.initState();
@@ -208,16 +208,16 @@ class _PlantAddPage extends State<PlantAddPage>{
     );
   }
 
-  Widget cycleTile(List cycles,int index , TextEditingController startDateController, TextEditingController cycleController){
+  Widget cycleTile(List cycles,int cycleIndex , TextEditingController startDateController, TextEditingController cycleController){
 
     return ListTile(
-      leading: Icon(index == 0 ? Icons.water_drop : UniconsLine.shovel),
-      title: Text(cycles[index]["type"]),
-      subtitle: Text(cycles[index]["cycle"]+"일"),
+      leading: Icon(cycleIndex == 0 ? Icons.water_drop : UniconsLine.shovel),
+      title: Text(cycles[cycleIndex][Cycles.type.name]),
+      subtitle: Text(cycles[cycleIndex][Cycles.cycle.name]+"일"),
       trailing: Text(
-          "${(((DateTime.now().difference(DateFormat('yyyy-MM-dd').parse(cycles[index]["startDate"])).inHours) < 0 ? 0 :
-          (DateTime.now().difference(DateFormat('yyyy-MM-dd').parse(cycles[index]["startDate"])).inHours)
-              / (int.parse(cycles[index]["cycle"])*24)) * 100 %100).round()}%"
+          "${(((DateTime.now().difference(DateFormat('yyyy-MM-dd').parse(cycles[cycleIndex][Cycles.startDate.name])).inHours) < 0 ? 0 :
+          (DateTime.now().difference(DateFormat('yyyy-MM-dd').parse(cycles[cycleIndex][Cycles.startDate.name])).inHours)
+              / (int.parse(cycles[cycleIndex][Cycles.cycle.name])*24)) * 100 %100).round()}%"
       ),
       shape: RoundedRectangleBorder(
         side: BorderSide(color: Colors.black38, width: 1),
@@ -242,12 +242,12 @@ class _PlantAddPage extends State<PlantAddPage>{
                       decoration: InputDecoration(
                         labelStyle: TextStyle(height:0.1),
                         labelText: "시작일",
-                        hintText:  cycles[index]["startDate"],
+                        hintText:  cycles[cycleIndex][Cycles.startDate.name],
                       ),
                       onTap: () async{
                         startDateController.text = await showDatePicker(
                             context: context,
-                            initialDate: DateFormat('yyyy-MM-dd').parse(cycles[index]["startDate"]), //초기값
+                            initialDate: DateFormat('yyyy-MM-dd').parse(cycles[cycleIndex][Cycles.startDate.name]), //초기값
                             firstDate: DateTime(DateTime.now().year), //시작일
                             lastDate: DateTime(DateTime.now().year+1).subtract(Duration(days: 1)), //마지막일
                             builder: (BuildContext context, Widget? child) {
@@ -269,7 +269,7 @@ class _PlantAddPage extends State<PlantAddPage>{
                       decoration: InputDecoration(
                         labelStyle: const TextStyle(height:0.1),
                         labelText: "주기(일)",
-                        hintText:  cycles[index]["cycle"],
+                        hintText:  cycles[cycleIndex][Cycles.cycle.name],
                       ),
                     ),
                     SizedBox(
@@ -291,8 +291,8 @@ class _PlantAddPage extends State<PlantAddPage>{
                 onPressed: () {
                   setState((){
                     if(int.parse(cycleController.text) > 0){
-                      cycles[index]["startDate"] = startDateController.text;
-                      cycles[index]["cycle"] = cycleController.text;
+                      cycles[cycleIndex][Cycles.startDate.name] = startDateController.text;
+                      cycles[cycleIndex][Cycles.cycle.name] = cycleController.text;
                       Navigator.pop(context);
                     }else{
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -307,7 +307,7 @@ class _PlantAddPage extends State<PlantAddPage>{
                           )
                       );
                       setState((){
-                        cycleController.text = cycles[index]["cycle"];
+                        cycleController.text = cycles[cycleIndex][Cycles.cycle.name];
                       });
                     }
                   });
