@@ -65,6 +65,9 @@ class _PlantDetailPage extends State<PlantDetailPage>{
           icon: Icon(Icons.arrow_back, color: Colors.black54,),
           onPressed: () { Navigator.pop(context); },
         ),
+        elevation: 0,
+        title: Text("식물 정보",style: TextStyle(color: primaryColor),),
+        backgroundColor: Color(0xffEEF1F1),
         actions: [
           Padding(
             padding: const EdgeInsets.only(left: 12, right: 12),
@@ -75,109 +78,111 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                 icon: Icon(Icons.check, color: Colors.black54,)),
           )
         ],
-        centerTitle: true,
-        backgroundColor: Color(0xffEEF1F1),
-        title: const Text(
-          "식물 정보",
-          style: TextStyle(color: primaryColor),
-        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Container(
-            margin: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
-            child: Form(
-              key: formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Column(
-                        children: [
-                          ClipOval(child: Image.asset('images/plant1.jpeg',width: 128,height: 128,)),
-                        ],
-                      )
-                    ],
-                  ),
-
-                  InputField(
-                    boldText: true,
-                    isEditable: true,
-                    label: "이름",
-                    controller: nameController,
-                    emptyText: false,
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  InputField(
-                    boldText: true,
-                    isEditable: true,
-                    label: '종',
-                    controller: typeController,
-                    emptyText: false,
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  InputField(
-                    onTap: () async{
-                      dateController.text = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(), //초기값
-                        firstDate: DateTime(DateTime.now().year-1), //시작일
-                        lastDate: DateTime(DateTime.now().year+1), //마지막일
-                        builder: (BuildContext context, Widget? child) {
-                          return Theme(
-                            data: ThemeData.dark(), //다크 테마
-                            child: child!,
-                          );
-                        },
-                      ).then((value) => value != null ? DateFormat('yyyy-MM-dd').format(value) : dateController.text);
-                    },
-                    controller: dateController,
-                    isEditable: false,
-                    label: '만날 날',
-                    emptyText: false,
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  TextFormField(
-                    controller: noteController,
-                    maxLines: null,
-                    keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
-                      labelStyle: const TextStyle(height:0.1),
-                      labelText: "노트",
-                      hintText:  "주요 특징, 꽃말 등을 적어보세요!",
+          child: Card(
+            elevation: 5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 10),
+            child: Container(
+              margin: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Column(
+                          children: [
+                            ClipOval(child: Image.asset('images/plant1.jpeg',width: 128,height: 128,)),
+                          ],
+                        )
+                      ],
                     ),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Text("주기"),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  ListView(
-                    shrinkWrap: true,
-                    children: [
-                      Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: cycleTile(widget.plant.cycles!,0,wateringStartDateController,wateringCycleController)
+
+                    InputField(
+                      boldText: true,
+                      isEditable: true,
+                      label: "이름",
+                      controller: nameController,
+                      emptyText: false,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    InputField(
+                      boldText: true,
+                      isEditable: true,
+                      label: '종류',
+                      controller: typeController,
+                      emptyText: false,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    InputField(
+                      onTap: () async{
+                        dateController.text = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(), //초기값
+                          firstDate: DateTime(DateTime.now().year-1), //시작일
+                          lastDate: DateTime(DateTime.now().year+1), //마지막일
+                          builder: (BuildContext context, Widget? child) {
+                            return Theme(
+                              data: ThemeData.dark(), //다크 테마
+                              child: child!,
+                            );
+                          },
+                        ).then((value) => value != null ? DateFormat('yyyy-MM-dd').format(value) : dateController.text);
+                      },
+                      controller: dateController,
+                      isEditable: false,
+                      label: '만날 날',
+                      emptyText: false,
+                      icon: Icon(Icons.calendar_month_outlined),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    TextFormField(
+                      controller: noteController,
+                      maxLines: null,
+                      keyboardType: TextInputType.multiline,
+                      decoration: InputDecoration(
+                        labelStyle: const TextStyle(height:0.1),
+                        labelText: "노트",
+                        hintText:  "주요 특징, 꽃말 등을 적어보세요!",
                       ),
-                      Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: cycleTile(widget.plant.cycles!,1,repottingStartDateController,repottingCycleController)
-                      )
-                    ],
-                  )
-                ],
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Text("주기"),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    ListView(
+                      shrinkWrap: true,
+                      children: [
+                        Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: cycleTile(widget.plant.cycles!,0,wateringStartDateController,wateringCycleController)
+                        ),
+                        Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: cycleTile(widget.plant.cycles!,1,repottingStartDateController,repottingCycleController)
+                        )
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
           ),
@@ -202,8 +207,11 @@ class _PlantDetailPage extends State<PlantDetailPage>{
         borderRadius: BorderRadius.circular(20),
       ),
       onTap: (){
-        showCupertinoDialog(context: context, builder: (context) {
+        showDialog(context: context, barrierColor: Colors.black54,builder: (context) {
           return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
             title: const Text("주기 설정"),
             content: SizedBox(
               height: MediaQuery.of(context).size.height * 0.2,

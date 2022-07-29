@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:unicons/unicons.dart';
 
-import '../utils/colors.dart';
+import '../../utils/colors.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+class SettingPage extends StatefulWidget {
+  const SettingPage({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
     // TODO: implement createState
-    return _ProfilePage();
+    return _SettingPage();
   }
 }
 
-class _ProfilePage extends State<ProfilePage>{
+class _SettingPage extends State<SettingPage>{
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +21,10 @@ class _ProfilePage extends State<ProfilePage>{
       backgroundColor: Color(0xffEEF1F1),
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        centerTitle: true,
+        elevation: 0,
         backgroundColor: Color(0xffEEF1F1),
         title: const Text(
-          "Profile",
+          "Settings",
           style: TextStyle(color: primaryColor),
         ),
       ),
@@ -70,12 +70,6 @@ class _ProfilePage extends State<ProfilePage>{
                             ListTile(
                               title: Text("Notifications"),
                               leading: Icon(Icons.notifications_none_outlined),
-                              trailing: Icon(Icons.arrow_forward_ios_rounded),
-                            ),
-                            Divider(thickness: 1,),
-                            ListTile(
-                              title: Text("Settings"),
-                              leading: Icon(Icons.settings),
                               trailing: Icon(Icons.arrow_forward_ios_rounded),
                             ),
                             Divider(thickness: 1,),

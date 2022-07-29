@@ -13,6 +13,7 @@ class InputField extends StatefulWidget {
         required this.isEditable,
         required this.emptyText,
         this.boldText,
+        this.icon
       })
       : super(key: key);
 
@@ -23,6 +24,7 @@ class InputField extends StatefulWidget {
   final bool emptyText;
   final bool? boldText;
   final OnTap? onTap;
+  final Icon? icon;
 
   @override
   InputFieldState createState() => InputFieldState();
@@ -43,6 +45,7 @@ class InputFieldState extends State<InputField> {
         }
       },
       decoration: InputDecoration(
+        suffixIcon: widget.icon,
         labelStyle: const TextStyle(height:0.1),
         labelText: widget.label,
         hintText: widget.hint,

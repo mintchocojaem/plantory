@@ -51,56 +51,6 @@ TextField authTextField(
   );
 }
 
-////////HomeView flower card function builder
-
-plantCard({String? name, String? imgPath,Color? color, required BuildContext context}) {
-  return SizedBox(
-    // height: MediaQuery.of(context!).size.height * 0.020,
-    width: 100,
-    child: Stack(
-      children: [
-        Container(
-          height: MediaQuery.of(context).size.height * 0.23,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(15),
-              bottomRight: Radius.circular(15),
-              topLeft: Radius.circular(15),
-              topRight: Radius.circular(15),
-            ),
-          ),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                CircleAvatar(
-                  radius: MediaQuery.of(context).size.height * 0.04,
-                  backgroundColor: navBarColor,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(100),
-                    child: Center(
-                      child: imgPath == null ? const Icon(
-                        UniconsLine.flower,
-                        size: 40,
-                        color: primaryColor,
-                      ) : Image.asset(
-                          imgPath,
-                          fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
-                Text(name ?? "Plant Name", style: TextStyle(fontWeight: FontWeight.bold),),
-              ],
-            ),
-          ),
-        )
-      ],
-    ),
-  );
-}
-
 ///Notification Icon
 Stack notificationIcon({BuildContext? context}) {
   return Stack(

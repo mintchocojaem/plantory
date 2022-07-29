@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plantory/views/plant/plants_page.dart';
-import 'package:plantory/views/profile_page.dart';
+import 'package:plantory/views/setting/setting_page.dart';
 import 'package:unicons/unicons.dart';
 import '../utils/colors.dart';
 import 'calendar/calendar_page.dart';
@@ -32,18 +32,19 @@ class _IndexPage extends State<IndexPage> {
         label: "Plants"),
     const BottomNavigationBarItem(
         icon: Icon(
-          UniconsLine.user,
+          UniconsLine.setting,
         ),
-        label: "Profile"),
+        label: "Settings"),
   ];
   final List<Widget> views = [
      HomePage(),
      CalendarPage(),
      PlantsPage(plantList: plantList,),
-     ProfilePage(),
+     SettingPage(),
   ];
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
       backgroundColor: Color(0xffEEF1F1),
       body: IndexedStack(
         index: currentIndex,
