@@ -2,9 +2,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:unicons/unicons.dart';
 import '../../../data/plant.dart';
 import '../../../utils/colors.dart';
+import '../home/home_page.dart';
 import 'input_field.dart';
 import 'package:intl/intl.dart';
 
@@ -37,6 +39,8 @@ class _PlantDetailPage extends State<PlantDetailPage>{
 
   final TextEditingController repottingStartDateController = TextEditingController();
   final TextEditingController repottingCycleController = TextEditingController();
+
+  bool pinned = false;
 
   @override
   initState() {
@@ -95,18 +99,39 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Stack(
                       children: [
-                        Column(
+                        Positioned(
+                            top: 0,
+                            right: 0,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: primaryColor,
+                                  borderRadius: BorderRadius.all(Radius.circular(100))
+                              ),
+                              child: IconButton(
+                                icon: Icon(LineIcons.byName('crown',), color: pinned == true ? Colors.amber : Colors.white,),
+                                onPressed: (){
+                                  setState((){
+                                    pinned = !pinned;
+                                  });
+                                },
+                              ),
+                            )
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            ClipOval(child: Image.asset('images/plant1.jpeg',width: 128,height: 128,)),
+                            Column(
+                              children: [
+                                ClipOval(child: Image.asset('images/plant1.jpeg',width: 128,height: 128,)),
+                              ],
+                            )
                           ],
-                        )
+                        ),
                       ],
                     ),
-
                     InputField(
                       boldText: true,
                       isEditable: true,
@@ -173,11 +198,13 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                       children: [
                         Padding(
                             padding: const EdgeInsets.only(bottom: 10),
-                            child: cycleTile(widget.plant.cycles!,0,wateringStartDateController,wateringCycleController)
+                            child: //cycleTile(widget.plant.cycles!,0,wateringStartDateController,wateringCycleController)
+                          cycleTile(widget.plant, CycleType.watering, wateringStartDateController, wateringCycleController)
                         ),
                         Padding(
                             padding: const EdgeInsets.only(bottom: 10),
-                            child: cycleTile(widget.plant.cycles!,1,repottingStartDateController,repottingCycleController)
+                            child: //cycleTile(widget.plant.cycles!,1,repottingStartDateController,repottingCycleController)
+                            cycleTile(widget.plant, CycleType.repotting, repottingStartDateController, repottingCycleController)
                         )
                       ],
                     )
@@ -191,22 +218,50 @@ class _PlantDetailPage extends State<PlantDetailPage>{
     );
   }
 
-  Widget cycleTile(List cycles,int cycleIndex , TextEditingController startDateController, TextEditingController cycleController){
-
-    return ListTile(
-      leading: Icon(cycleIndex == 0 ? Icons.water_drop : UniconsLine.shovel),
-      title: Text(cycles[cycleIndex][Cycles.type.name]),
-      subtitle: Text(cycles[cycleIndex][Cycles.cycle.name]+"일"),
-      trailing: Text(
-          "${(((DateTime.now().difference(DateFormat('yyyy-MM-dd').parse(cycles[cycleIndex][Cycles.startDate.name])).inHours) < 0 ? 0 :
-          (DateTime.now().difference(DateFormat('yyyy-MM-dd').parse(cycles[cycleIndex][Cycles.startDate.name])).inHours)
-              / (int.parse(cycles[cycleIndex][Cycles.cycle.name])*24)) * 100 %100).round()}%"
+  Widget cycleTile(Plant plant, CycleType cycleType, TextEditingController startDateController, TextEditingController cycleController){
+    return GestureDetector(
+      child: Card(
+        color: primaryColor,
+        elevation: 5,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Wrap(
+          children: [
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      bottomRight: Radius.circular(10),
+                      topRight: Radius.circular(10))),
+              margin: EdgeInsets.only(left: 10),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: ListTile(
+                  leading: cycleType == CycleType.watering ? Icon(Icons.water_drop) : Icon(UniconsLine.shovel),
+                  title: Text(cycleType ==  CycleType.watering ? "물" : "분갈이"),
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(color: Colors.black38, width: 1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  trailing: !plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.init.name] &&
+                      (cycleType == CycleType.watering ? getFastWateringDate(plant)
+                          : -getFastRepottingDate(plant)) == int.parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name])
+                      ? IconButton(
+                      onPressed: () {
+                        setState((){
+                          plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.init.name] = true;
+                        });
+                      },
+                      icon: Icon(Icons.check_circle_outline)
+                  )
+                      : Text("D ${cycleType == CycleType.watering ? -getFastWateringDate(plant) : -getFastRepottingDate(plant)}")
+              ),
+            ),
+          ],
+        ),
       ),
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: Colors.black38, width: 1),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      onTap: (){
+      onTap: () async{
         showDialog(context: context, barrierColor: Colors.black54,builder: (context) {
           return AlertDialog(
             shape: RoundedRectangleBorder(
@@ -224,12 +279,12 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                       decoration: InputDecoration(
                         labelStyle: TextStyle(height:0.1),
                         labelText: "시작일",
-                        hintText:  cycles[cycleIndex][Cycles.startDate.name],
+                        hintText:  plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name],
                       ),
                       onTap: () async{
                         startDateController.text = await showDatePicker(
                             context: context,
-                            initialDate: DateFormat('yyyy-MM-dd').parse(cycles[cycleIndex][Cycles.startDate.name]), //초기값
+                            initialDate: DateFormat('yyyy-MM-dd').parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name]), //초기값
                             firstDate: DateTime(DateTime.now().year), //시작일
                             lastDate: DateTime(DateTime.now().year+1).subtract(Duration(days: 1)), //마지막일
                             builder: (BuildContext context, Widget? child) {
@@ -251,7 +306,7 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                       decoration: InputDecoration(
                         labelStyle: const TextStyle(height:0.1),
                         labelText: "주기(일)",
-                        hintText:  cycles[cycleIndex][Cycles.cycle.name],
+                        hintText: plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name],
                       ),
                     ),
                     SizedBox(
@@ -272,8 +327,8 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                 child: const Text('확인',style: TextStyle(color: Colors.red)),
                 onPressed: () {
                   setState((){
-                    cycles[cycleIndex][Cycles.startDate.name] = startDateController.text;
-                    cycles[cycleIndex][Cycles.cycle.name] = cycleController.text;
+                    plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name] = startDateController.text;
+                    plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name] = cycleController.text;
                     Navigator.pop(context);
                   });
                 },
@@ -281,9 +336,6 @@ class _PlantDetailPage extends State<PlantDetailPage>{
             ],
           );
         });
-      },
-      onLongPress: (){
-
       },
     );
   }

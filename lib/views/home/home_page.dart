@@ -10,6 +10,7 @@ import '../../../utils/colors.dart';
 List<Plant> plantList = [
   Plant(
     id: 0,
+    pinned: true,
     name: "로꼬",
     type: "다육이",
     date: "2022-07-27",
@@ -18,7 +19,7 @@ List<Plant> plantList = [
       {
         Cycles.id.name : 0,
         Cycles.type.name : "물",
-        Cycles.cycle.name : "2",
+        Cycles.cycle.name : "7",
         Cycles.startDate.name : "2022-07-27",
         Cycles.init.name : false,
       },
@@ -33,6 +34,7 @@ List<Plant> plantList = [
   ),
   Plant(
     id: 1,
+    pinned: false,
     name: "잡초",
     type: "난",
     date: "2022-07-28",
@@ -108,7 +110,7 @@ class _HomePage extends State<HomePage>{
                 ),
                 child: Stack(
                   children: [
-                    Positioned(
+                     plantList[pagePosition].pinned == true ? Positioned(
                         top: 20,
                         right: 20,
                         child: Container(
@@ -119,7 +121,7 @@ class _HomePage extends State<HomePage>{
                             padding: EdgeInsets.all(10),
                             child: Icon(LineIcons.byName('crown',),color: Colors.amber,)
                         )
-                    ),
+                    ) : Container(),
                     Padding(
                       padding: const EdgeInsets.only(top: 20),
                       child: Column(
@@ -203,8 +205,8 @@ class _HomePage extends State<HomePage>{
                     borderRadius: BorderRadius.circular(20),
                   ),
                   trailing: !plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.init.name] &&
-                      (cycleType == CycleType.watering ? getFastWateringDate(plant,position)
-                          : -getFastRepottingDate(plant, position)) == int.parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name])
+                      (cycleType == CycleType.watering ? getFastWateringDate(plant)
+                          : -getFastRepottingDate(plant)) == int.parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name])
                       ? IconButton(
                       onPressed: (){
                         setState((){
@@ -213,7 +215,7 @@ class _HomePage extends State<HomePage>{
                       },
                       icon: Icon(Icons.check_circle_outline)
                   )
-                      : Text("D ${cycleType == CycleType.watering ? -getFastWateringDate(plant,position) : -getFastRepottingDate(plant, position)}")
+                      : Text("D ${cycleType == CycleType.watering ? -getFastWateringDate(plant) : -getFastRepottingDate(plant)}")
               ),
             ),
           ],
@@ -222,36 +224,36 @@ class _HomePage extends State<HomePage>{
     );
   }
 
-  int getFastWateringDate(Plant plant, int position){
-    for(int i = 0; DateFormat('yyyy-MM-dd').parse(plant.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
-        .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(plant.cycles![0][Cycles.cycle.name])){
+}
 
-      if(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()).isBefore( DateFormat('yyyy-MM-dd')
-          .parse(plant.cycles![0][Cycles.startDate.name]).add(Duration(days: i)))){
+int getFastWateringDate(Plant plant){
+  for(int i = 0; DateFormat('yyyy-MM-dd').parse(plant.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
+      .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(plant.cycles![0][Cycles.cycle.name])){
 
-        return  DateFormat('yyyy-MM-dd').parse(plant.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
-            .difference(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())).inDays;
+    if(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()).isBefore( DateFormat('yyyy-MM-dd')
+        .parse(plant.cycles![0][Cycles.startDate.name]).add(Duration(days: i)))){
 
-      }
-
-    }
-    return 0;
-  }
-
-  int getFastRepottingDate(Plant plant, int position){
-    for(int i = 0; DateFormat('yyyy-MM-dd').parse(plant.cycles![1][Cycles.startDate.name]).add(Duration(days: i))
-        .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(plant.cycles![1][Cycles.cycle.name])){
-
-      if(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()).isBefore( DateFormat('yyyy-MM-dd')
-          .parse(plant.cycles![1][Cycles.startDate.name]).add(Duration(days: i)))){
-
-        return  DateFormat('yyyy-MM-dd').parse(plant.cycles![1][Cycles.startDate.name]).add(Duration(days: i))
-            .difference(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())).inDays;
-
-      }
+      return  DateFormat('yyyy-MM-dd').parse(plant.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
+          .difference(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())).inDays;
 
     }
-    return 0;
-  }
 
+  }
+  return 0;
+}
+
+int getFastRepottingDate(Plant plant){
+  for(int i = 0; DateFormat('yyyy-MM-dd').parse(plant.cycles![1][Cycles.startDate.name]).add(Duration(days: i))
+      .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(plant.cycles![1][Cycles.cycle.name])){
+
+    if(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()).isBefore( DateFormat('yyyy-MM-dd')
+        .parse(plant.cycles![1][Cycles.startDate.name]).add(Duration(days: i)))){
+
+      return  DateFormat('yyyy-MM-dd').parse(plant.cycles![1][Cycles.startDate.name]).add(Duration(days: i))
+          .difference(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())).inDays;
+
+    }
+
+  }
+  return 0;
 }
