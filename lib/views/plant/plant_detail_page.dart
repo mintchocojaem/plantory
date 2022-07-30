@@ -192,11 +192,10 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                                       ),
                                     ],
                                   ),
-                                ).then((value) {
+                                ).then((value) async{
                                   if(value != null){
-                                    setState((){
-                                      image = value;
-                                    });
+                                    image = await value.readAsBytes();
+                                    setState((){});
                                   }
                                 });
 
