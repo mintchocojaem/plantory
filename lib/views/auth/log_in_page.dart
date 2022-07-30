@@ -99,7 +99,7 @@ class _LogInPage extends State<LogInPage> {
                       Navigator.push(
                           context,
                           PageTransition(
-                              child: const IndexPage(),
+                              child: IndexPage(),
                               type: PageTransitionType.rightToLeft));
                     }),
                 SizedBox(

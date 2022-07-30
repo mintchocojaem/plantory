@@ -1,22 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:plantory/views/plant/plants_page.dart';
 import 'package:plantory/views/setting/setting_page.dart';
 import 'package:unicons/unicons.dart';
+import '../data/plant.dart';
 import '../utils/colors.dart';
 import 'calendar/calendar_page.dart';
 import 'home/home_page.dart';
+import '../controller/bottom_nav_controller.dart';
 
-class IndexPage extends StatefulWidget {
-  const IndexPage({Key? key}) : super(key: key);
+List<Plant> plantList = [
+  Plant(
+    id: 0,
+    image: null,
+    pinned: true,
+    name: "로꼬",
+    type: "다육이",
+    date: "2022-07-27",
+    note: null,
+    cycles:[
+      {
+        Cycles.id.name : 0,
+        Cycles.type.name : "물",
+        Cycles.cycle.name : "7",
+        Cycles.startDate.name : "2022-07-27",
+        Cycles.init.name : false,
+      },
+      {
+        Cycles.id.name : 1,
+        Cycles.type.name : "분갈이",
+        Cycles.cycle.name : "30",
+        Cycles.startDate.name : "2022-07-28",
+        Cycles.init.name : false
+      },
+    ],
+  ),
+];
+
+
+class IndexPage extends GetView<BottomNavController> {
+
+  IndexPage({Key? key}) : super(key: key);
 
   @override
-  _IndexPage createState() => _IndexPage();
-}
+  Widget build(BuildContext context) {
 
-class _IndexPage extends State<IndexPage> {
-  ontap(index) => setState(() => currentIndex = index);
+    return Obx(()  => Scaffold(
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Color(0xffEEF1F1),
+      body: IndexedStack(
+        index: controller.pageIndex.value,
+        children: [
+          HomePage(plantList: plantList,),
+          CalendarPage(plantList: plantList,),
+          PlantsPage(plantList: plantList,),
+          SettingPage(),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+          onTap: (value){
+            controller.changeBottomNav(value);
+          },
+          currentIndex: controller.pageIndex.value,
+          backgroundColor: Color(0xffEEF1F1),
+          elevation: 1,
+          selectedItemColor: primaryColor,
+          type: BottomNavigationBarType.fixed,
+          items: navBarItems)
+      )
+    );
+  }
 
-  int currentIndex = 0;
   final List<BottomNavigationBarItem> navBarItems = [
     const BottomNavigationBarItem(
         icon: Icon(
@@ -36,28 +91,5 @@ class _IndexPage extends State<IndexPage> {
         ),
         label: "Settings"),
   ];
-  final List<Widget> views = [
-     HomePage(),
-     CalendarPage(),
-     PlantsPage(plantList: plantList,),
-     SettingPage(),
-  ];
-  Widget build(BuildContext context) {
-    return Scaffold(
-        resizeToAvoidBottomInset: false,
-      backgroundColor: Color(0xffEEF1F1),
-      body: IndexedStack(
-        index: currentIndex,
-        children: views,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-          onTap: ontap,
-          currentIndex: currentIndex,
-          backgroundColor: Color(0xffEEF1F1),
-          elevation: 1,
-          selectedItemColor: primaryColor,
-          type: BottomNavigationBarType.fixed,
-          items: navBarItems),
-    );
-  }
+
 }

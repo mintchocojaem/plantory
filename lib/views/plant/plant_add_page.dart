@@ -92,7 +92,6 @@ class _PlantAddPage extends State<PlantAddPage>{
             padding: const EdgeInsets.only(left: 12, right: 12),
             child: IconButton(
                 onPressed: () {
-
                   widget.plantList.add(
                     Plant(
                       id: generateID(widget.plantList),

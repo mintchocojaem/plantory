@@ -1,12 +1,16 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/instance_manager.dart';
+import 'package:get/route_manager.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:plantory/views/index_page.dart';
 import 'package:unicons/unicons.dart';
 import '../../../data/plant.dart';
 import '../../../utils/colors.dart';
@@ -44,6 +48,8 @@ class _PlantDetailPage extends State<PlantDetailPage>{
   final TextEditingController repottingStartDateController = TextEditingController();
   final TextEditingController repottingCycleController = TextEditingController();
 
+  List? cycles;
+
   bool pinned = false;
   var image;
 
@@ -63,6 +69,8 @@ class _PlantDetailPage extends State<PlantDetailPage>{
     pinned = widget.plant.pinned!;
 
     if(widget.plant.image !=null) image = base64Decode(widget.plant.image!);
+
+    cycles = widget.plant.cycles;
 
     super.initState();
   }
@@ -86,7 +94,14 @@ class _PlantDetailPage extends State<PlantDetailPage>{
             padding: const EdgeInsets.only(left: 12, right: 12),
             child: IconButton(
                 onPressed: (){
-
+                  widget.plant.pinned = pinned;
+                  widget.plant.name = nameController.text;
+                  widget.plant.type = typeController.text;
+                  widget.plant.date = dateController.text;
+                  widget.plant.note = noteController.text;
+                  widget.plant.cycles = cycles;
+                  widget.plant.image = image != null ? base64Encode(image) : null;
+                  Get.back();
                 },
                 icon: Icon(Icons.check, color: Colors.black54,)),
           )
@@ -316,20 +331,20 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                     side: BorderSide(color: Colors.black38, width: 1),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  trailing: !plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.init.name] &&
-                      (cycleType == CycleType.watering ? getFastWateringDate(plant.cycles!)
-                          : -getFastRepottingDate(plant.cycles!)) ==
-                          int.parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name])
+                  trailing: !cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.init.name] &&
+                      (cycleType == CycleType.watering ? getFastWateringDate(cycles!)
+                          : getFastRepottingDate(cycles!)) ==
+                          int.parse(cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name])
                       ? IconButton(
                       onPressed: () {
                         setState((){
-                          plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.init.name] = true;
+                          cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.init.name] = true;
                         });
                       },
                       icon: Icon(Icons.check_circle_outline)
                   )
                       : Text("D ${cycleType == CycleType.watering
-                      ? -getFastWateringDate(plant.cycles!) : -getFastRepottingDate(plant.cycles!)}")
+                      ? -getFastWateringDate(cycles!) : -getFastRepottingDate(cycles!)}")
               ),
             ),
           ],
@@ -353,12 +368,12 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                       decoration: InputDecoration(
                         labelStyle: TextStyle(height:0.1),
                         labelText: "시작일",
-                        hintText:  plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name],
+                        hintText:  cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name],
                       ),
                       onTap: () async{
                         startDateController.text = await showDatePicker(
                             context: context,
-                            initialDate: DateFormat('yyyy-MM-dd').parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name]), //초기값
+                            initialDate: DateFormat('yyyy-MM-dd').parse(cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name]), //초기값
                             firstDate: DateTime(DateTime.now().year), //시작일
                             lastDate: DateTime(DateTime.now().year+1).subtract(Duration(days: 1)), //마지막일
                             builder: (BuildContext context, Widget? child) {
@@ -380,7 +395,7 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                       decoration: InputDecoration(
                         labelStyle: const TextStyle(height:0.1),
                         labelText: "주기(일)",
-                        hintText: plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name],
+                        hintText: cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name],
                       ),
                     ),
                     SizedBox(
@@ -401,8 +416,8 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                 child: const Text('확인',style: TextStyle(color: Colors.red)),
                 onPressed: () {
                   setState((){
-                    plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name] = startDateController.text;
-                    plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name] = cycleController.text;
+                    cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name] = startDateController.text;
+                    cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name] = cycleController.text;
                     Navigator.pop(context);
                   });
                 },

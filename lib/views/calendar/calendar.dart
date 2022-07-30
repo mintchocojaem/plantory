@@ -4,17 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:intl/intl.dart';
 import 'package:plantory/utils/colors.dart';
-import 'package:plantory/views/home/home_page.dart';
 import 'package:plantory/views/plant/plant_detail_page.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:unicons/unicons.dart';
 import '../../data/plant.dart';
 
 
-late final ValueNotifier<List<Map>> _selectedEvents;
-
 class Calendar extends StatefulWidget {
-  const Calendar({Key? key}) : super(key: key);
+  final List<Plant> plantList;
+
+  const Calendar({Key? key, required this.plantList}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -25,6 +24,8 @@ class Calendar extends StatefulWidget {
 }
 
 class _Calendar extends State<Calendar>{
+
+   ValueNotifier<List<Map>>? _selectedEvents;
 
   List<Map> plants = List.empty(growable: true);
   List<DateTime> wateringDays = List.empty(growable: true);
@@ -40,8 +41,7 @@ class _Calendar extends State<Calendar>{
         _focusedDay = focusedDay;
 
       });
-
-      _selectedEvents.value = _getEventsForDay(selectedDay);
+      _selectedEvents!.value = _getEventsForDay(selectedDay);
     }
   }
 
@@ -50,7 +50,7 @@ class _Calendar extends State<Calendar>{
     super.initState();
 
     _selectedDay = _focusedDay;
-    for(var j in plantList){
+    for(var j in widget.plantList){
       Map temp = {
         "plant" : j,
         "wateringDays" : List.empty(growable: true),
@@ -83,7 +83,6 @@ class _Calendar extends State<Calendar>{
       plants.add(temp);
     }
     _selectedEvents = ValueNotifier(_getEventsForDay(DateTime.now()));
-
   }
 
   List<Map> _getEventsForDay(DateTime day) {
@@ -106,12 +105,48 @@ class _Calendar extends State<Calendar>{
 
   @override
   void dispose() {
-    _selectedEvents.dispose();
+    _selectedEvents!.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+
+    plants = List.empty(growable: true);
+    for(var j in widget.plantList){
+      Map temp = {
+        "plant" : j,
+        "wateringDays" : List.empty(growable: true),
+        "repottingDays" : List.empty(growable: true),
+      };
+      for(int i = 0; DateFormat('yyyy-MM-dd').parse(j.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
+          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![0][Cycles.cycle.name])){
+
+        if(!DateFormat('yyyy-MM-dd').parse(j.cycles![0][Cycles.startDate.name])
+            .add(Duration(days: i)).isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()))){
+
+          temp["wateringDays"].add(DateFormat('yyyy-MM-dd').parse(DateFormat('yyyy-MM-dd').parse(j.cycles![0][Cycles.startDate.name])
+              .add(Duration(days: i)).toString()));
+
+        }
+
+      }
+      for(int i = 0; DateFormat('yyyy-MM-dd').parse(j.cycles![1][Cycles.startDate.name]).add(Duration(days: i))
+          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![1][Cycles.cycle.name])){
+
+        if(!DateFormat('yyyy-MM-dd').parse(j.cycles![1][Cycles.startDate.name])
+            .add(Duration(days: i)).isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()))){
+
+          temp["repottingDays"].add(DateFormat('yyyy-MM-dd').parse(DateFormat('yyyy-MM-dd').parse(j.cycles![1][Cycles.startDate.name])
+              .add(Duration(days: i)).toString()));
+
+        }
+
+      }
+      plants.add(temp);
+    }
+    _selectedEvents!.value = _getEventsForDay(_selectedDay!);
+
 
     // TODO: implement build
     return Column(
@@ -139,7 +174,7 @@ class _Calendar extends State<Calendar>{
         const SizedBox(height: 8.0),
         Expanded(
           child: ValueListenableBuilder<List<Map>>(
-            valueListenable: _selectedEvents,
+            valueListenable: _selectedEvents!,
             builder: (context, value, _) {
               return value.isNotEmpty ? AnimationLimiter(
                 child: ListView.builder(

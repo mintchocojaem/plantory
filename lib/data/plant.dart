@@ -7,14 +7,14 @@ class Plant{
 
   Plant({this.id, this.image, this.pinned, this.name, this.type, this.date, this.note, this.cycles});
 
-  final int? id;
-  final String? image;
-  final bool? pinned;
-  final String? name;
-  final String? type;
-  final String? date;
-  final String? note;
-  final List? cycles;
+  int? id;
+  String? image;
+  bool? pinned;
+  String? name;
+  String? type;
+  String? date;
+  String? note;
+  List? cycles;
 
 }
 

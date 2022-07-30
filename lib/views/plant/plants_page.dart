@@ -1,7 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:get/instance_manager.dart';
+import 'package:get/route_manager.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:plantory/views/home/home_page.dart';
+import 'package:plantory/views/index_page.dart';
 import 'package:plantory/views/plant/plant_add_page.dart';
 import 'package:plantory/views/plant/plant_detail_page.dart';
 import 'package:unicons/unicons.dart';
@@ -52,8 +56,7 @@ class _PlantsPage extends State<PlantsPage> {
                       padding: const EdgeInsets.all(10.0),
                       child: InkWell(
                           onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(builder: ((context) =>
-                                PlantDetailPage(plant: widget.plantList[position]))));
+                            Get.to(() => PlantDetailPage(plant: widget.plantList[position]))?.then((value) => setState((){}));
                           },
                           child: Center(
                             child: Column(
@@ -98,9 +101,7 @@ class _PlantsPage extends State<PlantsPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: ((context) =>
-              PlantAddPage(plantList: widget.plantList)))).then((value) => setState((){})
-          );
+          Get.to(() => PlantAddPage(plantList : widget.plantList))?.then((value) => setState((){}));
         },
         heroTag: null,
         child: Icon(Icons.add, size: 40,),),
