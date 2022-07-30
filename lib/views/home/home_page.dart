@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -10,6 +10,7 @@ import '../../../utils/colors.dart';
 List<Plant> plantList = [
   Plant(
     id: 0,
+    image: null,
     pinned: true,
     name: "로꼬",
     type: "다육이",
@@ -32,30 +33,6 @@ List<Plant> plantList = [
       },
     ],
   ),
-  Plant(
-    id: 1,
-    pinned: false,
-    name: "잡초",
-    type: "난",
-    date: "2022-07-28",
-    note: null,
-    cycles:[
-      {
-        Cycles.id.name : 0,
-        Cycles.type.name : "물",
-        Cycles.cycle.name : "7",
-        Cycles.startDate.name : "2022-07-28",
-        Cycles.init.name : false,
-      },
-      {
-        Cycles.id.name : 1,
-        Cycles.type.name : "분갈이",
-        Cycles.cycle.name : "14",
-        Cycles.startDate.name : "2022-07-28",
-        Cycles.init.name : false
-      },
-    ],
-  )
 ];
 
 class HomePage extends StatefulWidget{
@@ -126,9 +103,22 @@ class _HomePage extends State<HomePage>{
                       padding: const EdgeInsets.only(top: 20),
                       child: Column(
                         children: [
-                          ClipOval(
-                              child: Image.asset('images/plant1.jpeg',width: MediaQuery.of(context).size.width * 0.6,
-                            height: MediaQuery.of(context).size.width * 0.6,)
+                          Center(
+                            child: plantList[pagePosition].image != null ? ClipOval(
+                                child: Image.memory(base64Decode(plantList[pagePosition].image!),
+                                  width: MediaQuery.of(context).size.width * 0.6,
+                                  height: MediaQuery.of(context).size.width * 0.6,
+                                  fit: BoxFit.cover,
+                                )
+                            ) :
+                            Container(
+                                width: MediaQuery.of(context).size.width * 0.6,
+                                height: MediaQuery.of(context).size.width * 0.6,
+                                decoration: BoxDecoration(
+                                    color: primaryColor,
+                                    borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.6))),
+                                child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.15,color: Colors.black54,)
+                            ),
                           ),
                           SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                           Text("${plantList[pagePosition].type!}", style: TextStyle(),),
@@ -205,8 +195,9 @@ class _HomePage extends State<HomePage>{
                     borderRadius: BorderRadius.circular(20),
                   ),
                   trailing: !plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.init.name] &&
-                      (cycleType == CycleType.watering ? getFastWateringDate(plant)
-                          : -getFastRepottingDate(plant)) == int.parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name])
+                      (cycleType == CycleType.watering ? getFastWateringDate(plant.cycles!)
+                          : -getFastRepottingDate(plant.cycles!)) ==
+                          int.parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name])
                       ? IconButton(
                       onPressed: (){
                         setState((){
@@ -215,7 +206,9 @@ class _HomePage extends State<HomePage>{
                       },
                       icon: Icon(Icons.check_circle_outline)
                   )
-                      : Text("D ${cycleType == CycleType.watering ? -getFastWateringDate(plant) : -getFastRepottingDate(plant)}")
+                      : Text("D ${cycleType == CycleType.watering
+                      ? -getFastWateringDate(plant.cycles!)
+                      : -getFastRepottingDate(plant.cycles!)}")
               ),
             ),
           ],
@@ -226,14 +219,14 @@ class _HomePage extends State<HomePage>{
 
 }
 
-int getFastWateringDate(Plant plant){
-  for(int i = 0; DateFormat('yyyy-MM-dd').parse(plant.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
-      .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(plant.cycles![0][Cycles.cycle.name])){
+int getFastWateringDate(List cycles){
+  for(int i = 0; DateFormat('yyyy-MM-dd').parse(cycles[0][Cycles.startDate.name]).add(Duration(days: i))
+      .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(cycles[0][Cycles.cycle.name])){
 
     if(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()).isBefore( DateFormat('yyyy-MM-dd')
-        .parse(plant.cycles![0][Cycles.startDate.name]).add(Duration(days: i)))){
+        .parse(cycles[0][Cycles.startDate.name]).add(Duration(days: i)))){
 
-      return  DateFormat('yyyy-MM-dd').parse(plant.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
+      return  DateFormat('yyyy-MM-dd').parse(cycles[0][Cycles.startDate.name]).add(Duration(days: i))
           .difference(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())).inDays;
 
     }
@@ -242,14 +235,14 @@ int getFastWateringDate(Plant plant){
   return 0;
 }
 
-int getFastRepottingDate(Plant plant){
-  for(int i = 0; DateFormat('yyyy-MM-dd').parse(plant.cycles![1][Cycles.startDate.name]).add(Duration(days: i))
-      .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(plant.cycles![1][Cycles.cycle.name])){
+int getFastRepottingDate(List cycles){
+  for(int i = 0; DateFormat('yyyy-MM-dd').parse(cycles[1][Cycles.startDate.name]).add(Duration(days: i))
+      .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(cycles[1][Cycles.cycle.name])){
 
     if(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()).isBefore( DateFormat('yyyy-MM-dd')
-        .parse(plant.cycles![1][Cycles.startDate.name]).add(Duration(days: i)))){
+        .parse(cycles[1][Cycles.startDate.name]).add(Duration(days: i)))){
 
-      return  DateFormat('yyyy-MM-dd').parse(plant.cycles![1][Cycles.startDate.name]).add(Duration(days: i))
+      return  DateFormat('yyyy-MM-dd').parse(cycles[1][Cycles.startDate.name]).add(Duration(days: i))
           .difference(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())).inDays;
 
     }

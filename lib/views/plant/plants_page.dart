@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:plantory/views/plant/plant_add_page.dart';
 import 'package:plantory/views/plant/plant_detail_page.dart';
+import 'package:unicons/unicons.dart';
 import '../../../utils/colors.dart';
 import '../../data/plant.dart';
 
@@ -55,8 +59,21 @@ class _PlantsPage extends State<PlantsPage> {
                             child: Column(
                               children: [
                                 Center(
-                                  child: ClipOval(child: Image.asset('images/plant1.jpeg',width: MediaQuery.of(context).size.width * 0.3
-                                    ,height: MediaQuery.of(context).size.width * 0.3,)),
+                                  child: widget.plantList[position].image != null ? ClipOval(
+                                        child: Image.memory(base64Decode(widget.plantList[position].image!),
+                                        width: MediaQuery.of(context).size.width * 0.3,
+                                        height: MediaQuery.of(context).size.width * 0.3,
+                                        fit: BoxFit.cover,
+                                      )
+                                  ) :
+                                  Container(
+                                    width: MediaQuery.of(context).size.width * 0.3,
+                                    height: MediaQuery.of(context).size.width * 0.3,
+                                    decoration: BoxDecoration(
+                                        color: primaryColor,
+                                        borderRadius: BorderRadius.all(Radius.circular(100))),
+                                    child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.15,color: Colors.black54,)
+                                  ),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(10),
@@ -82,7 +99,8 @@ class _PlantsPage extends State<PlantsPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(MaterialPageRoute(builder: ((context) =>
-              PlantAddPage(plantList: widget.plantList))));
+              PlantAddPage(plantList: widget.plantList)))).then((value) => setState((){})
+          );
         },
         heroTag: null,
         child: Icon(Icons.add, size: 40,),),

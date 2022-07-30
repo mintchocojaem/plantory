@@ -1,7 +1,11 @@
 
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:unicons/unicons.dart';
 import '../../../data/plant.dart';
@@ -41,6 +45,7 @@ class _PlantDetailPage extends State<PlantDetailPage>{
   final TextEditingController repottingCycleController = TextEditingController();
 
   bool pinned = false;
+  var image;
 
   @override
   initState() {
@@ -54,6 +59,10 @@ class _PlantDetailPage extends State<PlantDetailPage>{
 
     repottingStartDateController.text = widget.plant.cycles![1][Cycles.startDate.name];
     repottingCycleController.text = widget.plant.cycles![1][Cycles.cycle.name];
+
+    pinned = widget.plant.pinned!;
+
+    if(widget.plant.image !=null) image = base64Decode(widget.plant.image!);
 
     super.initState();
   }
@@ -119,16 +128,80 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                               ),
                             )
                         ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Column(
-                              children: [
-                                ClipOval(child: Image.asset('images/plant1.jpeg',width: 128,height: 128,)),
-                              ],
+                        Center(
+                            child: GestureDetector(
+                              child: image == null ? Container(
+                                  width: MediaQuery.of(context).size.width * 0.4,
+                                  height: MediaQuery.of(context).size.width * 0.4,
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.black54,
+                                      ),
+                                      borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.6))
+                                  ),
+                                  child: Icon(Icons.add_a_photo_outlined,)
+                              ) : ClipOval(
+                                  child: Image.memory(image, fit: BoxFit.cover,
+                                    width: MediaQuery.of(context).size.width * 0.4,
+                                    height: MediaQuery.of(context).size.width * 0.4,)
+                              ),
+                              onTap: () {
+                                var picker = ImagePicker();
+                                showDialog(
+                                  barrierColor: Colors.black54,
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    title: Center(child: Text("사진 선택")),
+                                    titlePadding: EdgeInsets.all(15),
+                                    content: SizedBox(
+                                      width: double.infinity,
+                                      height: MediaQuery.of(context).size.height * 0.2,
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          children: [
+                                            Divider(thickness: 1,color: Colors.black54,),
+                                            ListTile(title: Text("카메라"),
+                                              leading: Icon(Icons.camera_alt_outlined),
+                                              onTap: () async{
+                                                await picker.pickImage(source: ImageSource.camera)
+                                                    .then((value) =>  Navigator.of(context).pop(value));},
+
+                                            ),
+                                            Divider(thickness: 1),
+                                            ListTile(title: Text("갤러리"),
+                                              leading: Icon(Icons.photo_camera_back),
+                                              onTap: () async{
+                                                await picker.pickImage(source: ImageSource.gallery)
+                                                    .then((value) =>  Navigator.of(context).pop(value));},
+                                            ),
+                                            Divider(thickness: 1),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    contentPadding: EdgeInsets.all(0),
+                                    actions: [
+                                      TextButton(
+                                        child: const Text('취소'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ).then((value) {
+                                  if(value != null){
+                                    setState((){
+                                      image = value;
+                                    });
+                                  }
+                                });
+
+                              },
                             )
-                          ],
                         ),
                       ],
                     ),
@@ -245,8 +318,9 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                     borderRadius: BorderRadius.circular(20),
                   ),
                   trailing: !plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.init.name] &&
-                      (cycleType == CycleType.watering ? getFastWateringDate(plant)
-                          : -getFastRepottingDate(plant)) == int.parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name])
+                      (cycleType == CycleType.watering ? getFastWateringDate(plant.cycles!)
+                          : -getFastRepottingDate(plant.cycles!)) ==
+                          int.parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name])
                       ? IconButton(
                       onPressed: () {
                         setState((){
@@ -255,7 +329,8 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                       },
                       icon: Icon(Icons.check_circle_outline)
                   )
-                      : Text("D ${cycleType == CycleType.watering ? -getFastWateringDate(plant) : -getFastRepottingDate(plant)}")
+                      : Text("D ${cycleType == CycleType.watering
+                      ? -getFastWateringDate(plant.cycles!) : -getFastRepottingDate(plant.cycles!)}")
               ),
             ),
           ],
