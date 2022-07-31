@@ -12,7 +12,6 @@ class InputField extends StatefulWidget {
         this.hint,
         required this.isEditable,
         required this.emptyText,
-        this.boldText,
         this.icon
       })
       : super(key: key);
@@ -22,7 +21,6 @@ class InputField extends StatefulWidget {
   final String? hint;
   final bool isEditable;
   final bool emptyText;
-  final bool? boldText;
   final OnTap? onTap;
   final Icon? icon;
 
@@ -49,8 +47,6 @@ class InputFieldState extends State<InputField> {
         labelStyle: const TextStyle(height:0.1),
         labelText: widget.label,
         hintText: widget.hint,
-        hintStyle:
-        TextStyle(fontWeight: widget.boldText == true ? FontWeight.bold : null,),
       ),
     );
   }

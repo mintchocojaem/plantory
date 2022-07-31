@@ -1,8 +1,5 @@
 
 import 'dart:convert';
-import 'dart:io';
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,7 +32,7 @@ class PlantDetailPage extends StatefulWidget{
 
 class _PlantDetailPage extends State<PlantDetailPage>{
 
-  final formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController typeController = TextEditingController();
@@ -94,14 +91,16 @@ class _PlantDetailPage extends State<PlantDetailPage>{
             padding: const EdgeInsets.only(left: 12, right: 12),
             child: IconButton(
                 onPressed: (){
-                  widget.plant.pinned = pinned;
-                  widget.plant.name = nameController.text;
-                  widget.plant.type = typeController.text;
-                  widget.plant.date = dateController.text;
-                  widget.plant.note = noteController.text;
-                  widget.plant.cycles = cycles;
-                  widget.plant.image = image != null ? base64Encode(image) : null;
-                  Get.back();
+                  if (_formKey.currentState!.validate()) {
+                    widget.plant.pinned = pinned;
+                    widget.plant.name = nameController.text;
+                    widget.plant.type = typeController.text;
+                    widget.plant.date = dateController.text;
+                    widget.plant.note = noteController.text;
+                    widget.plant.cycles = cycles;
+                    widget.plant.image = image != null ? base64Encode(image) : null;
+                    Get.back();
+                  }
                 },
                 icon: Icon(Icons.check, color: Colors.black54,)),
           )
@@ -118,7 +117,7 @@ class _PlantDetailPage extends State<PlantDetailPage>{
             child: Container(
               margin: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
               child: Form(
-                key: formKey,
+                key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -152,7 +151,7 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                                       border: Border.all(
                                         color: Colors.black54,
                                       ),
-                                      borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.6))
+                                      borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.4))
                                   ),
                                   child: Icon(Icons.add_a_photo_outlined,)
                               ) : ClipOval(
@@ -220,9 +219,9 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                       ],
                     ),
                     InputField(
-                      boldText: true,
                       isEditable: true,
                       label: "이름",
+                      hint: widget.plant.name,
                       controller: nameController,
                       emptyText: false,
                     ),
@@ -230,9 +229,9 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                       height: 20,
                     ),
                     InputField(
-                      boldText: true,
                       isEditable: true,
                       label: '종류',
+                      hint: widget.plant.note,
                       controller: typeController,
                       emptyText: false,
                     ),
@@ -294,7 +293,40 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                             cycleTile(widget.plant, CycleType.repotting, repottingStartDateController, repottingCycleController)
                         )
                       ],
-                    )
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Center(
+                      child: IconButton(
+                          onPressed: (){
+                              showDialog(barrierColor: Colors.black54, context: context, builder: (context) {
+                                return CupertinoAlertDialog(
+                                  title: const Text("식물 삭제"),
+                                  content: Padding(
+                                    padding: const EdgeInsets.only(top: 8),
+                                    child: Text("\"${widget.plant.name}\"를 삭제하시겠습니까?"),
+                                  ),
+                                  actions: [
+                                    CupertinoDialogAction(isDefaultAction: false, child: Text("취소"), onPressed: () {
+                                      Get.back();
+                                    }),
+                                    CupertinoDialogAction(isDefaultAction: false, child: const Text("확인",style: TextStyle(color: Colors.red),),
+                                        onPressed: () {
+                                          plantList.remove(widget.plant);
+                                          Get.off(() => IndexPage());
+                                        }
+                                    ),
+                                  ],
+                                );
+                              });
+                            },
+                          icon: Icon(Icons.delete_outline,size: 32,)
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
                   ],
                 ),
               ),

@@ -73,8 +73,8 @@ class _PlantsPage extends State<PlantsPage> {
                                     width: MediaQuery.of(context).size.width * 0.3,
                                     height: MediaQuery.of(context).size.width * 0.3,
                                     decoration: BoxDecoration(
-                                        color: primaryColor,
-                                        borderRadius: BorderRadius.all(Radius.circular(100))),
+                                        color: Color(0xffEEF1F1),
+                                        borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.3))),
                                     child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.15,color: Colors.black54,)
                                   ),
                                 ),
@@ -101,10 +101,10 @@ class _PlantsPage extends State<PlantsPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Get.to(() => PlantAddPage(plantList : widget.plantList))?.then((value) => setState((){}));
+          Get.to(() => PlantAddPage(plantList : widget.plantList,))?.then((value) => setState((){}));
         },
         heroTag: null,
-        child: Icon(Icons.add, size: 40,),),
+        child: Icon(Icons.add, size: 40,),backgroundColor: primaryColor,),
     );
   }
 }

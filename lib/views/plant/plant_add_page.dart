@@ -3,11 +3,14 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unicons/unicons.dart';
 import '../../../data/plant.dart';
 import '../../../utils/colors.dart';
+import '../../controller/bottom_nav_controller.dart';
 import '../home/home_page.dart';
 import 'input_field.dart';
 import 'package:intl/intl.dart';
@@ -46,7 +49,7 @@ class _PlantAddPage extends State<PlantAddPage>{
     },
   ];
 
-  final formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController typeController = TextEditingController();
@@ -92,19 +95,22 @@ class _PlantAddPage extends State<PlantAddPage>{
             padding: const EdgeInsets.only(left: 12, right: 12),
             child: IconButton(
                 onPressed: () {
-                  widget.plantList.add(
-                    Plant(
-                      id: generateID(widget.plantList),
-                      pinned: false,
-                      name: nameController.text,
-                      type: typeController.text,
-                      date: dateController.text,
-                      note: noteController.text,
-                      cycles: cycles,
-                      image: image != null ? base64Encode(image) : null,
-                    )
-                  );
-                  Navigator.pop(context);
+                  if (_formKey.currentState!.validate()) {
+                    widget.plantList.add(
+                        Plant(
+                          id: generateID(widget.plantList),
+                          pinned: false,
+                          name: nameController.text,
+                          type: typeController.text,
+                          date: dateController.text,
+                          note: noteController.text,
+                          cycles: cycles,
+                          image: image != null ? base64Encode(image) : null,
+                        )
+                    );
+                    Navigator.pop(context);
+                  }
+
                 },
                 icon: Icon(Icons.check, color: Colors.black54,)),
           )
@@ -127,7 +133,7 @@ class _PlantAddPage extends State<PlantAddPage>{
             child: Container(
               margin: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
               child: Form(
-                key: formKey,
+                key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -141,7 +147,7 @@ class _PlantAddPage extends State<PlantAddPage>{
                                   border: Border.all(
                                     color: Colors.black54,
                                   ),
-                                  borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.6))
+                                  borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.4))
                               ),
                               child: Icon(Icons.add_a_photo_outlined,)
                           ) : ClipOval(
@@ -207,7 +213,6 @@ class _PlantAddPage extends State<PlantAddPage>{
                         )
                     ),
                     InputField(
-                      boldText: true,
                       isEditable: true,
                       label: "이름",
                       controller: nameController,
@@ -217,7 +222,6 @@ class _PlantAddPage extends State<PlantAddPage>{
                       height: 20,
                     ),
                     InputField(
-                      boldText: true,
                       isEditable: true,
                       label: '종류',
                       controller: typeController,

@@ -1,12 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:plantory/views/plant/input_field.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:plantory/controller/bottom_nav_controller.dart';
 
 import '../../utils/colors.dart';
 
 class SettingPage extends StatefulWidget {
-  const SettingPage({Key? key}) : super(key: key);
+
+  SettingPage({Key? key}) : super(key: key);
+
 
   @override
   State<StatefulWidget> createState() {
@@ -19,11 +23,14 @@ class _SettingPage extends State<SettingPage>{
 
   final TextEditingController nameController = TextEditingController();
 
-  final GlobalKey<FormState> _formKey = GlobalKey();
+  String name = "User";
+  bool editName = false;
+  var image;
+  FocusNode focusNode = FocusNode();
 
   @override
   initState() {
-    nameController.text = "User";
+    nameController.text = name;
     super.initState();
   }
 
@@ -48,13 +55,79 @@ class _SettingPage extends State<SettingPage>{
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ClipOval(
-                    child: Image.asset(
-                      'images/user1.jpeg',
-                      fit: BoxFit.fill,
-                      width: 128,
-                      height: 128,
-                    ),
+                  Center(
+                      child: GestureDetector(
+                        child: image == null ? Container(
+                            width: MediaQuery.of(context).size.width * 0.3,
+                            height: MediaQuery.of(context).size.width * 0.3,
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.black54,
+                                ),
+                                borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.3))
+                            ),
+                            child: Icon(Icons.add_a_photo_outlined,)
+                        ) : ClipOval(
+                            child: Image.memory(image, fit: BoxFit.cover,
+                              width: MediaQuery.of(context).size.width * 0.3,
+                              height: MediaQuery.of(context).size.width * 0.3,)
+                        ),
+                        onTap: () {
+                          var picker = ImagePicker();
+                          showDialog(
+                            barrierColor: Colors.black54,
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              title: Center(child: Text("사진 선택")),
+                              titlePadding: EdgeInsets.all(15),
+                              content: SizedBox(
+                                width: double.infinity,
+                                height: MediaQuery.of(context).size.height * 0.2,
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+                                      Divider(thickness: 1,color: Colors.black54,),
+                                      ListTile(title: Text("카메라"),
+                                        leading: Icon(Icons.camera_alt_outlined),
+                                        onTap: () async{
+                                          await picker.pickImage(source: ImageSource.camera)
+                                              .then((value) =>  Navigator.of(context).pop(value));},
+
+                                      ),
+                                      Divider(thickness: 1),
+                                      ListTile(title: Text("갤러리"),
+                                        leading: Icon(Icons.photo_camera_back),
+                                        onTap: () async{
+                                          await picker.pickImage(source: ImageSource.gallery)
+                                              .then((value) =>  Navigator.of(context).pop(value));},
+                                      ),
+                                      Divider(thickness: 1),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              contentPadding: EdgeInsets.all(0),
+                              actions: [
+                                TextButton(
+                                  child: const Text('취소'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            ),
+                          ).then((value) async{
+                            if(value != null){
+                              image = await value.readAsBytes();
+                              setState((){});
+                            }
+                          });
+
+                        },
+                      )
                   ),
                   Stack(
                     children: [
@@ -64,33 +137,37 @@ class _SettingPage extends State<SettingPage>{
                         child: Padding(
                           padding: const EdgeInsets.only(left: 24, right: 24),
                           child: IntrinsicWidth(
-                            child: Form(
-                              key: _formKey,
-                              child: TextFormField(
-                                onFieldSubmitted: (value){
-                                  if (_formKey.currentState!.validate()) {
-                                    _formKey.currentState!.save();
-                                  }
-                                },
-                                validator: (value){
-                                  if(value!.isEmpty){
-                                    nameController.text = "User";
-                                    return null;
-                                  }else{
-                                    return null;
-                                  }
-                                },
-                                textAlign: TextAlign.center,
-                                controller: nameController,
-                                decoration: InputDecoration(
-                                  hintText: nameController.text,
-                                ),
+                            child: TextFormField(
+                              focusNode: focusNode,
+                              readOnly: !editName,
+                              textAlign: TextAlign.center,
+                              controller: nameController,
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: name,
                               ),
                             ),
                           ),
                         ),
                       ),
-                      Positioned(top: 10,right:  0, child: Icon(Icons.edit,size: 24,)),
+                      Positioned(
+                          top: 0,
+                          right:  0,
+                          child: IconButton(
+                              icon: editName == false ? Icon(Icons.mode_edit_outlined,size: 24,) : Icon(Icons.check_outlined),
+                              onPressed: (){
+                                setState((){
+                                  editName = !editName;
+                                  if(nameController.text.isNotEmpty) name = nameController.text;
+                                  nameController.text = name;
+                                  nameController.selection = TextSelection(
+                                      extentOffset: nameController.text.length,
+                                      baseOffset: nameController.text.length);
+                                  if(editName) focusNode.requestFocus();
+                                });
+                              },
+                          )
+                      ),
                     ],
                   )
                 ],
@@ -126,6 +203,7 @@ class _SettingPage extends State<SettingPage>{
                                 FirebaseAuth.instance.signOut();
                               },
                             ),
+                            Divider(thickness: 1,),
                           ],
                         ),
                       ),

@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
-import 'package:unicons/unicons.dart';
 
 import '../../../utils/colors.dart';
 import '../../../utils/widgets.dart';
