@@ -4,13 +4,9 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 class PlantNotification {
-  PlantNotification({required this.id, required this.title, required this.content});
-
-  int id;
-  String title;
-  String content;
 
   late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+  late AndroidNotificationChannel channel;
   late AndroidNotificationDetails android;
   late IOSNotificationDetails ios;
   late NotificationDetails details;
@@ -20,7 +16,6 @@ class PlantNotification {
 
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-    final AndroidNotificationChannel channel;
     channel = const AndroidNotificationChannel(
       'high_importance_channel', // id
       'High Importance Notifications', // title
@@ -49,19 +44,6 @@ class PlantNotification {
         .resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
-
-
-    result = await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(alert: true, badge: true, sound: true,);
-
-    android = AndroidNotificationDetails(channel.id, channel.name,
-        channelDescription: channel.description ,
-        importance: channel.importance, priority: Priority.high, playSound: true);
-
-    ios = const IOSNotificationDetails();
-
-    details = NotificationDetails(android: android, iOS: ios);
 
   }
   /*
@@ -92,7 +74,20 @@ class PlantNotification {
 
    */
 
-  show() async{
+  show(int id, String title, String content) async{
+
+    result = await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
+        ?.requestPermissions(alert: true, badge: true, sound: true,);
+
+    android = AndroidNotificationDetails(channel.id, channel.name,
+        channelDescription: channel.description ,
+        importance: channel.importance, priority: Priority.high, playSound: true);
+
+    ios = const IOSNotificationDetails();
+
+    details = NotificationDetails(android: android, iOS: ios);
+
     if ((!Platform.isAndroid && result != null && result!) || Platform.isAndroid) {
       await flutterLocalNotificationsPlugin.show(
         id,

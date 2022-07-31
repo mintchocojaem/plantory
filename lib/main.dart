@@ -44,8 +44,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData.light(),
         home: //SplashScreen(),
-              IndexPage(),
-              // AuthPage(),
+              //IndexPage(),
+               AuthPage(),
         initialBinding: InitBinding(),
     );
   }
@@ -53,6 +53,9 @@ class MyApp extends StatelessWidget {
 }
 
 initNotification() async{
+
+  final token = await FirebaseMessaging.instance.getToken();
+  print(token.toString());
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -63,16 +66,12 @@ initNotification() async{
   );
 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+    //print(message.notification);
     RemoteNotification? notification = message.notification;
-
     if (notification != null) {
-      PlantNotification plantNotification = PlantNotification(
-          id: notification.hashCode,
-          title: notification.title ?? "",
-          content: notification.body ?? ""
-      );
+      PlantNotification plantNotification = PlantNotification();
       await plantNotification.init();
-      await plantNotification.show();
+      await plantNotification.show(notification.hashCode,notification.title ?? "",notification.body ?? "");
     }
   });
 
