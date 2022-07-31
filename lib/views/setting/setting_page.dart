@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:plantory/views/plant/input_field.dart';
 
 import '../../utils/colors.dart';
 
@@ -13,6 +16,16 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPage extends State<SettingPage>{
+
+  final TextEditingController nameController = TextEditingController();
+
+  final GlobalKey<FormState> _formKey = GlobalKey();
+
+  @override
+  initState() {
+    nameController.text = "User";
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +56,43 @@ class _SettingPage extends State<SettingPage>{
                       height: 128,
                     ),
                   ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text("User"),
+                  Stack(
+                    children: [
+                      ConstrainedBox(
+                        constraints: BoxConstraints(minWidth: MediaQuery.of(context).size.width * 0.4,
+                            maxWidth: MediaQuery.of(context).size.width * 0.6),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 24, right: 24),
+                          child: IntrinsicWidth(
+                            child: Form(
+                              key: _formKey,
+                              child: TextFormField(
+                                onFieldSubmitted: (value){
+                                  if (_formKey.currentState!.validate()) {
+                                    _formKey.currentState!.save();
+                                  }
+                                },
+                                validator: (value){
+                                  if(value!.isEmpty){
+                                    nameController.text = "User";
+                                    return null;
+                                  }else{
+                                    return null;
+                                  }
+                                },
+                                textAlign: TextAlign.center,
+                                controller: nameController,
+                                decoration: InputDecoration(
+                                  hintText: nameController.text,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(top: 10,right:  0, child: Icon(Icons.edit,size: 24,)),
+                    ],
+                  )
                 ],
               ),
             ),
@@ -61,13 +107,7 @@ class _SettingPage extends State<SettingPage>{
                           children: [
                             Divider(thickness: 1,),
                             ListTile(
-                              title: Text("Accounts"),
-                              leading: Icon(Icons.person),
-                              trailing: Icon(Icons.arrow_forward_ios_rounded),
-                            ),
-                            Divider(thickness: 1,),
-                            ListTile(
-                              title: Text("Notifications"),
+                              title: Text("알림"),
                               leading: Icon(Icons.notifications_none_outlined),
                               trailing: Icon(Icons.arrow_forward_ios_rounded),
                             ),
@@ -78,7 +118,14 @@ class _SettingPage extends State<SettingPage>{
                               trailing: Icon(Icons.arrow_forward_ios_rounded),
                             ),
                             Divider(thickness: 1,),
-
+                            ListTile(
+                              title: Text("로그아웃"),
+                              leading: Icon(Icons.logout),
+                              trailing: Icon(Icons.arrow_forward_ios_rounded),
+                              onTap: (){
+                                FirebaseAuth.instance.signOut();
+                              },
+                            ),
                           ],
                         ),
                       ),

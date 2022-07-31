@@ -37,13 +37,7 @@ class _CalendarPage extends State<CalendarPage>{
           style: TextStyle(color: primaryColor),
         ),
         actions: [
-          Align(
-            alignment: Alignment.topRight,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: notificationIcon(context: context),
-            ),
-          ),
+
         ],
       ),
       body: Padding(

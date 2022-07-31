@@ -67,29 +67,26 @@ class IndexPage extends GetView<BottomNavController> {
           elevation: 1,
           selectedItemColor: primaryColor,
           type: BottomNavigationBarType.fixed,
-          items: navBarItems)
+          items: const [
+            BottomNavigationBarItem(
+                icon: Icon(
+                  UniconsLine.home,
+                ),
+                label: "Home"),
+            BottomNavigationBarItem(
+                icon: Icon(UniconsLine.calender), label: "Calender"),
+            BottomNavigationBarItem(
+                icon: Icon(
+                  UniconsLine.flower,
+                ),
+                label: "Plants"),
+            BottomNavigationBarItem(
+                icon: Icon(
+                  UniconsLine.setting,
+                ),
+                label: "Settings"),
+          ]
       )
-    );
+    ));
   }
-
-  final List<BottomNavigationBarItem> navBarItems = [
-    const BottomNavigationBarItem(
-        icon: Icon(
-          UniconsLine.home,
-        ),
-        label: "Home"),
-    const BottomNavigationBarItem(
-        icon: Icon(UniconsLine.calender), label: "Calender"),
-    const BottomNavigationBarItem(
-        icon: Icon(
-          UniconsLine.flower,
-        ),
-        label: "Plants"),
-    const BottomNavigationBarItem(
-        icon: Icon(
-          UniconsLine.setting,
-        ),
-        label: "Settings"),
-  ];
-
 }

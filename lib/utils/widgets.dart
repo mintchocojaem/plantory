@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:unicons/unicons.dart';
-import '../views/Notifications/notification.dart';
 import 'colors.dart';
 
 //this is a reusable common button function in all screens.
@@ -48,29 +47,5 @@ TextField authTextField(
         border: OutlineInputBorder(
             borderSide: BorderSide.none,
             borderRadius: BorderRadius.circular(15))),
-  );
-}
-
-///Notification Icon
-Stack notificationIcon({BuildContext? context}) {
-  return Stack(
-    children: [
-      Container(
-        child: IconButton(
-            onPressed: () {
-              Navigator.push(context!,
-                  MaterialPageRoute(builder: (context) => Notifications()));
-            },
-            icon: const Icon(Icons.notifications_none, color: Colors.black,)),
-      ),
-      const Positioned(
-        left: 30,
-        top: 30,
-        child: CircleAvatar(
-          radius: 5,
-          backgroundColor: Colors.red,
-        ),
-      )
-    ],
   );
 }

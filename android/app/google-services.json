@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "988507898334",
+    "project_id": "plantory-b3649",
+    "storage_bucket": "plantory-b3649.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:988507898334:android:c5ca2095c1ce765583dd4f",
+        "android_client_info": {
+          "package_name": "com.vanillajaem.plantory"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "988507898334-rdk375ef2pbn7habfl5fqm5hekc3nbse.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vanillajaem.plantory",
+            "certificate_hash": "000ef1435e4b24351affb3abaffc91accf23823f"
+          }
+        },
+        {
+          "client_id": "988507898334-pfl1fa0c8jp94l2sdlqaieqohg4s178d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJRWgA9wWNh58uXnOV2QoZcKpG_x9o18Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "988507898334-pfl1fa0c8jp94l2sdlqaieqohg4s178d.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "988507898334-v3ogr9emclfl07r9525ger8helgr7g2o.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.vanillajaem.plantory"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

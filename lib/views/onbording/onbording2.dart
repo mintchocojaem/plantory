@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-
+import 'package:plantory/views/auth/auth_page.dart';
 import '../../utils/colors.dart';
 import '../../utils/widgets.dart';
-import '../auth/log_in_page.dart';
 
 class OnbordingSecondIntro extends StatelessWidget {
   const OnbordingSecondIntro({Key? key}) : super(key: key);
@@ -52,7 +51,7 @@ class OnbordingSecondIntro extends StatelessWidget {
                       Navigator.push(
                           context,
                           PageTransition(
-                              child: LogInPage(),
+                              child: AuthPage(),
                               type: PageTransitionType.rightToLeft));
                     })
               ],
