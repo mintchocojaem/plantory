@@ -6,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutterfire_ui/i10n.dart';
 import 'package:get/instance_manager.dart';
 import 'package:get/route_manager.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:plantory/binding/binding.dart';
 import 'package:plantory/views/auth/auth_page.dart';
 import 'package:plantory/views/auth/lang/ko.dart';
@@ -18,10 +19,10 @@ void main() async{
 
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
-
+  await GetStorage.init();
   await initNotification();
+
 
   runApp(const MyApp());
 }
@@ -44,8 +45,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData.light(),
         home: //SplashScreen(),
-              //IndexPage(),
-               AuthPage(),
+              IndexPage(),
+              //AuthPage(),
         initialBinding: InitBinding(),
     );
   }
@@ -54,8 +55,11 @@ class MyApp extends StatelessWidget {
 
 initNotification() async{
 
-  final token = await FirebaseMessaging.instance.getToken();
-  print(token.toString());
+  PlantNotification plantNotification = PlantNotification();
+  await plantNotification.init();
+
+  //final token = await FirebaseMessaging.instance.getToken();
+  //print(token.toString());
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -69,8 +73,6 @@ initNotification() async{
     //print(message.notification);
     RemoteNotification? notification = message.notification;
     if (notification != null) {
-      PlantNotification plantNotification = PlantNotification();
-      await plantNotification.init();
       await plantNotification.show(notification.hashCode,notification.title ?? "",notification.body ?? "");
     }
   });

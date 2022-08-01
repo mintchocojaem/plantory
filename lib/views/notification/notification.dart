@@ -1,15 +1,17 @@
 import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_native_timezone/flutter_native_timezone.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 class PlantNotification {
 
-  late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-  late AndroidNotificationChannel channel;
-  late AndroidNotificationDetails android;
-  late IOSNotificationDetails ios;
-  late NotificationDetails details;
+  static late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+  static late AndroidNotificationChannel channel;
+  static late AndroidNotificationDetails android;
+  static late IOSNotificationDetails ios;
+  static late NotificationDetails details;
   bool? result;
 
   init() async{
@@ -45,9 +47,21 @@ class PlantNotification {
         AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
+    result = await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
+        ?.requestPermissions(alert: true, badge: true, sound: true,);
+
+    android = AndroidNotificationDetails(channel.id, channel.name,
+        channelDescription: channel.description ,
+        importance: channel.importance, priority: Priority.high, playSound: true);
+
+    ios = const IOSNotificationDetails();
+
+    details = NotificationDetails(android: android, iOS: ios);
+
   }
-  /*
-  zonedSchedule() async{
+
+  zonedSchedule(int id, String title, String content, int days) async{
     if ((!Platform.isAndroid && result != null && result!) || Platform.isAndroid) {
 
       tz.initializeTimeZones();
@@ -62,8 +76,8 @@ class PlantNotification {
             id,
             title,
             content,
-            tz.TZDateTime.now(tz.local).add(Duration(days: duration)),
-            detail,
+            tz.TZDateTime.now(tz.local).add(Duration(minutes: days)),
+            details,
             androidAllowWhileIdle: true,
             uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime
@@ -72,21 +86,7 @@ class PlantNotification {
     }
   }
 
-   */
-
   show(int id, String title, String content) async{
-
-    result = await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(alert: true, badge: true, sound: true,);
-
-    android = AndroidNotificationDetails(channel.id, channel.name,
-        channelDescription: channel.description ,
-        importance: channel.importance, priority: Priority.high, playSound: true);
-
-    ios = const IOSNotificationDetails();
-
-    details = NotificationDetails(android: android, iOS: ios);
 
     if ((!Platform.isAndroid && result != null && result!) || Platform.isAndroid) {
       await flutterLocalNotificationsPlugin.show(

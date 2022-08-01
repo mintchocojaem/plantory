@@ -40,7 +40,6 @@ List<Plant> plantList = [
 
 
 class IndexPage extends GetView<BottomNavController> {
-  final _formKey = GlobalKey<FormState>();
 
   IndexPage({Key? key}) : super(key: key);
 
