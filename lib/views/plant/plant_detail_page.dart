@@ -247,7 +247,7 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                           lastDate: DateTime(DateTime.now().year+1), //마지막일
                           builder: (BuildContext context, Widget? child) {
                             return Theme(
-                              data: ThemeData.dark(), //다크 테마
+                              data: ThemeData.light(),
                               child: child!,
                             );
                           },
@@ -273,26 +273,35 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                       ),
                     ),
                     const SizedBox(
-                      height: 20,
+                      height: 10,
                     ),
-                    Text("주기"),
+                    Theme(
+                      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                      child: ExpansionTile(
+                        initiallyExpanded: true,
+                        title: Text("주기"),
+                        children: [
+                          ListView(
+                            shrinkWrap: true,
+                            children: [
+                              Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: //cycleTile(widget.plant.cycles!,0,wateringStartDateController,wateringCycleController)
+                                  cycleTile(widget.plant, CycleType.watering, wateringStartDateController, wateringCycleController)
+                              ),
+                              Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: //cycleTile(widget.plant.cycles!,1,repottingStartDateController,repottingCycleController)
+                                  cycleTile(widget.plant, CycleType.repotting, repottingStartDateController, repottingCycleController)
+                              )
+                            ],
+                          ),
+                        ]
+                      ),
+                    ),
+                    Divider(thickness: 1,color: Colors.black38,),
                     const SizedBox(
                       height: 20,
-                    ),
-                    ListView(
-                      shrinkWrap: true,
-                      children: [
-                        Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: //cycleTile(widget.plant.cycles!,0,wateringStartDateController,wateringCycleController)
-                          cycleTile(widget.plant, CycleType.watering, wateringStartDateController, wateringCycleController)
-                        ),
-                        Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: //cycleTile(widget.plant.cycles!,1,repottingStartDateController,repottingCycleController)
-                            cycleTile(widget.plant, CycleType.repotting, repottingStartDateController, repottingCycleController)
-                        )
-                      ],
                     ),
                     const SizedBox(
                       height: 20,

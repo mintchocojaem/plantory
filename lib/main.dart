@@ -70,7 +70,6 @@ initNotification() async{
   );
 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-    //print(message.notification);
     RemoteNotification? notification = message.notification;
     if (notification != null) {
       await plantNotification.show(notification.hashCode,notification.title ?? "",notification.body ?? "");

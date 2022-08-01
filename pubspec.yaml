@@ -53,6 +53,7 @@ dependencies:
   firebase_messaging: ^12.0.1
   flutter_local_notifications: ^9.7.0
   flutter_native_timezone: ^2.0.0
+  timeline_tile: ^2.0.0
 
 
 dev_dependencies:

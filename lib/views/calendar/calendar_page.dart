@@ -1,9 +1,10 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:plantory/views/calendar/timeline_page.dart';
 import '../../../utils/colors.dart';
-import '../../../utils/widgets.dart';
 import '../../data/plant.dart';
 import 'calendar.dart';
 
@@ -43,6 +44,12 @@ class _CalendarPage extends State<CalendarPage>{
         padding: const EdgeInsets.only(left: 10, right: 10),
         child: Calendar(plantList: widget.plantList,),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Get.to(() => TimelinePage(plantList : widget.plantList,))?.then((value) => setState((){}));
+        },
+        heroTag: null,
+        child: Icon(Icons.add, size: 40,),backgroundColor: primaryColor,),
     );
   }
 }

@@ -73,7 +73,7 @@ class _PlantsPage extends State<PlantsPage> {
                                     width: MediaQuery.of(context).size.width * 0.3,
                                     height: MediaQuery.of(context).size.width * 0.3,
                                     decoration: BoxDecoration(
-                                        color: Color(0xffEEF1F1),
+                                        color: Color(0xff8bbb88),
                                         borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.3))),
                                     child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.15,color: Colors.black54,)
                                   ),

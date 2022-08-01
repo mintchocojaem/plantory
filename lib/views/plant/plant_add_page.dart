@@ -74,6 +74,8 @@ class _PlantAddPage extends State<PlantAddPage>{
     repottingStartDateController.text = cycles[1][Cycles.startDate.name];
     repottingCycleController.text = cycles[1][Cycles.cycle.name];
 
+    cycles[0][Cycles.id.name] = generateCycleID(widget.plantList);
+    cycles[1][Cycles.id.name] = generateCycleID(widget.plantList)+1;
 
     super.initState();
   }
