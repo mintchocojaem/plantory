@@ -18,7 +18,7 @@ class Plant{
 
 }
 
-int generateID(List<Plant> plantList){
+int generatePlantID(List<Plant> plantList){
 
   int id = 0;
   List<int> idList = List.empty(growable: true);
@@ -35,4 +35,25 @@ int generateID(List<Plant> plantList){
 
   return id;
 }
+
+int generateCycleID(List<Plant> plantList){
+
+  int id = 0;
+  List<int> idList = List.empty(growable: true);
+
+  for(Plant i in plantList){
+    for(Map j in i.cycles!){
+      idList.add(j[Cycles.id.name]);
+    }
+  }
+  for(int j = 0; j < 128; j++){
+    if(!idList.contains(j)){
+      id = j;
+      break;
+    }
+  }
+
+  return id;
+}
+
 

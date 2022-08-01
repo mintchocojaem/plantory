@@ -25,14 +25,14 @@ List<Plant> plantList = [
         Cycles.type.name : "물",
         Cycles.cycle.name : "7",
         Cycles.startDate.name : "2022-07-27",
-        Cycles.init.name : false,
+        Cycles.init.name : true,
       },
       {
         Cycles.id.name : 1,
         Cycles.type.name : "분갈이",
         Cycles.cycle.name : "30",
         Cycles.startDate.name : "2022-07-28",
-        Cycles.init.name : false
+        Cycles.init.name : true
       },
     ],
   ),

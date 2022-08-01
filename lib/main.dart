@@ -3,16 +3,21 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:flutterfire_ui/i10n.dart';
 import 'package:get/instance_manager.dart';
 import 'package:get/route_manager.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:intl/intl.dart';
 import 'package:plantory/binding/binding.dart';
 import 'package:plantory/views/auth/auth_page.dart';
 import 'package:plantory/views/auth/lang/ko.dart';
 import 'package:plantory/views/index_page.dart';
 import 'package:plantory/views/notification/notification.dart';
+import 'package:plantory/views/onbording/splash_screen.dart';
 import 'firebase_options.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 
 void main() async{
@@ -57,6 +62,10 @@ initNotification() async{
 
   PlantNotification plantNotification = PlantNotification();
   await plantNotification.init();
+
+  tz.initializeTimeZones();
+  String timeZone = await FlutterNativeTimezone.getLocalTimezone();
+  tz.setLocalLocation(tz.getLocation(timeZone));
 
   //final token = await FirebaseMessaging.instance.getToken();
   //print(token.toString());
