@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:intl/intl.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -62,7 +61,7 @@ class PlantNotification {
 
   }
 
-  zonedMidnightSchedule(int id, String title, String content, int days) async{
+  zonedSchedule(int id, String title, String content, int days) async{
     if ((!Platform.isAndroid && result != null && result!) || Platform.isAndroid) {
 
       tz.initializeTimeZones();
@@ -77,7 +76,7 @@ class PlantNotification {
             id,
             title,
             content,
-            tz.TZDateTime.from(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()), tz.local).add(Duration(seconds: days)),
+            tz.TZDateTime.now(tz.local).add(Duration(minutes: days)),
             details,
             androidAllowWhileIdle: true,
             uiLocalNotificationDateInterpretation:
@@ -86,8 +85,6 @@ class PlantNotification {
       }
     }
   }
-
-
 
   show(int id, String title, String content) async{
 

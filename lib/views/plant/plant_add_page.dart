@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:plantory/views/notification/notification.dart';
 import 'package:unicons/unicons.dart';
 import '../../../data/plant.dart';
 import '../../../utils/colors.dart';
@@ -38,14 +37,14 @@ class _PlantAddPage extends State<PlantAddPage>{
       Cycles.type.name : "물",
       Cycles.cycle.name : "14",
       Cycles.startDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-      Cycles.init.name : true
+      Cycles.init.name : false
     },
     {
       Cycles.id.name : 1,
       Cycles.type.name : "분갈이",
       Cycles.cycle.name : "60",
       Cycles.startDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-      Cycles.init.name : true
+      Cycles.init.name : false
     },
   ];
 
@@ -75,8 +74,6 @@ class _PlantAddPage extends State<PlantAddPage>{
     repottingStartDateController.text = cycles[1][Cycles.startDate.name];
     repottingCycleController.text = cycles[1][Cycles.cycle.name];
 
-    cycles[0][Cycles.id.name] = generateCycleID(widget.plantList);
-    cycles[1][Cycles.id.name] = generateCycleID(widget.plantList)+1;
 
     super.initState();
   }
@@ -84,7 +81,6 @@ class _PlantAddPage extends State<PlantAddPage>{
   @override
   Widget build(BuildContext context) {
 
-    //print(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()).add(Duration(days: getFastWateringDate(cycles))));
     // TODO: implement build
     return Scaffold(
       backgroundColor: Color(0xffEEF1F1),
@@ -101,7 +97,7 @@ class _PlantAddPage extends State<PlantAddPage>{
                   if (_formKey.currentState!.validate()) {
                     widget.plantList.add(
                         Plant(
-                          id: generatePlantID(widget.plantList),
+                          id: generateID(widget.plantList),
                           pinned: false,
                           name: nameController.text,
                           type: typeController.text,
@@ -111,22 +107,6 @@ class _PlantAddPage extends State<PlantAddPage>{
                           image: image != null ? base64Encode(image) : null,
                         )
                     );
-                    /*final plantNotification = PlantNotification();
-                    plantNotification.zonedMidnightSchedule(
-                        cycles[0][Cycles.id.name],
-                        "물주기 알림",
-                        "오늘은 \"${nameController.text}\"에게 물을 주는 날입니다!",
-                        int.parse(cycles[0][Cycles.cycle.name])
-                    );
-                    plantNotification.zonedMidnightSchedule(
-                        cycles[1][Cycles.id.name],
-                        "분갈이 알림",
-                        "오늘은 \"${nameController.text}\"의 분갈이를 하는 날입니다!",
-                        int.parse(cycles[1][Cycles.cycle.name])
-                    );
-
-                     */
-
                     Navigator.pop(context);
                   }
 

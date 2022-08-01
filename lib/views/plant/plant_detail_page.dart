@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/instance_manager.dart';
 import 'package:get/route_manager.dart';
 import 'package:image_picker/image_picker.dart';
@@ -285,11 +284,13 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                       children: [
                         Padding(
                             padding: const EdgeInsets.only(bottom: 10),
-                            child: cycleTile(widget.plant, CycleType.watering, wateringStartDateController, wateringCycleController)
+                            child: //cycleTile(widget.plant.cycles!,0,wateringStartDateController,wateringCycleController)
+                          cycleTile(widget.plant, CycleType.watering, wateringStartDateController, wateringCycleController)
                         ),
                         Padding(
                             padding: const EdgeInsets.only(bottom: 10),
-                            child: cycleTile(widget.plant, CycleType.repotting, repottingStartDateController, repottingCycleController)
+                            child: //cycleTile(widget.plant.cycles!,1,repottingStartDateController,repottingCycleController)
+                            cycleTile(widget.plant, CycleType.repotting, repottingStartDateController, repottingCycleController)
                         )
                       ],
                     ),
@@ -312,12 +313,7 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                                     }),
                                     CupertinoDialogAction(isDefaultAction: false, child: const Text("확인",style: TextStyle(color: Colors.red),),
                                         onPressed: () {
-
-                                          final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-                                          flutterLocalNotificationsPlugin.cancel(widget.plant.cycles![0][Cycles.id.name]);
-                                          flutterLocalNotificationsPlugin.cancel(widget.plant.cycles![1][Cycles.id.name]);
                                           plantList.remove(widget.plant);
-
                                           Get.off(() => IndexPage());
                                         }
                                     ),
