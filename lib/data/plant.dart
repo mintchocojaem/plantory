@@ -14,7 +14,7 @@ class Plant{
     this.date,
     this.note,
     this.cycles,
-    this.timeLines
+    this.timelines
   });
 
   int? id;
@@ -25,7 +25,7 @@ class Plant{
   String? date;
   String? note;
   List? cycles;
-  List? timeLines;
+  List? timelines;
 
 }
 

@@ -107,6 +107,7 @@ class _PlantAddPage extends State<PlantAddPage>{
                           note: noteController.text,
                           cycles: cycles,
                           image: image != null ? base64Encode(image) : null,
+                          timelines: List.empty(growable: true),
                         )
                     );
                     Navigator.pop(context);

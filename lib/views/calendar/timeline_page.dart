@@ -3,8 +3,11 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:get/instance_manager.dart';
+import 'package:get/route_manager.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:plantory/views/index_page.dart';
 import 'package:unicons/unicons.dart';
 
 import '../../data/plant.dart';
@@ -33,7 +36,14 @@ class _TimelinePage extends State<TimelinePage>{
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
+  late Plant plant;
   var image;
+
+  @override
+  initState() {
+    dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +65,20 @@ class _TimelinePage extends State<TimelinePage>{
         actions: [
           Padding(
             padding: const EdgeInsets.only(left: 12, right: 12),
-            child: IconButton(onPressed: (){}, icon: Icon(Icons.check, color: Colors.black54,)),
+            child: IconButton(
+                onPressed: (){
+                  if(_formKey.currentState!.validate()){
+                    plant.timelines!.add({
+                      'image': image != null ? base64Encode(image) : null,
+                      'date': dateController.text,
+                      'title' : titleController.text,
+                      'content' : contentController.text
+                    });
+                    Get.back();
+                  }
+                },
+                icon: Icon(Icons.check, color: Colors.black54,)
+            ),
           )
         ],
       ),
@@ -82,12 +105,9 @@ class _TimelinePage extends State<TimelinePage>{
                           Center(
                               child: GestureDetector(
                                 child: image == null ? Container(
-                                    width: MediaQuery.of(context).size.width * 0.6,
-                                    height: MediaQuery.of(context).size.width * 0.6,
+                                    width: MediaQuery.of(context).size.width * 0.2,
+                                    height: MediaQuery.of(context).size.width * 0.2,
                                     decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: Colors.black54,
-                                        ),
                                         borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
                                     ),
                                     child:  Icon(Icons.add_a_photo_outlined,)
@@ -98,9 +118,6 @@ class _TimelinePage extends State<TimelinePage>{
                                       image: DecorationImage(
                                         fit: BoxFit.cover,
                                         image: Image.memory(image, fit: BoxFit.cover,).image,
-                                      ),
-                                      border: Border.all(
-                                        color: Colors.black54,
                                       ),
                                       borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
                                     ),
@@ -207,6 +224,7 @@ class _TimelinePage extends State<TimelinePage>{
                                               onTap: (){
                                                 Navigator.of(context).pop();
                                                 setState(() {
+                                                  plant = widget.plantList[index];
                                                   nameController.text = widget.plantList[index].name!;
                                                 });
                                               },
@@ -217,16 +235,6 @@ class _TimelinePage extends State<TimelinePage>{
                                 );
                               });
                             },
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          InputField(
-                            isEditable: true,
-                            label: "제목",
-                            hint: "",
-                            controller: titleController,
-                            emptyText: false,
                           ),
                           const SizedBox(
                             height: 20,
@@ -256,9 +264,31 @@ class _TimelinePage extends State<TimelinePage>{
                             height: 20,
                           ),
                           TextFormField(
-                            controller: contentController,
-                            maxLines: 3,
+                            controller: titleController,
                             keyboardType: TextInputType.multiline,
+                            maxLength: 20,
+                            validator: (value){
+                              if (value.toString().isEmpty) {
+                                return '제목을 입력해주세요';
+                              }
+                            },
+                            decoration: InputDecoration(
+                              labelStyle: const TextStyle(height:0.1),
+                              labelText: "제목",
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          TextFormField(
+                            controller: contentController,
+                            keyboardType: TextInputType.multiline,
+                            maxLength: 50,
+                            validator: (value){
+                              if (value.toString().isEmpty) {
+                                return '내용을 입력해주세요';
+                              }
+                            },
                             decoration: InputDecoration(
                               labelStyle: const TextStyle(height:0.1),
                               labelText: "내용",

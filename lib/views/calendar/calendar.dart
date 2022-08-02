@@ -102,6 +102,14 @@ class _Calendar extends State<Calendar>{
           result.add({"plant" : j["plant"] , "cycle" : "분갈이"});
         }
       }
+
+      if(j["plant"].timelines.isNotEmpty) {
+        for(Map i in j["plant"].timelines){
+          if(DateFormat('yyyy-MM-dd').parse(i["date"]) == DateFormat('yyyy-MM-dd').parse(day.toString())){
+            result.add({"plant" : j["plant"],"timelines" : i, "cycle" : null});
+          }}
+      }
+
     }
     return result;
   }
@@ -202,6 +210,7 @@ class _Calendar extends State<Calendar>{
                 builder: (context, value, _) {
                   return AnimationLimiter(
                     child: ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
                       itemCount: value.length,
                       itemBuilder: (context, index) {
@@ -218,8 +227,8 @@ class _Calendar extends State<Calendar>{
                             width: 24,
                             iconStyle: IconStyle(
                               color: Colors.white,
-                              iconData: value[index]["cycle"] == "물주기" || value[index]["cycle"] == "분갈이"
-                                  ? Icons.notifications_active : Icons.edit_note
+                              iconData: value[index]["cycle"] != null ? value[index]["cycle"] == "물주기" || value[index]["cycle"] == "분갈이"
+                                  ? Icons.notifications_active : Icons.edit_note : Icons.edit_calendar_outlined
                             ),
                           ),
                           endChild: Padding(
@@ -243,7 +252,7 @@ class _Calendar extends State<Calendar>{
                                               bottomRight: Radius.circular(10),
                                               topRight: Radius.circular(10))),
                                       margin: EdgeInsets.only(left: 10),
-                                      child: ListTile(
+                                      child: value[index]["cycle"] != null ? ListTile(
                                         leading: value[index]["plant"].image != null ? ClipOval(
                                             child: Image.memory(base64Decode(value[index]["plant"].image),
                                               width: MediaQuery.of(context).size.width * 0.15,
@@ -265,7 +274,55 @@ class _Calendar extends State<Calendar>{
                                           side: BorderSide(color: Colors.black38, width: 1),
                                           borderRadius: BorderRadius.circular(20),
                                         ),
-                                        trailing: Icon(value[index]["cycle"] == "물주기" ? Icons.water_drop : UniconsLine.shovel),
+                                        trailing: value[index]["cycle"] != null
+                                            ? Icon(value[index]["cycle"] == "물주기" ? Icons.water_drop : UniconsLine.shovel)
+                                            : Container(),
+                                      ) : Theme(
+                                        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                                        child: ExpansionTile(
+                                            initiallyExpanded: true,
+                                            leading: value[index]["plant"].image != null ? ClipOval(
+                                                child: Image.memory(base64Decode(value[index]["plant"].image),
+                                                  width: MediaQuery.of(context).size.width * 0.15,
+                                                  height: MediaQuery.of(context).size.width * 0.15,
+                                                  fit: BoxFit.cover,
+                                                )
+                                            ) :
+                                            Container(
+                                                width: MediaQuery.of(context).size.width * 0.15,
+                                                height: MediaQuery.of(context).size.width * 0.15,
+                                                decoration: BoxDecoration(
+                                                    color: Color(0xffEEF1F1),
+                                                    borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.15))),
+                                                child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.12,color: Colors.black54,)
+                                            ),
+                                            title: Text(value[index]["timelines"]["title"]),
+                                            subtitle: Text(value[index]["plant"].name),
+                                            children: [
+                                              value[index]["timelines"]["image"] != null
+                                                  ? Container(
+                                                  width: MediaQuery.of(context).size.width * 0.6,
+                                                  height: MediaQuery.of(context).size.width * 0.6,
+                                                  decoration: BoxDecoration(
+                                                      image: DecorationImage(
+                                                        fit: BoxFit.cover,
+                                                        image: Image.memory(base64Decode(value[index]["timelines"]["image"]),
+                                                          fit: BoxFit.cover,).image,
+                                                      ),
+                                                      borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
+                                                  )
+                                              ) : Container(),
+                                              Padding(
+                                                padding: EdgeInsets.only(
+                                                    top: MediaQuery.of(context).size.height * 0.02,
+                                                    bottom: MediaQuery.of(context).size.height * 0.02,
+                                                    right: MediaQuery.of(context).size.width * 0.1,
+                                                    left: MediaQuery.of(context).size.width * 0.1,
+                                                ),
+                                                child: Center(child: Text( value[index]["timelines"]["content"],style: TextStyle(fontSize: 16),)),
+                                              ),
+                                            ],
+                                        ),
                                       ),
                                     ),
                                   ),

@@ -35,7 +35,7 @@ List<Plant> plantList = [
         Cycles.init.name : false
       },
     ],
-    timeLines: null,
+    timelines: List.empty(growable: true),
   ),
 ];
 
