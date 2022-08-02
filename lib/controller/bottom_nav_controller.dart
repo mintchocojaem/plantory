@@ -15,6 +15,7 @@ class BottomNavController extends GetxController {
       case 1:
       case 2:
       case 3:
+      case 4:
         _changePage(value);
         break;
     };

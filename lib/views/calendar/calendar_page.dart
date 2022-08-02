@@ -39,7 +39,7 @@ class _CalendarPage extends State<CalendarPage>{
         actions: [
 
         ],
-      ),
+    ),
       body: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10),
         child: Calendar(plantList: widget.plantList,),

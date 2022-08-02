@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:plantory/views/community/community_page.dart';
 import 'package:plantory/views/plant/plants_page.dart';
 import 'package:plantory/views/setting/setting_page.dart';
 import 'package:unicons/unicons.dart';
@@ -56,10 +57,13 @@ class IndexPage extends GetView<BottomNavController> {
           HomePage(plantList: plantList,),
           CalendarPage(plantList: plantList,),
           PlantsPage(plantList: plantList,),
+          CommunityPage(),
           SettingPage(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
           onTap: (value){
             controller.changeBottomNav(value);
           },
@@ -81,6 +85,11 @@ class IndexPage extends GetView<BottomNavController> {
                   UniconsLine.flower,
                 ),
                 label: "Plants"),
+            BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.comment,
+                ),
+                label: "Community"),
             BottomNavigationBarItem(
                 icon: Icon(
                   UniconsLine.setting,

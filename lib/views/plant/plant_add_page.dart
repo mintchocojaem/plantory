@@ -120,7 +120,7 @@ class _PlantAddPage extends State<PlantAddPage>{
         elevation: 0,
         backgroundColor: Color(0xffEEF1F1),
         title: const Text(
-          "식물 추가",
+          "Add Plant",
           style: TextStyle(color: primaryColor),
         ),
       ),

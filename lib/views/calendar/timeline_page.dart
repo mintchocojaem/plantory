@@ -55,7 +55,7 @@ class _TimelinePage extends State<TimelinePage>{
         automaticallyImplyLeading: false,
         backgroundColor: Color(0xffEEF1F1),
         title: const Text(
-          "타임라인 작성",
+          "Add Timeline",
           style: TextStyle(color: primaryColor),
         ),
         leading: IconButton(

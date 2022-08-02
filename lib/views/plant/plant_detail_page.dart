@@ -84,7 +84,7 @@ class _PlantDetailPage extends State<PlantDetailPage>{
           onPressed: () { Navigator.pop(context); },
         ),
         elevation: 0,
-        title: Text("식물 정보",style: TextStyle(color: primaryColor),),
+        title: Text("Plant Details",style: TextStyle(color: primaryColor),),
         backgroundColor: Color(0xffEEF1F1),
         actions: [
           Padding(
