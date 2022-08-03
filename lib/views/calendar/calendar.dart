@@ -10,13 +10,15 @@ import 'package:plantory/views/plant/plant_detail_page.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import 'package:unicons/unicons.dart';
+import '../../data/person.dart';
 import '../../data/plant.dart';
 
 
 class Calendar extends StatefulWidget {
-  final List<Plant> plantList;
 
-  const Calendar({Key? key, required this.plantList}) : super(key: key);
+  const Calendar({Key? key, required this.person}) : super(key: key);
+
+  final Person person;
 
   @override
   State<StatefulWidget> createState() {
@@ -53,13 +55,13 @@ class _Calendar extends State<Calendar>{
     super.initState();
 
     _selectedDay = _focusedDay;
-    for(var j in widget.plantList){
+    for(var j in widget.person.plants!){
       Map temp = {
         "plant" : j,
         "wateringDays" : List.empty(growable: true),
         "repottingDays" : List.empty(growable: true),
       };
-      for(int i = 0; DateFormat('yyyy-MM-dd').parse(j.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
+      for(int i = 0; DateFormat('yyyy-MM-dd').parse(j!.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
           .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![0][Cycles.cycle.name])){
 
         if(!DateFormat('yyyy-MM-dd').parse(j.cycles![0][Cycles.startDate.name])
@@ -124,13 +126,13 @@ class _Calendar extends State<Calendar>{
   Widget build(BuildContext context) {
 
     plants = List.empty(growable: true);
-    for(var j in widget.plantList){
+    for(var j in widget.person.plants!){
       Map temp = {
         "plant" : j,
         "wateringDays" : List.empty(growable: true),
         "repottingDays" : List.empty(growable: true),
       };
-      for(int i = 0; DateFormat('yyyy-MM-dd').parse(j.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
+      for(int i = 0; DateFormat('yyyy-MM-dd').parse(j!.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
           .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![0][Cycles.cycle.name])){
 
         if(!DateFormat('yyyy-MM-dd').parse(j.cycles![0][Cycles.startDate.name])
@@ -264,9 +266,9 @@ class _Calendar extends State<Calendar>{
                                             width: MediaQuery.of(context).size.width * 0.15,
                                             height: MediaQuery.of(context).size.width * 0.15,
                                             decoration: BoxDecoration(
-                                                color: Color(0xffEEF1F1),
-                                                borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.15))),
-                                            child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.12,color: Colors.black54,)
+                                                color: Color(0xffC9D9CF),
+                                                borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.14))),
+                                            child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.08,color: Colors.black54,)
                                         ),
                                         title: Text('${ value[index]["plant"].name}'),
                                         subtitle: Text(value[index]["cycle"]),
@@ -292,9 +294,9 @@ class _Calendar extends State<Calendar>{
                                                 width: MediaQuery.of(context).size.width * 0.15,
                                                 height: MediaQuery.of(context).size.width * 0.15,
                                                 decoration: BoxDecoration(
-                                                    color: Color(0xffEEF1F1),
-                                                    borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.15))),
-                                                child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.12,color: Colors.black54,)
+                                                    color: Color(0xffC9D9CF),
+                                                    borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.14))),
+                                                child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.08,color: Colors.black54,)
                                             ),
                                             title: Text(value[index]["timelines"]["title"]),
                                             subtitle: Text(value[index]["plant"].name),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import 'package:unicons/unicons.dart';
 import '../../../data/plant.dart';
 import '../../../utils/colors.dart';
 import '../../controller/bottom_nav_controller.dart';
+import '../../data/person.dart';
 import '../home/home_page.dart';
 import 'input_field.dart';
 import 'package:intl/intl.dart';
@@ -17,9 +19,9 @@ import 'package:intl/intl.dart';
 
 class PlantAddPage extends StatefulWidget{
 
-  const PlantAddPage({Key? key, required this.plantList}) : super(key: key);
+  const PlantAddPage({Key? key, required this.person}) : super(key: key);
 
-  final List<Plant> plantList;
+  final Person person;
 
   @override
   State<StatefulWidget> createState() {
@@ -30,6 +32,9 @@ class PlantAddPage extends StatefulWidget{
 }
 
 class _PlantAddPage extends State<PlantAddPage>{
+
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
 
   final List<Map> cycles = [
     {
@@ -74,8 +79,8 @@ class _PlantAddPage extends State<PlantAddPage>{
     repottingStartDateController.text = cycles[1][Cycles.startDate.name];
     repottingCycleController.text = cycles[1][Cycles.cycle.name];
 
-    cycles[0][Cycles.id.name] = generateCycleID(widget.plantList);
-    cycles[1][Cycles.id.name] = generateCycleID(widget.plantList)+1;
+    cycles[0][Cycles.id.name] = generateCycleID(widget.person.plants!);
+    cycles[1][Cycles.id.name] = generateCycleID(widget.person.plants!)+1;
 
     super.initState();
   }
@@ -95,11 +100,11 @@ class _PlantAddPage extends State<PlantAddPage>{
           Padding(
             padding: const EdgeInsets.only(left: 12, right: 12),
             child: IconButton(
-                onPressed: () {
+                onPressed: () async{
                   if (_formKey.currentState!.validate()) {
-                    widget.plantList.add(
+                    widget.person.plants!.add(
                         Plant(
-                          id: generateID(widget.plantList),
+                          id: generateID(widget.person.plants!),
                           pinned: false,
                           name: nameController.text,
                           type: typeController.text,
@@ -110,7 +115,11 @@ class _PlantAddPage extends State<PlantAddPage>{
                           timelines: List.empty(growable: true),
                         )
                     );
-                    Navigator.pop(context);
+                    var usersCollection = firestore.collection('users');
+                    await usersCollection.doc(widget.person.uid).update(
+                        {
+                          "plants": widget.person.plantsToJson(widget.person.plants!)
+                        }).then((value) => Navigator.pop(context));
                   }
 
                 },
@@ -126,168 +135,167 @@ class _PlantAddPage extends State<PlantAddPage>{
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Card(
-            elevation: 5,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            margin: const EdgeInsets.all(10),
-            child: Container(
-              margin: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Center(
-                        child: GestureDetector(
-                          child: image == null ? Container(
-                              width: MediaQuery.of(context).size.width * 0.4,
-                              height: MediaQuery.of(context).size.width * 0.4,
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.black54,
-                                  ),
-                                  borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.4))
-                              ),
-                              child: Icon(Icons.add_a_photo_outlined,)
-                          ) : ClipOval(
-                              child: Image.memory(image, fit: BoxFit.cover,
-                                width: MediaQuery.of(context).size.width * 0.4,
-                                height: MediaQuery.of(context).size.width * 0.4,)
-                          ),
-                          onTap: () {
-                            var picker = ImagePicker();
-                            showDialog(
-                              barrierColor: Colors.black54,
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
+          child: Container(
+            margin: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                      child: GestureDetector(
+                        child: image == null ? Container(
+                            width: MediaQuery.of(context).size.width * 0.4,
+                            height: MediaQuery.of(context).size.width * 0.4,
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.black54,
                                 ),
-                                  title: Center(child: Text("사진 선택")),
-                                  titlePadding: EdgeInsets.all(15),
-                                  content: SizedBox(
-                                    width: double.infinity,
-                                    height: MediaQuery.of(context).size.height * 0.2,
-                                    child: SingleChildScrollView(
-                                      child: Column(
-                                        children: [
-                                          Divider(thickness: 1,color: Colors.black54,),
-                                          ListTile(title: Text("카메라"),
-                                            leading: Icon(Icons.camera_alt_outlined),
-                                            onTap: () async{
-                                            await picker.pickImage(source: ImageSource.camera)
-                                                .then((value) =>  Navigator.of(context).pop(value));},
+                                borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.4))
+                            ),
+                            child: Icon(Icons.add_a_photo_outlined,)
+                        ) : ClipOval(
+                            child: Image.memory(image, fit: BoxFit.cover,
+                              width: MediaQuery.of(context).size.width * 0.4,
+                              height: MediaQuery.of(context).size.width * 0.4,)
+                        ),
+                        onTap: () {
+                          var picker = ImagePicker();
+                          showDialog(
+                            barrierColor: Colors.black54,
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                                title: Center(child: Text("사진 선택")),
+                                titlePadding: EdgeInsets.all(15),
+                                content: SizedBox(
+                                  width: double.infinity,
+                                  height: MediaQuery.of(context).size.height * 0.2,
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      children: [
+                                        Divider(thickness: 1,color: Colors.black54,),
+                                        ListTile(title: Text("카메라"),
+                                          leading: Icon(Icons.camera_alt_outlined),
+                                          onTap: () async{
+                                          await picker.pickImage(source: ImageSource.camera)
+                                              .then((value) =>  Navigator.of(context).pop(value));},
 
+                                        ),
+                                        Divider(thickness: 1),
+                                        ListTile(title: Text("갤러리"),
+                                          leading: Icon(Icons.photo_camera_back),
+                                          onTap: () async{
+                                          await picker.pickImage(source: ImageSource.gallery)
+                                              .then((value) =>  Navigator.of(context).pop(value));},
                                           ),
-                                          Divider(thickness: 1),
-                                          ListTile(title: Text("갤러리"),
-                                            leading: Icon(Icons.photo_camera_back),
-                                            onTap: () async{
-                                            await picker.pickImage(source: ImageSource.gallery)
-                                                .then((value) =>  Navigator.of(context).pop(value));},
-                                            ),
-                                          Divider(thickness: 1),
-                                        ],
-                                      ),
+                                        Divider(thickness: 1),
+                                      ],
                                     ),
                                   ),
-                                contentPadding: EdgeInsets.all(0),
-                                actions: [
-                                  TextButton(
-                                    child: const Text('취소'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ).then((value) async{
-                              if(value != null){
-                                image = await value.readAsBytes();
-                                setState((){});
-                              }
-                            });
+                                ),
+                              contentPadding: EdgeInsets.all(0),
+                              actions: [
+                                TextButton(
+                                  child: const Text('취소'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            ),
+                          ).then((value) async{
+                            if(value != null){
+                              image = await value.readAsBytes();
+                              setState((){});
+                            }
+                          });
 
-                          },
-                        )
+                        },
+                      )
+                  ),
+                  InputField(
+                    isEditable: true,
+                    label: "이름",
+                    controller: nameController,
+                    emptyText: false,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  InputField(
+                    isEditable: true,
+                    label: '종류',
+                    controller: typeController,
+                    emptyText: false,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  InputField(
+                    onTap: () async{
+                      dateController.text = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(), //초기값
+                        firstDate: DateTime(DateTime.now().year-1), //시작일
+                        lastDate: DateTime(DateTime.now().year+1), //마지막일
+                        builder: (BuildContext context, Widget? child) {
+                          return Theme(
+                            data: ThemeData.light(), //다크 테마
+                            child: child!,
+                          );
+                        },
+                      ).then((value) => value != null ? DateFormat('yyyy-MM-dd').format(value) : dateController.text );
+                    },
+                    controller: dateController,
+                    isEditable: false,
+                    label: '만날 날',
+                    emptyText: false,
+                    icon: Icon(Icons.calendar_month_outlined),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  TextFormField(
+                    controller: noteController,
+                    maxLines: null,
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(
+                      labelStyle: const TextStyle(height:0.1),
+                      labelText: "노트",
+                      hintText:  "주요 특징, 꽃말 등을 적어보세요!",
                     ),
-                    InputField(
-                      isEditable: true,
-                      label: "이름",
-                      controller: nameController,
-                      emptyText: false,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Theme(
+                    data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                    child: ExpansionTile(
+                        initiallyExpanded: true,
+                        title: Text("주기"),
+                        children: [
+                          ListView(
+                            shrinkWrap: true,
+                            children: [
+                              Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: cycleTile(cycles, CycleType.watering, wateringStartDateController, wateringCycleController)
+                              ),
+                              Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: cycleTile(cycles, CycleType.repotting, repottingStartDateController, repottingCycleController)
+                              )
+                            ],
+                          ),
+                        ]
                     ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    InputField(
-                      isEditable: true,
-                      label: '종류',
-                      controller: typeController,
-                      emptyText: false,
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    InputField(
-                      onTap: () async{
-                        dateController.text = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(), //초기값
-                          firstDate: DateTime(DateTime.now().year-1), //시작일
-                          lastDate: DateTime(DateTime.now().year+1), //마지막일
-                          builder: (BuildContext context, Widget? child) {
-                            return Theme(
-                              data: ThemeData.light(), //다크 테마
-                              child: child!,
-                            );
-                          },
-                        ).then((value) => value != null ? DateFormat('yyyy-MM-dd').format(value) : dateController.text );
-                      },
-                      controller: dateController,
-                      isEditable: false,
-                      label: '만날 날',
-                      emptyText: false,
-                      icon: Icon(Icons.calendar_month_outlined),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    TextFormField(
-                      controller: noteController,
-                      maxLines: null,
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        labelStyle: const TextStyle(height:0.1),
-                        labelText: "노트",
-                        hintText:  "주요 특징, 꽃말 등을 적어보세요!",
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Text("주기"),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    ListView(
-                      shrinkWrap: true,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: cycleTile(cycles,CycleType.watering,wateringStartDateController,wateringCycleController)
-                        ),
-                        Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: cycleTile(cycles,CycleType.repotting,repottingStartDateController,repottingCycleController)
-                        )
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                  Divider(thickness: 1,color: Colors.black38,),
+                ],
               ),
             ),
           ),

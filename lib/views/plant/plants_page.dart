@@ -7,13 +7,14 @@ import 'package:plantory/views/plant/plant_add_page.dart';
 import 'package:plantory/views/plant/plant_detail_page.dart';
 import 'package:unicons/unicons.dart';
 import '../../../utils/colors.dart';
+import '../../data/person.dart';
 import '../../data/plant.dart';
 
 class PlantsPage extends StatefulWidget {
 
-  const PlantsPage({Key? key,required this.plantList}) : super(key: key);
+  const PlantsPage({Key? key, required this.person}) : super(key: key);
 
-  final List<Plant> plantList;
+  final Person person;
 
   @override
   State<StatefulWidget> createState() {
@@ -23,6 +24,14 @@ class PlantsPage extends StatefulWidget {
 }
 
 class _PlantsPage extends State<PlantsPage> {
+
+  late List<Plant?> plantList;
+
+  @override
+  void initState() {
+    plantList = widget.person.plants ?? [];
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +46,7 @@ class _PlantsPage extends State<PlantsPage> {
           style: TextStyle(color: primaryColor),
         ),
       ),
-      body: Padding(
+      body: plantList.isNotEmpty ? Padding(
         padding: const EdgeInsets.all(10.0),
         child: GridView.builder(
           gridDelegate:
@@ -53,14 +62,14 @@ class _PlantsPage extends State<PlantsPage> {
                       padding: const EdgeInsets.all(10.0),
                       child: InkWell(
                           onTap: () {
-                            Get.to(() => PlantDetailPage(plant: widget.plantList[position]))?.then((value) => setState((){}));
+                            Get.to(() => PlantDetailPage(plant:plantList[position]!, person: widget.person,))?.then((value) => setState((){}));
                           },
                           child: Center(
                             child: Column(
                               children: [
                                 Center(
-                                  child: widget.plantList[position].image != null ? ClipOval(
-                                        child: Image.memory(base64Decode(widget.plantList[position].image!),
+                                  child: plantList[position]!.image != null ? ClipOval(
+                                        child: Image.memory(base64Decode(plantList[position]!.image!),
                                         width: MediaQuery.of(context).size.width * 0.3,
                                         height: MediaQuery.of(context).size.width * 0.3,
                                         fit: BoxFit.cover,
@@ -70,7 +79,7 @@ class _PlantsPage extends State<PlantsPage> {
                                     width: MediaQuery.of(context).size.width * 0.3,
                                     height: MediaQuery.of(context).size.width * 0.3,
                                     decoration: BoxDecoration(
-                                        color: Color(0xff8bbb88),
+                                        color: Color(0xffC9D9CF),
                                         borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.3))),
                                     child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.15,color: Colors.black54,)
                                   ),
@@ -80,7 +89,7 @@ class _PlantsPage extends State<PlantsPage> {
                                   child: Container(
                                     alignment: Alignment.bottomCenter,
                                     child: Text(
-                                      widget.plantList[position].name!,
+                                      plantList[position]!.name!,
                                       textAlign: TextAlign.center,
                                       style: TextStyle(),
                                     ),
@@ -93,15 +102,30 @@ class _PlantsPage extends State<PlantsPage> {
               ),
             );
           },
-          itemCount: widget.plantList.length,
+          itemCount: plantList.length,
+        ),
+      ) :  Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(UniconsLine.flower),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text("Plantory에 처음 오신 것을 환영합니다."),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text("이용자님의 첫 식물을 추가해보세요!"),
+            ),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Get.to(() => PlantAddPage(plantList : widget.plantList,))?.then((value) => setState((){}));
+          Get.to(() => PlantAddPage(person: widget.person,))?.then((value) => setState((){}));
         },
         heroTag: null,
-        child: Icon(Icons.add, size: 40,),backgroundColor: primaryColor,),
+        child: Icon(Icons.add,),backgroundColor: primaryColor,),
     );
   }
 }

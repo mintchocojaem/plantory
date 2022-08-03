@@ -3,15 +3,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:plantory/views/calendar/timeline_page.dart';
+import 'package:plantory/views/calendar/timeline_add_page.dart';
 import '../../../utils/colors.dart';
+import '../../data/person.dart';
 import '../../data/plant.dart';
 import 'calendar.dart';
 
 class CalendarPage extends StatefulWidget{
-  CalendarPage({Key? key, required this.plantList}) : super(key: key);
+  CalendarPage({Key? key, required this.person }) : super(key: key);
 
-  final List<Plant> plantList;
+  final Person person;
 
   @override
   State<StatefulWidget> createState() {
@@ -22,6 +23,13 @@ class CalendarPage extends StatefulWidget{
 }
 
 class _CalendarPage extends State<CalendarPage>{
+
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -42,14 +50,14 @@ class _CalendarPage extends State<CalendarPage>{
     ),
       body: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10),
-        child: Calendar(plantList: widget.plantList,),
+        child: Calendar(person:  widget.person,),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Get.to(() => TimelinePage(plantList : widget.plantList,))?.then((value) => setState((){}));
+          Get.to(() => TimelineAddPage(person : widget.person,))?.then((value) => setState((){}));
         },
         heroTag: null,
-        child: Icon(Icons.add, size: 40,),backgroundColor: primaryColor,),
+        child: Icon(Icons.add),backgroundColor: primaryColor,),
     );
   }
 }

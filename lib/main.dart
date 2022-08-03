@@ -14,7 +14,6 @@ import 'package:plantory/views/index_page.dart';
 import 'package:plantory/views/notification/notification.dart';
 import 'firebase_options.dart';
 
-
 void main() async{
 
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,8 +44,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData.light(),
         home: //SplashScreen(),
-              IndexPage(),
-              //AuthPage(),
+              //IndexPage(),
+              AuthPage(),
         initialBinding: InitBinding(),
     );
   }

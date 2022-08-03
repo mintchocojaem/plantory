@@ -55,6 +55,7 @@ dependencies:
   flutter_local_notifications: ^9.7.0
   flutter_native_timezone: ^2.0.0
   timeline_tile: ^2.0.0
+  google_fonts: ^3.0.1
 
 
 dev_dependencies:

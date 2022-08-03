@@ -1,17 +1,22 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:get/instance_manager.dart';
+import 'package:get/route_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:plantory/views/index_page.dart';
+import 'package:plantory/views/plant/plant_add_page.dart';
 import 'package:unicons/unicons.dart';
 import '../../../data/plant.dart';
 import '../../../utils/colors.dart';
+import '../../data/person.dart';
 
 class HomePage extends StatefulWidget{
 
-  HomePage({Key? key, required this.plantList}) : super(key: key);
+  HomePage({Key? key, required this.person}) : super(key: key);
 
-  final List<Plant> plantList;
+  final Person person;
 
   @override
   State<StatefulWidget> createState() {
@@ -23,7 +28,13 @@ class HomePage extends StatefulWidget{
 
 class _HomePage extends State<HomePage>{
 
+
   final PageController pageController = PageController(initialPage: 0,viewportFraction: 0.9);
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +51,8 @@ class _HomePage extends State<HomePage>{
           style: TextStyle(color: primaryColor),
         ),
       ),
-      body: PageView.builder(
-          itemCount: widget.plantList.length,
+      body: widget.person.plants!.isNotEmpty ? PageView.builder(
+          itemCount: widget.person.plants!.length,
           pageSnapping: true,
           controller: pageController,
           itemBuilder: (context, pagePosition) {
@@ -54,7 +65,7 @@ class _HomePage extends State<HomePage>{
                 ),
                 child: Stack(
                   children: [
-                    widget.plantList[pagePosition].pinned == true ? Positioned(
+                    widget.person.plants![pagePosition]!.pinned == true ? Positioned(
                         top: 20,
                         right: 20,
                         child: Container(
@@ -71,8 +82,8 @@ class _HomePage extends State<HomePage>{
                       child: Column(
                         children: [
                           Center(
-                            child: widget.plantList[pagePosition].image != null ? ClipOval(
-                                child: Image.memory(base64Decode(widget.plantList[pagePosition].image!),
+                            child: widget.person.plants![pagePosition]!.image != null ? ClipOval(
+                                child: Image.memory(base64Decode(widget.person.plants![pagePosition]!.image!),
                                   width: MediaQuery.of(context).size.width * 0.6,
                                   height: MediaQuery.of(context).size.width * 0.6,
                                   fit: BoxFit.cover,
@@ -88,9 +99,9 @@ class _HomePage extends State<HomePage>{
                             ),
                           ),
                           SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                          Text("${widget.plantList[pagePosition].type!}", style: TextStyle(),),
+                          Text("${widget.person.plants![pagePosition]!.type!}", style: TextStyle(),),
                           SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                          Text("${widget.plantList[pagePosition].name!}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),),
+                          Text("${widget.person.plants![pagePosition]!.name!}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),),
                           SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                           Expanded(
                             child: Container(
@@ -108,18 +119,18 @@ class _HomePage extends State<HomePage>{
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text("${widget.plantList[pagePosition].name!}와 함께한지 ",),
+                                      Text("${widget.person.plants![pagePosition]!.name!}와 함께한지 ",),
                                       Text("${DateFormat('yyyy-MM-dd')
                                           .parse(DateTime.now().toString()).difference(DateFormat('yyyy-MM-dd')
-                                          .parse(widget.plantList[pagePosition].date!)).inDays}일이 지났어요!",
+                                          .parse(widget.person.plants![pagePosition]!.date!)).inDays}일이 지났어요!",
                                         style: TextStyle(fontWeight: FontWeight.w500),)
                                     ],
                                   ),
                                   SizedBox(height: 10,),
                                   Divider(thickness: 1,color: Colors.black38,),
                                   SizedBox(height: 10,),
-                                  cycleTile(widget.plantList[pagePosition], pagePosition, CycleType.watering),
-                                  cycleTile(widget.plantList[pagePosition], pagePosition, CycleType.repotting)
+                                  cycleTile(widget.person.plants![pagePosition]!, pagePosition, CycleType.watering),
+                                  cycleTile(widget.person.plants![pagePosition]!, pagePosition, CycleType.repotting)
                                 ],
                               ),
                             ),
@@ -131,7 +142,29 @@ class _HomePage extends State<HomePage>{
                 ),
               ),
             );
-          }),
+          }) : Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(UniconsLine.flower),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text("Plantory에 처음 오신 것을 환영합니다."),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text("이용자님의 첫 식물을 추가해보세요!"),
+                  ),
+                  MaterialButton(
+                    color: Color(0xffC9D9CF),
+                    onPressed: (){
+                      Get.to(() => PlantAddPage(person: widget.person,));
+                    },
+                    child: Text("식물 추가"),
+                  )
+                ],
+            ),
+          ),
     );
   }
 

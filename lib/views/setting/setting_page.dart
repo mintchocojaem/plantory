@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -5,12 +8,14 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:plantory/controller/bottom_nav_controller.dart';
 
+import '../../data/person.dart';
 import '../../utils/colors.dart';
 
 class SettingPage extends StatefulWidget {
 
-  SettingPage({Key? key}) : super(key: key);
+  SettingPage({Key? key, required this.person}) : super(key: key);
 
+  final Person person;
 
   @override
   State<StatefulWidget> createState() {
@@ -21,8 +26,9 @@ class SettingPage extends StatefulWidget {
 
 class _SettingPage extends State<SettingPage>{
 
-  final TextEditingController nameController = TextEditingController();
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
+  final TextEditingController nameController = TextEditingController();
   String name = "User";
   bool editName = false;
   var image;
@@ -30,12 +36,14 @@ class _SettingPage extends State<SettingPage>{
 
   @override
   initState() {
-    nameController.text = name;
+    nameController.text = widget.person.name!;
+    if(widget.person.image != null) image = base64Decode(widget.person.image!);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Color(0xffEEF1F1),
       appBar: AppBar(
@@ -122,6 +130,11 @@ class _SettingPage extends State<SettingPage>{
                           ).then((value) async{
                             if(value != null){
                               image = await value.readAsBytes();
+                              var usersCollection = firestore.collection('users');
+                              await usersCollection.doc(widget.person.uid).update(
+                                  {
+                                    "image": base64Encode(image)
+                                  });
                               setState((){});
                             }
                           });
@@ -155,16 +168,27 @@ class _SettingPage extends State<SettingPage>{
                           right:  0,
                           child: IconButton(
                               icon: editName == false ? Icon(Icons.mode_edit_outlined,size: 24,) : Icon(Icons.check_outlined),
-                              onPressed: (){
-                                setState((){
-                                  editName = !editName;
-                                  if(nameController.text.isNotEmpty) name = nameController.text;
-                                  nameController.text = name;
-                                  nameController.selection = TextSelection(
-                                      extentOffset: nameController.text.length,
-                                      baseOffset: nameController.text.length);
-                                  if(editName) focusNode.requestFocus();
-                                });
+                              onPressed: () async{
+                                  if(nameController.text.isNotEmpty) {
+                                    setState((){
+                                      editName = !editName;
+                                      name = nameController.text;
+                                      if(editName) focusNode.requestFocus();
+                                    });
+                                    var usersCollection = firestore.collection('users');
+                                    await usersCollection.doc(widget.person.uid).update(
+                                        {
+                                          "name": nameController.text
+                                        }).whenComplete(() => print("user name Changed"));
+                                  }else{
+                                    setState(() {
+                                      nameController.text = name;
+                                      nameController.selection = TextSelection(
+                                          extentOffset: nameController.text.length,
+                                          baseOffset: nameController.text.length);
+                                      if(editName) focusNode.requestFocus();
+                                    });
+                                  }
                               },
                           )
                       ),
