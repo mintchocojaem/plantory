@@ -53,7 +53,7 @@ class _CommunityPage extends State<CommunityPage>{
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
-            margin: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 10),
+            margin: const EdgeInsets.only(left: 16,right: 16,top: 8,bottom: 8),
             child: Center(
               child: FutureBuilder(
                 future: getBoardData(),
@@ -163,8 +163,8 @@ class _CommunityPage extends State<CommunityPage>{
        ));
      }
     }
-    result.sort((b,a) => (DateFormat('yyyy-MM-dd-HH-mm-ss').parse(a.date!))
-        .compareTo((DateFormat('yyyy-MM-dd-HH-mm-ss').parse(b.date!))));
+    result.sort((b,a) => (DateFormat('yyyy-MM-dd hh:mm').parse(a.date!))
+        .compareTo((DateFormat('yyyy-MM-dd hh:mm').parse(b.date!))));
 
     if(result.isNotEmpty){
       for(Post i in result){

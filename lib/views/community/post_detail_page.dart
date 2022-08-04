@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -36,9 +37,12 @@ class _PostDetailPage extends State<PostDetailPage>{
 
   Map<String, dynamic> postData = {};
 
-  String postUserName = " User";
-  List<String> commentUserNames = List.empty(growable: true);
-  List<List<String>> subCommentUserNames = List.empty(growable: true);
+  Map postUser = {
+    'name' : "User",
+    'image' : null
+  };
+  List<Map> commentUser = List.empty(growable: true);
+  List<List<Map>> subCommentUser = List.empty(growable: true);
 
   TextEditingController commentController = TextEditingController();
 
@@ -92,9 +96,20 @@ class _PostDetailPage extends State<PostDetailPage>{
                                         children: [
                                           ListTile(
                                             contentPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
-                                            title: Text(postUserName,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04)),
+                                            title: Text(postUser["name"],style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04)),
                                             subtitle: Text(snapshot.data.date,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035),),
-                                            leading: Container(
+                                            leading: postUser["image"] != null ? Container(
+                                                width: MediaQuery.of(context).size.width * 0.1,
+                                                height: MediaQuery.of(context).size.width * 0.1,
+                                                decoration: BoxDecoration(
+                                                    image: DecorationImage(
+                                                      fit: BoxFit.cover,
+                                                      image: Image.memory(base64Decode(postUser["image"]),
+                                                        fit: BoxFit.cover,).image,
+                                                    ),
+                                                    borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
+                                                )
+                                            ) : Container(
                                                 width: MediaQuery.of(context).size.width * 0.1,
                                                 height: MediaQuery.of(context).size.width * 0.1,
                                                 decoration: BoxDecoration(
@@ -131,21 +146,44 @@ class _PostDetailPage extends State<PostDetailPage>{
                                               ),
                                             ),
                                           ),
+                                          snapshot.data.image != null ? Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Center(
+                                              child: Container(
+                                                  width: MediaQuery.of(context).size.width * 0.6,
+                                                  height: MediaQuery.of(context).size.width * 0.6,
+                                                  decoration: BoxDecoration(
+                                                      image: DecorationImage(
+                                                        fit: BoxFit.cover,
+                                                        image: Image.memory(base64Decode(snapshot.data.image),
+                                                          fit: BoxFit.cover,).image,
+                                                      ),
+                                                      borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
+                                                  )
+                                              ),
+                                            ),
+                                          ) : Container(),
                                           Text(snapshot.data.content,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
-                                          Row(
-                                            crossAxisAlignment: CrossAxisAlignment.end,
-                                            children: [
-                                              Padding(
-                                                padding: const EdgeInsets.only(top: 8,left: 8, right: 8),
-                                                child: Icon(Icons.thumb_up,size: MediaQuery.of(context).size.width * 0.035,),
-                                              ),
-                                              Text(snapshot.data.like.length.toString(),style: TextStyle(color: Colors.black54, fontSize: MediaQuery.of(context).size.width * 0.035)),
-                                              Padding(
-                                                padding: const EdgeInsets.only(top: 8,left: 8, right: 8),
-                                                child: Icon(Icons.comment_rounded,size: MediaQuery.of(context).size.width * 0.035,),
-                                              ),
-                                              Text((commentUserNames.length+subCommentUserNames.length).toString(),style: TextStyle(color: Colors.black54, fontSize: MediaQuery.of(context).size.width * 0.035))
-                                            ],
+                                          Padding(
+                                            padding: const EdgeInsets.only(top: 8),
+                                            child: Row(
+                                              crossAxisAlignment: CrossAxisAlignment.end,
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets.only(right: 4),
+                                                  child: Icon(Icons.thumb_up,size: MediaQuery.of(context).size.width * 0.035,),
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets.only(right : 8),
+                                                  child: Text(snapshot.data.like.length.toString(),style: TextStyle(color: Colors.black54, fontSize: MediaQuery.of(context).size.width * 0.035)),
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets.only(right: 4),
+                                                  child: Icon(Icons.comment_rounded,size: MediaQuery.of(context).size.width * 0.035,),
+                                                ),
+                                                Text((commentUser.length+subCommentUser.length).toString(),style: TextStyle(color: Colors.black54, fontSize: MediaQuery.of(context).size.width * 0.035))
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -169,8 +207,19 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                         contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                                                         dense: true,
                                                         visualDensity: VisualDensity(horizontal: -4, vertical: -4),
-                                                        title: Text(commentUserNames[index] ,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
-                                                        leading: Container(
+                                                        title: Text(commentUser[index]["name"] ,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
+                                                        leading: commentUser[index]["image"] != null ? Container(
+                                                            width: MediaQuery.of(context).size.width * 0.08,
+                                                            height: MediaQuery.of(context).size.width * 0.08,
+                                                            decoration: BoxDecoration(
+                                                                image: DecorationImage(
+                                                                  fit: BoxFit.cover,
+                                                                  image: Image.memory(base64Decode(commentUser[index]["image"]),
+                                                                    fit: BoxFit.cover,).image,
+                                                                ),
+                                                                borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
+                                                            )
+                                                        ) : Container(
                                                             width: MediaQuery.of(context).size.width * 0.08,
                                                             height: MediaQuery.of(context).size.width * 0.08,
                                                             decoration: BoxDecoration(
@@ -222,9 +271,10 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                     ],
                                                   ),
                                                   Padding(
-                                                    padding: const EdgeInsets.only(top: 4,bottom: 4),
+                                                    padding: const EdgeInsets.only(top: 8,bottom: 8),
                                                     child: Text(snapshot.data.comments[index].content,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
                                                   ),
+                                                  Text(snapshot.data.comments[index].date,style: TextStyle(color: Colors.black54, fontSize: MediaQuery.of(context).size.width * 0.035),)
                                                 ],
                                               ),
                                               ListView.builder(
@@ -255,8 +305,19 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                                     contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                                                                     dense: true,
                                                                     visualDensity: VisualDensity(horizontal: -4, vertical: -4),
-                                                                    title: Text(subCommentUserNames[index][position],style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
-                                                                    leading: Container(
+                                                                    title: Text(subCommentUser[index][position]["name"],style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
+                                                                    leading:  subCommentUser[index][position]["image"] != null ? Container(
+                                                                        width: MediaQuery.of(context).size.width * 0.08,
+                                                                        height: MediaQuery.of(context).size.width * 0.08,
+                                                                        decoration: BoxDecoration(
+                                                                            image: DecorationImage(
+                                                                              fit: BoxFit.cover,
+                                                                              image: Image.memory(base64Decode(subCommentUser[index][position]["image"]),
+                                                                                fit: BoxFit.cover,).image,
+                                                                            ),
+                                                                            borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
+                                                                        )
+                                                                    ) : Container(
                                                                         width: MediaQuery.of(context).size.width * 0.08,
                                                                         height: MediaQuery.of(context).size.width * 0.08,
                                                                         decoration: BoxDecoration(
@@ -271,7 +332,7 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                                 ],
                                                               ),
                                                               Padding(
-                                                                padding: const EdgeInsets.only(top: 4,bottom: 4),
+                                                                padding: const EdgeInsets.only(top: 8,bottom: 8),
                                                                 child: Text(snapshot.data.comments[index].subComments[position].content,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
                                                               ),
                                                               Text(snapshot.data.comments[index].subComments[position].date,style: TextStyle(color: Colors.black54, fontSize: MediaQuery.of(context).size.width * 0.035),)
@@ -323,7 +384,7 @@ class _PostDetailPage extends State<PostDetailPage>{
                                         SubComment(
                                             uid: widget.person.uid,
                                             id: getRandomString(12),
-                                            date: DateFormat('yyyy-MM-dd-HH-mm-ss').format(DateTime.now()).toString(),
+                                            date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()).toString(),
                                             content: commentController.text
                                         ).toJson()
                                     );
@@ -339,7 +400,7 @@ class _PostDetailPage extends State<PostDetailPage>{
                                         Comment(
                                             uid: widget.person.uid,
                                             id: getRandomString(12),
-                                            date: DateFormat('yyyy-MM-dd-HH-mm-ss').format(DateTime.now()).toString(),
+                                            date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()).toString(),
                                             subComments: [],
                                             content: commentController.text
                                         ).toJson()
@@ -382,32 +443,42 @@ class _PostDetailPage extends State<PostDetailPage>{
   }
 
   getPostData() async{
-    List<String> tempCommentUserNames = List.empty(growable: true);
-    List<List<String>> tempSubCommentUserNames = List.empty(growable: true);
+    List<Map> tempCommentUserNames = List.empty(growable: true);
+    List<List<Map>> tempSubCommentUserNames = List.empty(growable: true);
 
     postData = await firestore.collection('board').doc(widget.uid).get().then((value) => value.data()![widget.id]);
 
     Post post = Post.fromJson(postData);
 
     var usersCollection = firestore.collection('users');
-    postUserName = await usersCollection.doc(widget.uid).get().then((value) =>  value["name"]);
+    postUser = {
+      'name' : await usersCollection.doc(widget.uid).get().then((value) =>  value["name"]),
+      'image' : await usersCollection.doc(widget.uid).get().then((value) =>  value["image"]),
+    };
 
     if(post.comments!.isNotEmpty){
       for(Comment? i in post.comments!){
-        String name = await usersCollection.doc(i!.uid).get().then((value) =>  value["name"]);
-        tempCommentUserNames.add(name);
+        Map user = {
+          'name' : await usersCollection.doc(i!.uid).get().then((value) =>  value["name"]),
+          'image' : await usersCollection.doc(i.uid).get().then((value) =>  value["image"]),
+        };
+        tempCommentUserNames.add(user);
         if(i.subComments!.isNotEmpty){
-          List<String> temp = List.empty(growable: true);
+          List<Map> temp = List.empty(growable: true);
           for(SubComment? j in i.subComments!){
-            String name = await usersCollection.doc(j!.uid).get().then((value) =>  value["name"]);
-            temp.add(name);
+            Map user = {
+              'name' : await usersCollection.doc(j!.uid).get().then((value) =>  value["name"]),
+              'image' : await usersCollection.doc(j!.uid).get().then((value) =>  value["image"]),
+            };
+            temp.add(user);
           }
           tempSubCommentUserNames.add(temp);
         }
       }
     }
-    commentUserNames = tempCommentUserNames;
-    subCommentUserNames = tempSubCommentUserNames;
+
+    commentUser = tempCommentUserNames;
+    subCommentUser = tempSubCommentUserNames;
 
     return post;
   }
