@@ -32,7 +32,7 @@ class IndexPage extends GetView<BottomNavController> {
           HomePage(person: person),
           CalendarPage(person: person),
           PlantsPage(person: person,),
-          CommunityPage(),
+          CommunityPage(person: person,),
           SettingPage(person: person),
         ],
       ),

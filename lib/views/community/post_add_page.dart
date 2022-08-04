@@ -8,16 +8,15 @@ import 'package:get/instance_manager.dart';
 import 'package:get/route_manager.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:unicons/unicons.dart';
-
-import '../../data/plant.dart';
+import 'package:plantory/data/post.dart';
+import '../../data/person.dart';
 import '../../utils/colors.dart';
-import '../plant/input_field.dart';
 
 class PostAddPage extends StatefulWidget{
 
-  const PostAddPage({Key? key}) : super(key: key);
+  const PostAddPage({Key? key, required this.person}) : super(key: key);
 
+  final Person person;
 
   @override
   State<StatefulWidget> createState() {
@@ -58,10 +57,40 @@ class _PostAddPage extends State<PostAddPage>{
           Padding(
             padding: const EdgeInsets.only(left: 12, right: 12),
             child: IconButton(
-                onPressed: (){
+                onPressed: () async{
                   if(_formKey.currentState!.validate()){
-
-                    Get.back();
+                    var usersCollection = firestore.collection('board');
+                    String random = getRandomString(12);
+                    DocumentSnapshot userData = await usersCollection.doc(widget.person.uid).get();
+                    if(userData.exists){
+                      await usersCollection.doc(widget.person.uid).update(
+                          {
+                            random : Post(
+                              uid: widget.person.uid,
+                              id: random,
+                              image: image != null ? base64Encode(image) : null,
+                              date: DateFormat('yyyy-MM-dd-HH-mm-ss').format(DateTime.now()),
+                              title: titleController.text,
+                              content: contentController.text,
+                              like: List.empty(growable: true),
+                              comments: List.empty(growable: true),
+                            ).toJson()
+                          }).then((value) => Get.back());
+                    }else{
+                      await usersCollection.doc(widget.person.uid).set(
+                          {
+                            random : Post(
+                              uid: widget.person.uid,
+                              id: random,
+                              image: image != null ? base64Encode(image) : null,
+                              date: DateFormat('yyyy-MM-dd-HH-mm-ss').format(DateTime.now()),
+                              title: titleController.text,
+                              content: contentController.text,
+                              like: List.empty(growable: true),
+                              comments: List.empty(growable: true),
+                            ).toJson()
+                          }).then((value) => Get.back());
+                    }
                   }
                 },
                 icon: Icon(Icons.check, color: Colors.black54,)

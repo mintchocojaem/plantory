@@ -35,7 +35,6 @@ class _PlantAddPage extends State<PlantAddPage>{
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-
   final List<Map> cycles = [
     {
       Cycles.id.name : 0,

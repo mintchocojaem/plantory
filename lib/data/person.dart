@@ -1,5 +1,3 @@
-
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:plantory/data/plant.dart';
 
 class Person{
@@ -12,16 +10,6 @@ class Person{
   String? image;
   String? permission;
   List<Plant?>? plants;
-  /*
-  Person.fromJson(Map<String, dynamic> json)
-      : uid = json["uid"],
-        email = json['email'],
-        name = json['name'],
-        image = json["image"],
-        permission = json["permission"],
-        plants = plantsFromJson(json["permission"]);
-
-   */
 
   Person.fromJson(Map<String, dynamic> json){
     uid = json["uid"];
@@ -57,7 +45,5 @@ class Person{
     }
     return result;
   }
-
-
 
 }

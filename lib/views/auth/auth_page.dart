@@ -71,6 +71,7 @@ class AuthPage extends StatelessWidget {
               final User user = auth.currentUser!;
 
               return Scaffold(
+                resizeToAvoidBottomInset: false,
                 body: Center(
                   child: FutureBuilder(
                     future: getUserData(user),
@@ -95,7 +96,7 @@ class AuthPage extends StatelessWidget {
   Future<Person> getUserData(User user) async{
     late Person person;
     CollectionReference usersCollection = firestore.collection('users');
-    DocumentSnapshot userData = await usersCollection.doc(user.uid).get().whenComplete(() => null);
+    DocumentSnapshot userData = await usersCollection.doc(user.uid).get();
     if(userData.exists){
       person = Person(
         uid: userData["uid"],

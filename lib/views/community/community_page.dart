@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,11 +10,14 @@ import 'package:plantory/views/community/post_detail_page.dart';
 import 'package:unicons/unicons.dart';
 import '../../../data/plant.dart';
 import '../../../utils/colors.dart';
+import '../../data/person.dart';
+import '../../data/post.dart';
 
 class CommunityPage extends StatefulWidget{
 
-  const CommunityPage({Key? key}) : super(key: key);
+  const CommunityPage({Key? key, required this.person}) : super(key: key);
 
+  final Person person;
 
   @override
   State<StatefulWidget> createState() {
@@ -27,13 +29,14 @@ class CommunityPage extends StatefulWidget{
 
 class _CommunityPage extends State<CommunityPage>{
 
-  //FirebaseFirestore firestore = FirebaseFirestore.instance;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  //late DocumentSnapshot<Map<String,dynamic>> boardData;
-  var boardData;
+  List<int> commentCounter = List.empty(growable: true);
+  List<String> postUserNames = List.empty(growable: true);
 
   @override
   Widget build(BuildContext context) {
+
 
     return Scaffold(
       backgroundColor: Color(0xffEEF1F1),
@@ -58,10 +61,10 @@ class _CommunityPage extends State<CommunityPage>{
                   if(snapshot.hasData == false){
                     return CircularProgressIndicator();
                   }else if(snapshot.hasError){
-                    return Container();
+                    return CircularProgressIndicator();
                   }else{
                     return ListView.builder(
-                        itemCount: 1,
+                        itemCount: snapshot.data.length,
                         shrinkWrap: true,
                         itemBuilder: (BuildContext context,int index) {
                           return GestureDetector(
@@ -76,10 +79,10 @@ class _CommunityPage extends State<CommunityPage>{
                                     title: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text("제 식물상태가 이상합니다",style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.034))
+                                        Text(snapshot.data[index].title,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.034))
                                       ],
                                     ),
-                                    subtitle: Text("이파리가 시들시들해요 어떻게 하죠?",style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.032),),
+                                    subtitle: Text(snapshot.data[index].content,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.032),),
                                   ),
                                 ),
                                 Row(
@@ -87,9 +90,9 @@ class _CommunityPage extends State<CommunityPage>{
                                   children: [
                                     Row(
                                       children: [
-                                        Text("2022/08/03",style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54),),
+                                        Text(snapshot.data[index].date,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54),),
                                         Text(" | ",style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54)),
-                                        Text("User",style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54)),
+                                        Text(postUserNames[index],style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54)),
                                       ],
                                     ),
                                     Row(
@@ -99,7 +102,7 @@ class _CommunityPage extends State<CommunityPage>{
                                             Icon(Icons.thumb_up, size: MediaQuery.of(context).size.width * 0.035, color: Colors.black54,),
                                             Padding(
                                               padding: const EdgeInsets.only(right: 4,left: 4),
-                                              child: Text("5", style: TextStyle(color: Colors.black54),),
+                                              child: Text(snapshot.data[index].like.length.toString(), style: TextStyle(color: Colors.black54),),
                                             )
                                           ],
                                         ),
@@ -111,7 +114,7 @@ class _CommunityPage extends State<CommunityPage>{
                                             Icon(Icons.comment_rounded, size: MediaQuery.of(context).size.width * 0.035, color: Colors.black54,),
                                             Padding(
                                               padding: const EdgeInsets.only(right: 4,left: 4),
-                                              child: Text("10", style: TextStyle(color: Colors.black54),),
+                                              child: Text(commentCounter[index].toString(), style: TextStyle(color: Colors.black54),),
                                             )
                                           ],
                                         ),
@@ -119,11 +122,11 @@ class _CommunityPage extends State<CommunityPage>{
                                     ),
                                   ],
                                 ),
-                                index == 0 ? Divider() : Container() //이부분 마지막에 바꿔야함
+                                index == snapshot.data.indexOf(snapshot.data.last) ? Divider() : Container() //이부분 마지막에 바꿔야함
                               ],
                             ),
                             onTap: (){
-                              Get.to(() => PostDetailPage());
+                              Get.to(() => PostDetailPage(uid: snapshot.data[index].uid,id: snapshot.data[index].id,person: widget.person,))?.then((value) => setState((){}));
                             },
                           );
                         }
@@ -137,7 +140,7 @@ class _CommunityPage extends State<CommunityPage>{
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Get.to(() => PostAddPage());
+          Get.to(() => PostAddPage(person: widget.person,))?.then((value) => setState((){}));
         },
         heroTag: null,
         child: Icon(Icons.add),backgroundColor: primaryColor,),
@@ -146,11 +149,49 @@ class _CommunityPage extends State<CommunityPage>{
   }
 
   getBoardData() async{
-    //return boardData = await firestore.collection('board').doc("first").get();
-    return true;
+    List<Post> result = List.empty(growable: true);
+    List<String> tempPostUserNames = List.empty(growable: true);
+    List<int> tempCommentsNumber = List.empty(growable: true);
+
+    var boardData = await firestore.collection('board').get().then((value) => value.docs.map((e) => e.data().values).toList());
+
+    var usersCollection = firestore.collection('users');
+    for(var i in boardData){
+     for(var j in i){
+       await usersCollection.doc(j["uid"]).get().then((value) => result.add(
+           Post.fromJson(j)
+       ));
+     }
+    }
+    result.sort((b,a) => (DateFormat('yyyy-MM-dd-HH-mm-ss').parse(a.date!))
+        .compareTo((DateFormat('yyyy-MM-dd-HH-mm-ss').parse(b.date!))));
+
+    if(result.isNotEmpty){
+      for(Post i in result){
+        String name = await usersCollection.doc(i.uid).get().then((value) => value["name"]);
+        tempPostUserNames.add(name);
+        if(i.comments!.isNotEmpty){
+          int tempCounter = 0;
+
+          for(int j = 0; j < i.comments!.length; j++){
+            tempCounter++;
+            if(i.comments![j]!.subComments!.isNotEmpty){
+              for(int k = 0; k < i.comments![j]!.subComments!.length; k++){
+                tempCounter++;
+              }
+            }
+          }
+          tempCommentsNumber.add(tempCounter);
+        }else{
+          tempCommentsNumber.add(0);
+        }
+      }
+    }
+    postUserNames = tempPostUserNames;
+    commentCounter = tempCommentsNumber;
+
+    return result;
   }
-
-
 
 
 }
