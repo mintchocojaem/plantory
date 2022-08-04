@@ -52,6 +52,9 @@ class _PostDetailPage extends State<PostDetailPage>{
 
   int? commentIndex;
 
+  Color thumbColor = Color(0xffff8080);
+  Color commentColor = Color(0xff66a3ff);
+
   @override
   Widget build(BuildContext context) {
 
@@ -127,7 +130,7 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                   width: MediaQuery.of(context).size.width * 0.06,
                                                   child: IconButton(
                                                     padding: new EdgeInsets.all(0.0),
-                                                    icon: new Icon(Icons.thumb_up,size: MediaQuery.of(context).size.width * 0.035,),
+                                                    icon: new Icon(Icons.thumb_up,size: MediaQuery.of(context).size.width * 0.05,color: thumbColor,),
                                                     onPressed: () async{
                                                       if(!postData["like"].contains(widget.person.uid)){
                                                         postData["like"].add(widget.person.uid);
@@ -171,7 +174,7 @@ class _PostDetailPage extends State<PostDetailPage>{
                                               children: [
                                                 Padding(
                                                   padding: const EdgeInsets.only(right: 4),
-                                                  child: Icon(Icons.thumb_up,size: MediaQuery.of(context).size.width * 0.035,),
+                                                  child: Icon(Icons.thumb_up,size: MediaQuery.of(context).size.width * 0.035,color: thumbColor,),
                                                 ),
                                                 Padding(
                                                   padding: const EdgeInsets.only(right : 8),
@@ -179,7 +182,7 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                 ),
                                                 Padding(
                                                   padding: const EdgeInsets.only(right: 4),
-                                                  child: Icon(Icons.comment_rounded,size: MediaQuery.of(context).size.width * 0.035,),
+                                                  child: Icon(Icons.comment_rounded,size: MediaQuery.of(context).size.width * 0.035,color: commentColor,),
                                                 ),
                                                 Text((commentUser.length+subCommentUser.length).toString(),style: TextStyle(color: Colors.black54, fontSize: MediaQuery.of(context).size.width * 0.035))
                                               ],
@@ -239,7 +242,7 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                             width: MediaQuery.of(context).size.width * 0.06,
                                                             child: IconButton(
                                                               padding: new EdgeInsets.all(0.0),
-                                                              icon: new Icon(Icons.comment_rounded,size: MediaQuery.of(context).size.width * 0.035,),
+                                                              icon: new Icon(Icons.comment_rounded,size: MediaQuery.of(context).size.width * 0.05,color: commentColor,),
                                                               onPressed: (){
                                                                 showDialog(barrierColor: Colors.black54, context: context, builder: (context) {
                                                                   return CupertinoAlertDialog(
