@@ -1,13 +1,18 @@
 
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'comment.dart';
 
 class Post{
 
-  Post({this.uid, this.id, this.date, this.title, this.content, this.like, this.comments, this.image});
+  Post({this.uid, this.id, this.date, this.title, this.content,
+    this.like, this.comments, this.image, this.userImage, this.userName, this.theNumberOfComments});
 
   String? uid;
+  String? userName;
+  String? userImage;
   String? id;
   String? image;
   String? date;
@@ -15,8 +20,11 @@ class Post{
   String? content;
   List? like;
   List<Comment?>? comments;
+  int? theNumberOfComments;
 
-  Post.fromJson(Map<String, dynamic> json){
+  Post.fromJson(Map<String, dynamic> json) {
+    userName = json["userName"];
+    userImage =  json["userImage"];
     uid = json["uid"];
     id = json["id"];
     image = json["image"];
@@ -25,18 +33,22 @@ class Post{
     content = json["content"];
     like = json["like"];
     comments = commentsFromJson(json["comments"]);
+    theNumberOfComments = json["theNumberOfComments"];
   }
 
   Map<String, dynamic> toJson() {
     return  {
       'uid' : uid,
+      'userName' : userName,
+      'userImage' : userImage,
       'id' : id,
       'image' : image,
       'date' : date,
       'title' : title,
       'content' : content,
       'like': (like != null && like!.isNotEmpty) ?  like : [],
-      'comments': (comments != null && comments!.isNotEmpty) ?  commentsToJson(comments!): []
+      'comments': (comments != null && comments!.isNotEmpty) ?  commentsToJson(comments!): [],
+      'theNumberOfComments' : theNumberOfComments
     };
   }
 
@@ -57,8 +69,6 @@ class Post{
   }
 
 }
-
-
 
 String getRandomString(int length) {
   const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/instance_manager.dart';
 import 'package:get/route_manager.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:plantory/data/post.dart';
@@ -59,13 +60,16 @@ class _PostAddPage extends State<PostAddPage>{
             child: IconButton(
                 onPressed: () async{
                   if(_formKey.currentState!.validate()){
-                    var usersCollection = firestore.collection('board');
+                    var boardCollection = firestore.collection('board');
                     String random = getRandomString(12);
-                    DocumentSnapshot userData = await usersCollection.doc(widget.person.uid).get();
-                    if(userData.exists){
-                      await usersCollection.doc(widget.person.uid).update(
+                    var usersCollection = firestore.collection('users');
+                    var userData = await usersCollection.doc(widget.person.uid).get().then((value) => value.data()!);
+                    if((await boardCollection.doc(widget.person.uid).get()).exists){
+                      await boardCollection.doc(widget.person.uid).update(
                           {
                             random : Post(
+                              userName: userData["name"],
+                              userImage: userData["image"],
                               uid: widget.person.uid,
                               id: random,
                               image: image != null ? base64Encode(image) : null,
@@ -74,12 +78,15 @@ class _PostAddPage extends State<PostAddPage>{
                               content: contentController.text,
                               like: List.empty(growable: true),
                               comments: List.empty(growable: true),
+                              theNumberOfComments: 0,
                             ).toJson()
                           }).then((value) => Get.back());
                     }else{
-                      await usersCollection.doc(widget.person.uid).set(
+                      await boardCollection.doc(widget.person.uid).set(
                           {
                             random : Post(
+                              userName: userData["name"],
+                              userImage: userData["image"],
                               uid: widget.person.uid,
                               id: random,
                               image: image != null ? base64Encode(image) : null,
@@ -88,6 +95,7 @@ class _PostAddPage extends State<PostAddPage>{
                               content: contentController.text,
                               like: List.empty(growable: true),
                               comments: List.empty(growable: true),
+                              theNumberOfComments: 0,
                             ).toJson()
                           }).then((value) => Get.back());
                     }

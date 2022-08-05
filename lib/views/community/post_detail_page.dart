@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:plantory/data/comment.dart';
@@ -35,16 +36,9 @@ class _PostDetailPage extends State<PostDetailPage>{
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  //Map<String, dynamic> postData = {};
+  late Post post;
 
-  /*Map postUser = {
-    'name' : "User",
-    'image' : null
-  };
-
-   */
-  //List<Map> commentUser = List.empty(growable: true);
-  //List<List<Map>> subCommentUser = List.empty(growable: true);
+  late List postCommentsJson;
 
   TextEditingController commentController = TextEditingController();
 
@@ -94,7 +88,7 @@ class _PostDetailPage extends State<PostDetailPage>{
                           CupertinoDialogAction(isDefaultAction: false, child: const Text("확인"),
                             onPressed: () async{
                               await firestore.collection('board').doc(widget.uid).update({
-                                postData["id"] : FieldValue.delete()
+                                post.id! : FieldValue.delete()
                               }).whenComplete(() {
                                 Get.back();
                                 Navigator.of(context).pop();
@@ -142,15 +136,15 @@ class _PostDetailPage extends State<PostDetailPage>{
                                         children: [
                                           ListTile(
                                             contentPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
-                                            title: Text(postUser["name"],style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04)),
-                                            subtitle: Text(snapshot.data.date,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035),),
-                                            leading: postUser["image"] != null ? Container(
+                                            title: Text(post.userName!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04)),
+                                            subtitle: Text(post.date!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035),),
+                                            leading: post.userImage != null ? Container(
                                                 width: MediaQuery.of(context).size.width * 0.1,
                                                 height: MediaQuery.of(context).size.width * 0.1,
                                                 decoration: BoxDecoration(
                                                     image: DecorationImage(
                                                       fit: BoxFit.cover,
-                                                      image: Image.memory(base64Decode(postUser["image"]),
+                                                      image: Image.memory(base64Decode(post.userImage!),
                                                         fit: BoxFit.cover,).image,
                                                     ),
                                                     borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
@@ -174,15 +168,15 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                   child: IconButton(
                                                     icon: new Icon(Icons.thumb_up,size: MediaQuery.of(context).size.width * 0.05,color: thumbColor,),
                                                     onPressed: () async{
-                                                      if(!postData["like"].contains(widget.person.uid)){
-                                                        postData["like"].add(widget.person.uid);
+                                                      if(!post.like!.contains(widget.person.uid)){
+                                                        post.like!.add(widget.person.uid);
                                                         await firestore.collection('board').doc(widget.uid).update({
-                                                          widget.id : postData
+                                                          "${widget.id}.like" : post.like
                                                         }).whenComplete(() => setState((){}));
                                                       }else{
-                                                        postData["like"].remove(widget.person.uid);
+                                                        post.like!.remove(widget.person.uid);
                                                         await firestore.collection('board').doc(widget.uid).update({
-                                                          widget.id : postData
+                                                          "${widget.id}.like" : post.like
                                                         }).whenComplete(() => setState((){}));
                                                       }
                                                     },
@@ -191,7 +185,7 @@ class _PostDetailPage extends State<PostDetailPage>{
                                               ),
                                             ),
                                           ),
-                                          snapshot.data.image != null ? Padding(
+                                          post.image != null ? Padding(
                                             padding: const EdgeInsets.all(8.0),
                                             child: Center(
                                               child: Container(
@@ -200,7 +194,7 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                   decoration: BoxDecoration(
                                                       image: DecorationImage(
                                                         fit: BoxFit.cover,
-                                                        image: Image.memory(base64Decode(snapshot.data.image),
+                                                        image: Image.memory(base64Decode(post.image!),
                                                           fit: BoxFit.cover,).image,
                                                       ),
                                                       borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
@@ -208,7 +202,7 @@ class _PostDetailPage extends State<PostDetailPage>{
                                               ),
                                             ),
                                           ) : Container(),
-                                          Text(snapshot.data.content,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
+                                          Text(post.content!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
                                           Padding(
                                             padding: const EdgeInsets.only(top: 8),
                                             child: Row(
@@ -220,13 +214,13 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                 ),
                                                 Padding(
                                                   padding: const EdgeInsets.only(right : 8),
-                                                  child: Text(snapshot.data.like.length.toString(),style: TextStyle(color: Colors.black54, fontSize: MediaQuery.of(context).size.width * 0.035)),
+                                                  child: Text(post.like!.length.toString(),style: TextStyle(color: Colors.black54, fontSize: MediaQuery.of(context).size.width * 0.035)),
                                                 ),
                                                 Padding(
                                                   padding: const EdgeInsets.only(right: 4),
                                                   child: Icon(Icons.comment_rounded,size: MediaQuery.of(context).size.width * 0.035,color: commentColor,),
                                                 ),
-                                                Text((commentUser.length+subCommentUser.length).toString(),style: TextStyle(color: Colors.black54, fontSize: MediaQuery.of(context).size.width * 0.035))
+                                                Text(post.theNumberOfComments!.toString(),style: TextStyle(color: Colors.black54, fontSize: MediaQuery.of(context).size.width * 0.035))
                                               ],
                                             ),
                                           ),
@@ -237,7 +231,7 @@ class _PostDetailPage extends State<PostDetailPage>{
                                     ListView.builder(
                                       physics: NeverScrollableScrollPhysics(),
                                       shrinkWrap: true,
-                                      itemCount: snapshot.data.comments.length,
+                                      itemCount: post.comments!.length,
                                       itemBuilder: (context, index){
                                         return Container(
                                           margin: EdgeInsets.only(right: 12,left: 12,bottom: 12),
@@ -252,14 +246,14 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                         contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                                                         dense: true,
                                                         visualDensity: VisualDensity(horizontal: -4, vertical: -4),
-                                                        title: Text(commentUser[index]["name"] ,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
-                                                        leading: commentUser[index]["image"] != null ? Container(
+                                                        title: Text(post.comments![index]!.userName! ,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
+                                                        leading: post.comments![index]!.userImage != null ? Container(
                                                             width: MediaQuery.of(context).size.width * 0.08,
                                                             height: MediaQuery.of(context).size.width * 0.08,
                                                             decoration: BoxDecoration(
                                                                 image: DecorationImage(
                                                                   fit: BoxFit.cover,
-                                                                  image: Image.memory(base64Decode(commentUser[index]["image"]),
+                                                                  image: Image.memory(base64Decode(post.comments![index]!.userImage!),
                                                                     fit: BoxFit.cover,).image,
                                                                 ),
                                                                 borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
@@ -278,7 +272,7 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                       ),
                                                       Positioned(
                                                         top: 0,
-                                                        right: 0,
+                                                        right: 8,
                                                         child: Row(
                                                           children: [
                                                             SizedBox(
@@ -313,8 +307,9 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                                 },
                                                               ),
                                                             ),
-                                                            SizedBox(width: MediaQuery.of(context).size.width * 0.04,),
-                                                            SizedBox(
+                                                            post.comments![index]!.uid! == widget.person.uid
+                                                                ? SizedBox(width: MediaQuery.of(context).size.width * 0.04,) : Container(),
+                                                            post.comments![index]!.uid! == widget.person.uid ? SizedBox(
                                                               height: MediaQuery.of(context).size.width * 0.06,
                                                               width: MediaQuery.of(context).size.width * 0.06,
                                                               child: PopupMenuButton<String>(
@@ -333,7 +328,16 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                                           }),
                                                                           CupertinoDialogAction(isDefaultAction: false, child: const Text("확인"),
                                                                             onPressed: () async{
-
+                                                                            postCommentsJson.removeAt(index);
+                                                                            await firestore.collection('board').doc(widget.uid).update({
+                                                                              "${widget.id}.comments" : postCommentsJson,
+                                                                              "${widget.id}.theNumberOfComments" : post.theNumberOfComments! -1
+                                                                            }).whenComplete(() {
+                                                                                setState((){
+                                                                                  Get.back();
+                                                                                  focusNode.unfocus();
+                                                                                });
+                                                                            });
                                                                             },
                                                                           ),
                                                                         ],
@@ -351,7 +355,7 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                                   }).toList();
                                                                 },
                                                               ),
-                                                            ),
+                                                            ) : Container(),
                                                           ],
                                                         ),
                                                       )
@@ -359,15 +363,15 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                   ),
                                                   Padding(
                                                     padding: const EdgeInsets.only(top: 8,bottom: 8),
-                                                    child: Text(snapshot.data.comments[index].content,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
+                                                    child: Text(post.comments![index]!.content!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
                                                   ),
-                                                  Text(snapshot.data.comments[index].date,style: TextStyle(color: Colors.black54, fontSize: MediaQuery.of(context).size.width * 0.035),)
+                                                  Text(post.comments![index]!.date!,style: TextStyle(color: Colors.black54, fontSize: MediaQuery.of(context).size.width * 0.035),)
                                                 ],
                                               ),
                                               ListView.builder(
                                                 physics: NeverScrollableScrollPhysics(),
                                                 shrinkWrap: true,
-                                                itemCount: snapshot.data.comments[index].subComments.length,
+                                                itemCount: post.comments![index]!.subComments!.length,
                                                 itemBuilder: (context, position) {
                                                   return Row(
                                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -392,14 +396,14 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                                     contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                                                                     dense: true,
                                                                     visualDensity: VisualDensity(horizontal: -4, vertical: -4),
-                                                                    title: Text(subCommentUser[index][position]["name"],style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
-                                                                    leading:  subCommentUser[index][position]["image"] != null ? Container(
+                                                                    title: Text(post.comments![index]!.subComments![position]!.userName!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
+                                                                    leading:  post.comments![index]!.subComments![position]!.userImage != null ? Container(
                                                                         width: MediaQuery.of(context).size.width * 0.08,
                                                                         height: MediaQuery.of(context).size.width * 0.08,
                                                                         decoration: BoxDecoration(
                                                                             image: DecorationImage(
                                                                               fit: BoxFit.cover,
-                                                                              image: Image.memory(base64Decode(subCommentUser[index][position]["image"]),
+                                                                              image: Image.memory(base64Decode(post.comments![index]!.subComments![position]!.userImage!),
                                                                                 fit: BoxFit.cover,).image,
                                                                             ),
                                                                             borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
@@ -415,14 +419,61 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                                         ),
                                                                         child: Icon(Icons.person,size: MediaQuery.of(context).size.width * 0.05,)
                                                                     ),
+                                                                    trailing: SizedBox(
+                                                                      height: MediaQuery.of(context).size.width * 0.06,
+                                                                      width: MediaQuery.of(context).size.width * 0.06,
+                                                                      child: post.comments![index]!.subComments![position]!.uid! == widget.person.uid ? PopupMenuButton<String>(
+                                                                        icon: Icon(Icons.more_vert,color: Colors.black54,size: MediaQuery.of(context).size.width * 0.05),
+                                                                        onSelected: (value){
+                                                                          switch(value){
+                                                                            case "삭제" : showDialog(barrierColor: Colors.black54, context: context, builder: (context) {
+                                                                              return CupertinoAlertDialog(
+                                                                                content: const Padding(
+                                                                                  padding: EdgeInsets.only(top: 8),
+                                                                                  child: Text("대댓글을 삭제하시겠습니까?"),
+                                                                                ),
+                                                                                actions: [
+                                                                                  CupertinoDialogAction(isDefaultAction: false, child: Text("취소"), onPressed: () {
+                                                                                    Get.back();
+                                                                                  }),
+                                                                                  CupertinoDialogAction(isDefaultAction: false, child: const Text("확인"),
+                                                                                    onPressed: () async{
+                                                                                      postCommentsJson[index]["subComments"].removeAt(position);
+                                                                                      await firestore.collection('board').doc(widget.uid).update({
+                                                                                        "${widget.id}.comments" : postCommentsJson,
+                                                                                        "${widget.id}.theNumberOfComments" : post.theNumberOfComments! -1
+                                                                                      }).whenComplete(() {
+                                                                                        setState((){
+                                                                                          Get.back();
+                                                                                          focusNode.unfocus();
+                                                                                        });
+                                                                                      });
+                                                                                    },
+                                                                                  ),
+                                                                                ],
+                                                                              );
+                                                                            });
+                                                                            break;
+                                                                          }
+                                                                        },
+                                                                        itemBuilder: (BuildContext context) {
+                                                                          return {'삭제'}.map((String choice) {
+                                                                            return PopupMenuItem<String>(
+                                                                              value: choice,
+                                                                              child: Text(choice),
+                                                                            );
+                                                                          }).toList();
+                                                                        },
+                                                                      ) : Container(),
+                                                                    ),
                                                                   ),
                                                                 ],
                                                               ),
                                                               Padding(
                                                                 padding: const EdgeInsets.only(top: 8,bottom: 8),
-                                                                child: Text(snapshot.data.comments[index].subComments[position].content,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
+                                                                child: Text(post.comments![index]!.subComments![position]!.content!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
                                                               ),
-                                                              Text(snapshot.data.comments[index].subComments[position].date,style: TextStyle(color: Colors.black54, fontSize: MediaQuery.of(context).size.width * 0.035),)
+                                                              Text(post.comments![index]!.subComments![position]!.date!,style: TextStyle(color: Colors.black54, fontSize: MediaQuery.of(context).size.width * 0.035),)
                                                             ],
                                                           ),
                                                         ),
@@ -467,24 +518,30 @@ class _PostDetailPage extends State<PostDetailPage>{
                                 iconSize: 20.0,
                                 onPressed: () async{
                                   if(commentIndex != null){
-                                    postData["comments"][commentIndex]["subComments"].add(
+                                    postCommentsJson[commentIndex!]["subComments"].add(
                                         SubComment(
+                                            userName: widget.person.name,
+                                            userImage: widget.person.image,
                                             uid: widget.person.uid,
                                             id: getRandomString(12),
                                             date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()).toString(),
                                             content: commentController.text
                                         ).toJson()
                                     );
+
                                     await firestore.collection('board').doc(widget.uid).update({
-                                      widget.id : postData
+                                      "${widget.id}.comments" : postCommentsJson,
+                                      "${widget.id}.theNumberOfComments" : post.theNumberOfComments! +1
                                     }).whenComplete(() => setState((){
                                       commentIndex = null;
                                       commentHintText = "댓글을 입력하세요";
                                     }));
 
                                   }else{
-                                    postData["comments"].add(
+                                    postCommentsJson.add(
                                         Comment(
+                                            userName: widget.person.name,
+                                            userImage: widget.person.image,
                                             uid: widget.person.uid,
                                             id: getRandomString(12),
                                             date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()).toString(),
@@ -492,12 +549,15 @@ class _PostDetailPage extends State<PostDetailPage>{
                                             content: commentController.text
                                         ).toJson()
                                     );
+
                                     await firestore.collection('board').doc(widget.uid).update({
-                                      widget.id : postData
+                                      "${widget.id}.comments" : postCommentsJson,
+                                      "${widget.id}.theNumberOfComments" : post.theNumberOfComments! +1
                                     }).whenComplete(() => setState((){
                                       commentIndex = null;
                                       commentHintText = "댓글을 입력하세요";
                                     }));
+
                                   }
                                   commentController.clear();
                                   focusNode.unfocus();
@@ -530,44 +590,61 @@ class _PostDetailPage extends State<PostDetailPage>{
   }
 
   getPostData() async{
-    List<Map> tempCommentUserNames = List.empty(growable: true);
-    List<List<Map>> tempSubCommentUserNames = List.empty(growable: true);
 
-    postData = await firestore.collection('board').doc(widget.uid).get().then((value) => value.data()![widget.id]);
+    var boardData = await firestore.collection('board').doc(widget.uid).get();
 
-    Post post = Post.fromJson(postData);
+    post = Post.fromJson(boardData.data()![widget.id]);
 
-    var usersCollection = firestore.collection('users');
-    postUser = {
-      'name' : await usersCollection.doc(widget.uid).get().then((value) =>  value["name"]),
-      'image' : await usersCollection.doc(widget.uid).get().then((value) =>  value["image"]),
-    };
+    bool shouldUpdate = false;
 
-    if(post.comments!.isNotEmpty){
-      for(Comment? i in post.comments!){
-        Map user = {
-          'name' : await usersCollection.doc(i!.uid).get().then((value) =>  value["name"]),
-          'image' : await usersCollection.doc(i.uid).get().then((value) =>  value["image"]),
-        };
-        tempCommentUserNames.add(user);
-        if(i.subComments!.isNotEmpty){
-          List<Map> temp = List.empty(growable: true);
-          for(SubComment? j in i.subComments!){
-            Map user = {
-              'name' : await usersCollection.doc(j!.uid).get().then((value) =>  value["name"]),
-              'image' : await usersCollection.doc(j.uid).get().then((value) =>  value["image"]),
-            };
-            temp.add(user);
-          }
-          tempSubCommentUserNames.add(temp);
+    for(Comment? i in post.comments!){
+      var commentUser = await currentUserData(i!.uid!);
+
+      if(i.userName != commentUser["name"]){
+
+        i.userName = commentUser["name"];
+        shouldUpdate = true;
+
+      }else if(i.userImage != commentUser["image"]){
+
+        i.userImage = commentUser["image"];
+        shouldUpdate = true;
+
+      }
+
+      for(SubComment? j in i.subComments!){
+        var subCommentUser = await currentUserData(j!.uid!);
+
+        if(j.userName != subCommentUser["name"]){
+
+          j.userName = subCommentUser["name"];
+          shouldUpdate = true;
+
+        }else if(j.userImage != subCommentUser["image"]){
+
+          j.userImage = subCommentUser["image"];
+          shouldUpdate = true;
+
         }
+
       }
     }
 
-    commentUser = tempCommentUserNames;
-    subCommentUser = tempSubCommentUserNames;
+    postCommentsJson = post.toJson()["comments"];
+    if(shouldUpdate)updateCommentUserName(widget.uid, postCommentsJson);
 
-    return post;
+    return true;
+
+  }
+
+   currentUserData(String id) async{
+    return await firestore.collection('users').doc(id).get().then((value) => value.data());
+  }
+
+  updateCommentUserName(String uid,List commentsJson) async{
+    await firestore.collection('board').doc(uid).update({
+      "${widget.id}.comments" : postCommentsJson,
+    });
   }
 
 }

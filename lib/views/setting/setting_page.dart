@@ -134,8 +134,10 @@ class _SettingPage extends State<SettingPage>{
                               await usersCollection.doc(widget.person.uid).update(
                                   {
                                     "image": base64Encode(image)
-                                  });
-                              setState((){});
+                                  }).whenComplete(() {
+                                widget.person.image =  base64Encode(image);
+                                setState((){});
+                              });
                             }
                           });
 
@@ -179,7 +181,10 @@ class _SettingPage extends State<SettingPage>{
                                     await usersCollection.doc(widget.person.uid).update(
                                         {
                                           "name": nameController.text
-                                        }).whenComplete(() => print("user name Changed"));
+                                        }).whenComplete(() {
+                                          print("user name Changed");
+                                          widget.person.name = name;
+                                    });
                                   }else{
                                     setState(() {
                                       nameController.text = name;

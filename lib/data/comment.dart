@@ -1,8 +1,10 @@
 
 class Comment{
 
-  Comment({this.uid, this.id, this.date, this.content,this.subComments});
+  Comment({this.uid, this.id, this.date, this.content,this.subComments, this.userName, this.userImage});
 
+  String? userName;
+  String? userImage;
   String? uid;
   String? id;
   String? date;
@@ -11,14 +13,18 @@ class Comment{
 
   Map<String, dynamic> toJson() =>
       {
+        'userName':userName,
+        'userImage':userImage,
         'uid': uid,
         'id': id,
         'date': date,
         'content': content,
-        'subComments': (subComments != null && subComments!.isNotEmpty) ?  commentsFromJson(subComments!): []
+        'subComments': (subComments != null && subComments!.isNotEmpty) ?  commentsToJson(subComments!): []
       };
 
   Comment.fromJson(Map<String, dynamic> json){
+    userName = json["userName"];
+    userImage = json["userImage"];
     uid = json["uid"];
     id = json["id"];
     date = json["date"];
@@ -34,7 +40,7 @@ class Comment{
     return result;
   }
 
-  List commentsToJson(List<Comment?> comments){
+  List commentsToJson(List comments){
     List result = List.empty(growable: true);
     for(int i = 0; i < comments.length; i++){
       result.add(comments[i]!.toJson());
@@ -46,8 +52,10 @@ class Comment{
 
 class SubComment{
 
-  SubComment({this.uid, this.id, this.date, this.content});
+  SubComment({this.uid, this.id, this.date, this.content, this.userName, this.userImage});
 
+  String? userName;
+  String? userImage;
   String? uid;
   String? id;
   String? date;
@@ -55,6 +63,8 @@ class SubComment{
 
   Map<String, dynamic> toJson() =>
       {
+        'userName' : userName,
+        'userImage' : userImage,
         'uid': uid,
         'id': id,
         'date': date,
@@ -62,6 +72,8 @@ class SubComment{
       };
 
   SubComment.fromJson(Map<String, dynamic> json){
+    userName = json["userName"];
+    userImage = json["userImage"];
     uid = json["uid"];
     id = json["id"];
     date = json["date"];

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:get/instance_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:plantory/data/comment.dart';
 import 'package:plantory/views/community/post_add_page.dart';
 import 'package:plantory/views/community/post_detail_page.dart';
 import 'package:unicons/unicons.dart';
@@ -31,8 +32,8 @@ class _CommunityPage extends State<CommunityPage>{
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  List<int> commentCounter = List.empty(growable: true);
-  List<String> postUserNames = List.empty(growable: true);
+  List<Post> posts = List.empty(growable: true);
+
 
   @override
   Widget build(BuildContext context) {
@@ -64,12 +65,13 @@ class _CommunityPage extends State<CommunityPage>{
                     return CircularProgressIndicator();
                   }else{
                     return ListView.builder(
-                        itemCount: snapshot.data.length,
+                        itemCount: posts.length,//snapshot.data.length,
                         shrinkWrap: true,
                         itemBuilder: (BuildContext context,int index) {
                           return GestureDetector(
                             child: Column(
                               children: <Widget>[
+
                                 Divider(),
                                 Container(
                                   child: ListTile(
@@ -79,10 +81,10 @@ class _CommunityPage extends State<CommunityPage>{
                                     title: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(snapshot.data[index].title,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.034))
+                                        Text(posts[index].title!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.034))
                                       ],
                                     ),
-                                    subtitle: Text(snapshot.data[index].content,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.032),),
+                                    subtitle: Text(posts[index].content!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.032),),
                                   ),
                                 ),
                                 Row(
@@ -90,9 +92,9 @@ class _CommunityPage extends State<CommunityPage>{
                                   children: [
                                     Row(
                                       children: [
-                                        Text(snapshot.data[index].date,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54),),
+                                        Text(posts[index].date!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54),),
                                         Text(" | ",style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54)),
-                                        Text(postUserNames[index],style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54)),
+                                        Text(posts[index].userName!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54)),
                                       ],
                                     ),
                                     Row(
@@ -102,7 +104,7 @@ class _CommunityPage extends State<CommunityPage>{
                                             Icon(Icons.thumb_up, size: MediaQuery.of(context).size.width * 0.035, color: Colors.black54,),
                                             Padding(
                                               padding: const EdgeInsets.only(right: 4,left: 4),
-                                              child: Text(snapshot.data[index].like.length.toString(), style: TextStyle(color: Colors.black54),),
+                                              child: Text(posts[index].like!.length.toString(), style: TextStyle(color: Colors.black54),),
                                             )
                                           ],
                                         ),
@@ -114,7 +116,8 @@ class _CommunityPage extends State<CommunityPage>{
                                             Icon(Icons.comment_rounded, size: MediaQuery.of(context).size.width * 0.035, color: Colors.black54,),
                                             Padding(
                                               padding: const EdgeInsets.only(right: 4,left: 4),
-                                              child: Text(commentCounter[index].toString(), style: TextStyle(color: Colors.black54),),
+                                              child: Text(posts[index].theNumberOfComments!.toString(),
+                                                style: TextStyle(color: Colors.black54),),
                                             )
                                           ],
                                         ),
@@ -122,11 +125,13 @@ class _CommunityPage extends State<CommunityPage>{
                                     ),
                                   ],
                                 ),
-                                index == snapshot.data.indexOf(snapshot.data.last) ? Divider() : Container() //이부분 마지막에 바꿔야함
+                                index == posts.indexOf(posts.last) ? Divider() : Container()
+
+
                               ],
                             ),
                             onTap: (){
-                              Get.to(() => PostDetailPage(uid: snapshot.data[index].uid,id: snapshot.data[index].id,person: widget.person,))?.then((value) => setState((){}));
+                              Get.to(() => PostDetailPage(uid: posts[index].uid!,id: posts[index].id!,person: widget.person,))?.then((value) => setState((){}));
                             },
                           );
                         }
@@ -149,49 +154,53 @@ class _CommunityPage extends State<CommunityPage>{
   }
 
   getBoardData() async{
-    List<Post> result = List.empty(growable: true);
-    List<String> tempPostUserNames = List.empty(growable: true);
-    List<int> tempCommentsNumber = List.empty(growable: true);
-
-    var boardData = await firestore.collection('board').get().then((value) => value.docs.map((e) => e.data().values).toList());
+    List<Post> temp = List.empty(growable: true);
+    var boardData = await firestore.collection('board').get().then((value) => value.docs.map((e) => e.data()));
 
     var usersCollection = firestore.collection('users');
+
     for(var i in boardData){
-     for(var j in i){
-       await usersCollection.doc(j["uid"]).get().then((value) => result.add(
-           Post.fromJson(j)
-       ));
+     for(var j in i.values){
+       await usersCollection.doc(j["uid"]).get().then((value) {
+         temp.add(
+           Post.fromJson(j));
+       });
+
      }
     }
-    result.sort((b,a) => (DateFormat('yyyy-MM-dd hh:mm').parse(a.date!))
-        .compareTo((DateFormat('yyyy-MM-dd hh:mm').parse(b.date!))));
 
-    if(result.isNotEmpty){
-      for(Post i in result){
-        String name = await usersCollection.doc(i.uid).get().then((value) => value["name"]);
-        tempPostUserNames.add(name);
-        if(i.comments!.isNotEmpty){
-          int tempCounter = 0;
+    for(Post i in temp){
 
-          for(int j = 0; j < i.comments!.length; j++){
-            tempCounter++;
-            if(i.comments![j]!.subComments!.isNotEmpty){
-              for(int k = 0; k < i.comments![j]!.subComments!.length; k++){
-                tempCounter++;
-              }
-            }
-          }
-          tempCommentsNumber.add(tempCounter);
-        }else{
-          tempCommentsNumber.add(0);
-        }
+      var userData = await usersCollection.doc(i.uid).get().then((value) => value.data());
+
+      if(i.userName != userData!["name"]){
+
+        i.userName = userData["name"];
+        updateUserName(i.uid!,i.id!,userData["name"]);
+
+      }else if(i.userImage != userData["image"]){
+
+        i.userImage = userData["image"];
+        updateUserImage(i.uid!,i.id!,userData["image"]);
+
       }
     }
-    postUserNames = tempPostUserNames;
-    commentCounter = tempCommentsNumber;
+    posts = temp;
+    posts.sort((b,a) => (DateFormat('yyyy-MM-dd hh:mm').parse(a.date!))
+        .compareTo((DateFormat('yyyy-MM-dd hh:mm').parse(b.date!))));
 
-    return result;
+    return true;
   }
 
+  updateUserName(String uid,String id, String name) async{
+    await firestore.collection('board').doc(uid).update({
+      '$id.userName' : name
+    });
+  }
+  updateUserImage(String uid,String id, String image) async{
+    await firestore.collection('board').doc(uid).update({
+      '$id.userImage' : image
+    });
+  }
 
 }
