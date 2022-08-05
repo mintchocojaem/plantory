@@ -35,14 +35,16 @@ class _PostDetailPage extends State<PostDetailPage>{
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  Map<String, dynamic> postData = {};
+  //Map<String, dynamic> postData = {};
 
-  Map postUser = {
+  /*Map postUser = {
     'name' : "User",
     'image' : null
   };
-  List<Map> commentUser = List.empty(growable: true);
-  List<List<Map>> subCommentUser = List.empty(growable: true);
+
+   */
+  //List<Map> commentUser = List.empty(growable: true);
+  //List<List<Map>> subCommentUser = List.empty(growable: true);
 
   TextEditingController commentController = TextEditingController();
 
@@ -74,6 +76,47 @@ class _PostDetailPage extends State<PostDetailPage>{
               "Post",
               style: TextStyle(color: primaryColor),
             ),
+            actions: [
+              widget.uid == widget.person.uid ? PopupMenuButton<String>(
+                icon: Icon(Icons.more_vert,color: Colors.black87,),
+                onSelected: (value){
+                  switch(value){
+                    case "삭제" : showDialog(barrierColor: Colors.black54, context: context, builder: (context) {
+                      return CupertinoAlertDialog(
+                        content: const Padding(
+                          padding: EdgeInsets.only(top: 8),
+                          child: Text("게시글을 삭제하시겠습니까?"),
+                        ),
+                        actions: [
+                          CupertinoDialogAction(isDefaultAction: false, child: Text("취소"), onPressed: () {
+                            Get.back();
+                          }),
+                          CupertinoDialogAction(isDefaultAction: false, child: const Text("확인"),
+                            onPressed: () async{
+                              await firestore.collection('board').doc(widget.uid).update({
+                                postData["id"] : FieldValue.delete()
+                              }).whenComplete(() {
+                                Get.back();
+                                Navigator.of(context).pop();
+                              });
+                            },
+                          ),
+                        ],
+                      );
+                    });
+                    break;
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  return {'삭제'}.map((String choice) {
+                    return PopupMenuItem<String>(
+                      value: choice,
+                      child: Text(choice),
+                    );
+                  }).toList();
+                },
+              ) : Container(),
+            ],
           ),
           body: SafeArea(
             child: Stack(
@@ -129,7 +172,6 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                   height: MediaQuery.of(context).size.width * 0.06,
                                                   width: MediaQuery.of(context).size.width * 0.06,
                                                   child: IconButton(
-                                                    padding: new EdgeInsets.all(0.0),
                                                     icon: new Icon(Icons.thumb_up,size: MediaQuery.of(context).size.width * 0.05,color: thumbColor,),
                                                     onPressed: () async{
                                                       if(!postData["like"].contains(widget.person.uid)){
@@ -236,39 +278,81 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                       ),
                                                       Positioned(
                                                         top: 0,
-                                                        right: 8,
-                                                        child: SizedBox(
-                                                            height: MediaQuery.of(context).size.width * 0.06,
-                                                            width: MediaQuery.of(context).size.width * 0.06,
-                                                            child: IconButton(
-                                                              padding: new EdgeInsets.all(0.0),
-                                                              icon: new Icon(Icons.comment_rounded,size: MediaQuery.of(context).size.width * 0.05,color: commentColor,),
-                                                              onPressed: (){
-                                                                showDialog(barrierColor: Colors.black54, context: context, builder: (context) {
-                                                                  return CupertinoAlertDialog(
-                                                                    content: Padding(
-                                                                      padding: const EdgeInsets.only(top: 8),
-                                                                      child: Text("대댓글을 작성하시겠습니까?"),
-                                                                    ),
-                                                                    actions: [
-                                                                      CupertinoDialogAction(isDefaultAction: false, child: Text("취소"), onPressed: () {
-                                                                        Get.back();
-                                                                      }),
-                                                                      CupertinoDialogAction(isDefaultAction: false, child: const Text("확인"),
-                                                                          onPressed: (){
-                                                                            setState((){
-                                                                              commentHintText = "대댓글을 입력하세요.";
-                                                                              focusNode.requestFocus();
-                                                                              commentIndex = index;
-                                                                              Get.back();
-                                                                            });
-                                                                          }
+                                                        right: 0,
+                                                        child: Row(
+                                                          children: [
+                                                            SizedBox(
+                                                              height: MediaQuery.of(context).size.width * 0.06,
+                                                              width: MediaQuery.of(context).size.width * 0.06,
+                                                              child: IconButton(
+                                                                icon: Icon(Icons.comment_rounded,size: MediaQuery.of(context).size.width * 0.05,color: commentColor,),
+                                                                onPressed: (){
+                                                                  showDialog(barrierColor: Colors.black54, context: context, builder: (context) {
+                                                                    return CupertinoAlertDialog(
+                                                                      content: Padding(
+                                                                        padding: const EdgeInsets.only(top: 8),
+                                                                        child: Text("대댓글을 작성하시겠습니까?"),
                                                                       ),
-                                                                    ],
-                                                                  );
-                                                                });
-                                                              },
-                                                            )
+                                                                      actions: [
+                                                                        CupertinoDialogAction(isDefaultAction: false, child: Text("취소"), onPressed: () {
+                                                                          Get.back();
+                                                                        }),
+                                                                        CupertinoDialogAction(isDefaultAction: false, child: const Text("확인"),
+                                                                            onPressed: (){
+                                                                              setState((){
+                                                                                commentHintText = "대댓글을 입력하세요.";
+                                                                                focusNode.requestFocus();
+                                                                                commentIndex = index;
+                                                                                Get.back();
+                                                                              });
+                                                                            }
+                                                                        ),
+                                                                      ],
+                                                                    );
+                                                                  });
+                                                                },
+                                                              ),
+                                                            ),
+                                                            SizedBox(width: MediaQuery.of(context).size.width * 0.04,),
+                                                            SizedBox(
+                                                              height: MediaQuery.of(context).size.width * 0.06,
+                                                              width: MediaQuery.of(context).size.width * 0.06,
+                                                              child: PopupMenuButton<String>(
+                                                                icon: Icon(Icons.more_vert,color: Colors.black54,size: MediaQuery.of(context).size.width * 0.05),
+                                                                onSelected: (value){
+                                                                  switch(value){
+                                                                    case "삭제" : showDialog(barrierColor: Colors.black54, context: context, builder: (context) {
+                                                                      return CupertinoAlertDialog(
+                                                                        content: const Padding(
+                                                                          padding: EdgeInsets.only(top: 8),
+                                                                          child: Text("댓글을 삭제하시겠습니까?"),
+                                                                        ),
+                                                                        actions: [
+                                                                          CupertinoDialogAction(isDefaultAction: false, child: Text("취소"), onPressed: () {
+                                                                            Get.back();
+                                                                          }),
+                                                                          CupertinoDialogAction(isDefaultAction: false, child: const Text("확인"),
+                                                                            onPressed: () async{
+
+                                                                            },
+                                                                          ),
+                                                                        ],
+                                                                      );
+                                                                    });
+                                                                    break;
+                                                                  }
+                                                                },
+                                                                itemBuilder: (BuildContext context) {
+                                                                  return {'삭제'}.map((String choice) {
+                                                                    return PopupMenuItem<String>(
+                                                                      value: choice,
+                                                                      child: Text(choice),
+                                                                    );
+                                                                  }).toList();
+                                                                },
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
                                                       )
                                                     ],
@@ -471,7 +555,7 @@ class _PostDetailPage extends State<PostDetailPage>{
           for(SubComment? j in i.subComments!){
             Map user = {
               'name' : await usersCollection.doc(j!.uid).get().then((value) =>  value["name"]),
-              'image' : await usersCollection.doc(j!.uid).get().then((value) =>  value["image"]),
+              'image' : await usersCollection.doc(j.uid).get().then((value) =>  value["image"]),
             };
             temp.add(user);
           }
