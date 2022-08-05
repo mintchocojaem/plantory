@@ -1,15 +1,10 @@
-import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/instance_manager.dart';
 import 'package:intl/intl.dart';
-import 'package:line_icons/line_icons.dart';
-import 'package:plantory/data/comment.dart';
 import 'package:plantory/views/community/post_add_page.dart';
 import 'package:plantory/views/community/post_detail_page.dart';
-import 'package:unicons/unicons.dart';
-import '../../../data/plant.dart';
 import '../../../utils/colors.dart';
 import '../../data/person.dart';
 import '../../data/post.dart';
@@ -93,8 +88,8 @@ class _CommunityPage extends State<CommunityPage>{
                                     Row(
                                       children: [
                                         Text(posts[index].date!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54),),
-                                        Text(" | ",style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54)),
-                                        Text(posts[index].userName!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54)),
+                                        Text("    |    ",style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54)),
+                                        Text(posts[index].userName! + (posts[index].userPermission == "expert" ? " / 🌱 전문가" : ""),style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54)),
                                       ],
                                     ),
                                     Row(
@@ -126,7 +121,6 @@ class _CommunityPage extends State<CommunityPage>{
                                   ],
                                 ),
                                 index == posts.indexOf(posts.last) ? Divider() : Container()
-
 
                               ],
                             ),
@@ -173,15 +167,16 @@ class _CommunityPage extends State<CommunityPage>{
 
       var userData = await usersCollection.doc(i.uid).get().then((value) => value.data());
 
-      if(i.userName != userData!["name"]){
+      if(i.userName != userData!["userName"]){
 
-        i.userName = userData["name"];
-        updateUserName(i.uid!,i.id!,userData["name"]);
+        i.userName = userData["userName"];
+        updateUserName(i.uid!,i.id!,userData["userName"]);
 
-      }else if(i.userImage != userData["image"]){
+      }
+      if(i.userPermission != userData["userPermission"]){
 
-        i.userImage = userData["image"];
-        updateUserImage(i.uid!,i.id!,userData["image"]);
+        i.userPermission = userData["userPermission"];
+        updateUserPermission(i.uid!,i.id!,userData["userPermission"]);
 
       }
     }
@@ -192,14 +187,14 @@ class _CommunityPage extends State<CommunityPage>{
     return true;
   }
 
-  updateUserName(String uid,String id, String name) async{
+  updateUserName(String uid,String id, String userName) async{
     await firestore.collection('board').doc(uid).update({
-      '$id.userName' : name
+      '$id.userName' : userName
     });
   }
-  updateUserImage(String uid,String id, String image) async{
+  updateUserPermission(String uid,String id, String userPermission) async{
     await firestore.collection('board').doc(uid).update({
-      '$id.userImage' : image
+      '$id.userPermission' : userPermission
     });
   }
 

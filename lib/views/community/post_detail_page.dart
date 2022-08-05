@@ -1,17 +1,11 @@
 import 'dart:convert';
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
-import 'package:line_icons/line_icons.dart';
 import 'package:plantory/data/comment.dart';
-import 'package:unicons/unicons.dart';
-import '../../../data/plant.dart';
 import '../../../utils/colors.dart';
 import '../../data/person.dart';
 import '../../data/post.dart';
@@ -136,30 +130,28 @@ class _PostDetailPage extends State<PostDetailPage>{
                                         children: [
                                           ListTile(
                                             contentPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
-                                            title: Text(post.userName!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04)),
+                                            title: Text(post.userName! + " / 🌱 전문가",style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04)),
                                             subtitle: Text(post.date!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035),),
-                                            leading: post.userImage != null ? Container(
-                                                width: MediaQuery.of(context).size.width * 0.1,
-                                                height: MediaQuery.of(context).size.width * 0.1,
-                                                decoration: BoxDecoration(
-                                                    image: DecorationImage(
-                                                      fit: BoxFit.cover,
-                                                      image: Image.memory(base64Decode(post.userImage!),
-                                                        fit: BoxFit.cover,).image,
-                                                    ),
-                                                    borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
-                                                )
+                                            leading: post.userPermission == "expert" ? Container(
+                                              width: MediaQuery.of(context).size.width * 0.1,
+                                              height: MediaQuery.of(context).size.width * 0.1,
+                                              decoration: BoxDecoration(
+                                                  color: primaryColor,
+                                                  borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
+                                              ),
+                                              child: Icon(Icons.energy_savings_leaf,size: MediaQuery.of(context).size.width * 0.06,color:  Color(0xffEEF1F1),),
                                             ) : Container(
-                                                width: MediaQuery.of(context).size.width * 0.1,
-                                                height: MediaQuery.of(context).size.width * 0.1,
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                      color: Colors.black54,
-                                                    ),
-                                                    borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
-                                                ),
-                                                child: Icon(Icons.person,size: MediaQuery.of(context).size.width * 0.06,),
+                                              width: MediaQuery.of(context).size.width * 0.1,
+                                              height: MediaQuery.of(context).size.width * 0.1,
+                                              decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    color: Colors.black54,
+                                                  ),
+                                                  borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
+                                              ),
+                                              child: Icon(Icons.person,size: MediaQuery.of(context).size.width * 0.06,),
                                             ),
+
                                             trailing:  Padding(
                                               padding: const EdgeInsets.only(right: 8),
                                               child: SizedBox(
@@ -246,18 +238,15 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                         contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                                                         dense: true,
                                                         visualDensity: VisualDensity(horizontal: -4, vertical: -4),
-                                                        title: Text(post.comments![index]!.userName! ,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
-                                                        leading: post.comments![index]!.userImage != null ? Container(
-                                                            width: MediaQuery.of(context).size.width * 0.08,
-                                                            height: MediaQuery.of(context).size.width * 0.08,
-                                                            decoration: BoxDecoration(
-                                                                image: DecorationImage(
-                                                                  fit: BoxFit.cover,
-                                                                  image: Image.memory(base64Decode(post.comments![index]!.userImage!),
-                                                                    fit: BoxFit.cover,).image,
-                                                                ),
-                                                                borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
-                                                            )
+                                                        title: Text(post.comments![index]!.userName! +" / 🌱 전문가" ,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
+                                                        leading: post.comments![index]!.userPermission == "expert" ? Container(
+                                                          width: MediaQuery.of(context).size.width * 0.08,
+                                                          height: MediaQuery.of(context).size.width * 0.08,
+                                                          decoration: BoxDecoration(
+                                                              color: primaryColor,
+                                                              borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
+                                                          ),
+                                                          child: Icon(Icons.energy_savings_leaf,size: MediaQuery.of(context).size.width * 0.06,color:  Color(0xffEEF1F1),),
                                                         ) : Container(
                                                             width: MediaQuery.of(context).size.width * 0.08,
                                                             height: MediaQuery.of(context).size.width * 0.08,
@@ -396,18 +385,15 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                                     contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                                                                     dense: true,
                                                                     visualDensity: VisualDensity(horizontal: -4, vertical: -4),
-                                                                    title: Text(post.comments![index]!.subComments![position]!.userName!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
-                                                                    leading:  post.comments![index]!.subComments![position]!.userImage != null ? Container(
-                                                                        width: MediaQuery.of(context).size.width * 0.08,
-                                                                        height: MediaQuery.of(context).size.width * 0.08,
-                                                                        decoration: BoxDecoration(
-                                                                            image: DecorationImage(
-                                                                              fit: BoxFit.cover,
-                                                                              image: Image.memory(base64Decode(post.comments![index]!.subComments![position]!.userImage!),
-                                                                                fit: BoxFit.cover,).image,
-                                                                            ),
-                                                                            borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
-                                                                        )
+                                                                    title: Text("${post.comments![index]!.subComments![position]!.userName!} / 🌱 전문가",style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
+                                                                    leading: post.comments![index]!.subComments![position]!.userPermission == "expert" ? Container(
+                                                                      width: MediaQuery.of(context).size.width * 0.08,
+                                                                      height: MediaQuery.of(context).size.width * 0.08,
+                                                                      decoration: BoxDecoration(
+                                                                          color: primaryColor,
+                                                                          borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
+                                                                      ),
+                                                                      child: Icon(Icons.energy_savings_leaf,size: MediaQuery.of(context).size.width * 0.06,color:  Color(0xffEEF1F1),),
                                                                     ) : Container(
                                                                         width: MediaQuery.of(context).size.width * 0.08,
                                                                         height: MediaQuery.of(context).size.width * 0.08,
@@ -520,12 +506,12 @@ class _PostDetailPage extends State<PostDetailPage>{
                                   if(commentIndex != null){
                                     postCommentsJson[commentIndex!]["subComments"].add(
                                         SubComment(
-                                            userName: widget.person.name,
-                                            userImage: widget.person.image,
+                                            userName: widget.person.userName,
+                                            userPermission: widget.person.userPermission,
                                             uid: widget.person.uid,
                                             id: getRandomString(12),
                                             date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()).toString(),
-                                            content: commentController.text
+                                            content: commentController.text,
                                         ).toJson()
                                     );
 
@@ -540,8 +526,8 @@ class _PostDetailPage extends State<PostDetailPage>{
                                   }else{
                                     postCommentsJson.add(
                                         Comment(
-                                            userName: widget.person.name,
-                                            userImage: widget.person.image,
+                                            userName: widget.person.userName,
+                                            userPermission: widget.person.userPermission,
                                             uid: widget.person.uid,
                                             id: getRandomString(12),
                                             date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()).toString(),
@@ -600,14 +586,16 @@ class _PostDetailPage extends State<PostDetailPage>{
     for(Comment? i in post.comments!){
       var commentUser = await currentUserData(i!.uid!);
 
-      if(i.userName != commentUser["name"]){
+      if(i.userName != commentUser["userName"]){
 
-        i.userName = commentUser["name"];
+        i.userName = commentUser["userName"];
         shouldUpdate = true;
 
-      }else if(i.userImage != commentUser["image"]){
+      }
 
-        i.userImage = commentUser["image"];
+      if(i.userPermission != commentUser["userPermission"]){
+
+        i.userPermission = commentUser["userPermission"];
         shouldUpdate = true;
 
       }
@@ -615,14 +603,16 @@ class _PostDetailPage extends State<PostDetailPage>{
       for(SubComment? j in i.subComments!){
         var subCommentUser = await currentUserData(j!.uid!);
 
-        if(j.userName != subCommentUser["name"]){
+        if(j.userName != subCommentUser["userName"]){
 
-          j.userName = subCommentUser["name"];
+          j.userName = subCommentUser["userName"];
           shouldUpdate = true;
 
-        }else if(j.userImage != subCommentUser["image"]){
+        }
 
-          j.userImage = subCommentUser["image"];
+        if(j.userPermission != subCommentUser["userPermission"]){
+
+          j.userPermission = subCommentUser["userPermission"];
           shouldUpdate = true;
 
         }

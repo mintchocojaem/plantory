@@ -36,8 +36,7 @@ class _SettingPage extends State<SettingPage>{
 
   @override
   initState() {
-    nameController.text = widget.person.name!;
-    if(widget.person.image != null) image = base64Decode(widget.person.image!);
+    nameController.text = widget.person.userName!;
     super.initState();
   }
 
@@ -65,7 +64,7 @@ class _SettingPage extends State<SettingPage>{
                 children: [
                   Center(
                       child: GestureDetector(
-                        child: image == null ? Container(
+                        child:  Container(
                             width: MediaQuery.of(context).size.width * 0.3,
                             height: MediaQuery.of(context).size.width * 0.3,
                             decoration: BoxDecoration(
@@ -74,74 +73,8 @@ class _SettingPage extends State<SettingPage>{
                                 ),
                                 borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.3))
                             ),
-                            child: Icon(Icons.add_a_photo_outlined,)
-                        ) : ClipOval(
-                            child: Image.memory(image, fit: BoxFit.cover,
-                              width: MediaQuery.of(context).size.width * 0.3,
-                              height: MediaQuery.of(context).size.width * 0.3,)
-                        ),
-                        onTap: () {
-                          var picker = ImagePicker();
-                          showDialog(
-                            barrierColor: Colors.black54,
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              title: Center(child: Text("사진 선택")),
-                              titlePadding: EdgeInsets.all(15),
-                              content: SizedBox(
-                                width: double.infinity,
-                                height: MediaQuery.of(context).size.height * 0.2,
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    children: [
-                                      Divider(thickness: 1,color: Colors.black54,),
-                                      ListTile(title: Text("카메라"),
-                                        leading: Icon(Icons.camera_alt_outlined),
-                                        onTap: () async{
-                                          await picker.pickImage(source: ImageSource.camera)
-                                              .then((value) =>  Navigator.of(context).pop(value));},
-
-                                      ),
-                                      Divider(thickness: 1),
-                                      ListTile(title: Text("갤러리"),
-                                        leading: Icon(Icons.photo_camera_back),
-                                        onTap: () async{
-                                          await picker.pickImage(source: ImageSource.gallery)
-                                              .then((value) =>  Navigator.of(context).pop(value));},
-                                      ),
-                                      Divider(thickness: 1),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              contentPadding: EdgeInsets.all(0),
-                              actions: [
-                                TextButton(
-                                  child: const Text('취소'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            ),
-                          ).then((value) async{
-                            if(value != null){
-                              image = await value.readAsBytes();
-                              var usersCollection = firestore.collection('users');
-                              await usersCollection.doc(widget.person.uid).update(
-                                  {
-                                    "image": base64Encode(image)
-                                  }).whenComplete(() {
-                                widget.person.image =  base64Encode(image);
-                                setState((){});
-                              });
-                            }
-                          });
-
-                        },
+                            child: Icon(Icons.person_outline_rounded,size: MediaQuery.of(context).size.width * 0.1,)
+                        )
                       )
                   ),
                   Stack(
@@ -183,7 +116,7 @@ class _SettingPage extends State<SettingPage>{
                                           "name": nameController.text
                                         }).whenComplete(() {
                                           print("user name Changed");
-                                          widget.person.name = name;
+                                          widget.person.userName = name;
                                     });
                                   }else{
                                     setState(() {

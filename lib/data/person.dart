@@ -2,21 +2,19 @@ import 'package:plantory/data/plant.dart';
 
 class Person{
 
-  Person({this.uid,this.email, this.name, this.image, this.permission, this.plants});
+  Person({this.uid,this.email, this.userName, this.userPermission, this.plants});
 
   String? uid;
   String? email;
-  String? name;
-  String? image;
-  String? permission;
+  String? userName;
+  String? userPermission;
   List<Plant?>? plants;
 
   Person.fromJson(Map<String, dynamic> json){
     uid = json["uid"];
     email = json['email'];
-    name = json['name'];
-    image = json["image"];
-    permission = json["permission"];
+    userName = json['name'];
+    userPermission = json["userPermission"];
     plants = plantsFromJson(json["plants"]);
   }
 
@@ -24,9 +22,8 @@ class Person{
       {
         'uid' : uid,
         'email': email,
-        'name': name,
-        'image' : image,
-        'permission' : permission,
+        'userName': userName,
+        'userPermission' : userPermission,
         'plants' : (plants != null && plants!.isNotEmpty) ? plantsToJson(plants!) : null
       };
 

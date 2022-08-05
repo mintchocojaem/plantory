@@ -7,12 +7,12 @@ import 'comment.dart';
 
 class Post{
 
-  Post({this.uid, this.id, this.date, this.title, this.content,
-    this.like, this.comments, this.image, this.userImage, this.userName, this.theNumberOfComments});
+  Post({this.uid, this.id, this.date, this.title, this.content, this.userPermission,
+    this.like, this.comments, this.image, this.userName, this.theNumberOfComments});
 
   String? uid;
   String? userName;
-  String? userImage;
+  String? userPermission;
   String? id;
   String? image;
   String? date;
@@ -24,7 +24,7 @@ class Post{
 
   Post.fromJson(Map<String, dynamic> json) {
     userName = json["userName"];
-    userImage =  json["userImage"];
+    userPermission = json["userPermission"];
     uid = json["uid"];
     id = json["id"];
     image = json["image"];
@@ -40,8 +40,8 @@ class Post{
     return  {
       'uid' : uid,
       'userName' : userName,
-      'userImage' : userImage,
       'id' : id,
+      'userPermission' : userPermission,
       'image' : image,
       'date' : date,
       'title' : title,

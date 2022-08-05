@@ -68,8 +68,8 @@ class _PostAddPage extends State<PostAddPage>{
                       await boardCollection.doc(widget.person.uid).update(
                           {
                             random : Post(
-                              userName: userData["name"],
-                              userImage: userData["image"],
+                              userPermission: userData["userPermission"],
+                              userName: userData["userName"],
                               uid: widget.person.uid,
                               id: random,
                               image: image != null ? base64Encode(image) : null,
@@ -85,8 +85,8 @@ class _PostAddPage extends State<PostAddPage>{
                       await boardCollection.doc(widget.person.uid).set(
                           {
                             random : Post(
-                              userName: userData["name"],
-                              userImage: userData["image"],
+                              userPermission: userData["userPermission"],
+                              userName: userData["userName"],
                               uid: widget.person.uid,
                               id: random,
                               image: image != null ? base64Encode(image) : null,

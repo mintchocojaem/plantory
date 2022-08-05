@@ -101,9 +101,8 @@ class AuthPage extends StatelessWidget {
       person = Person(
         uid: userData["uid"],
         email: userData["email"],
-        name: userData["name"],
-        permission: userData["permission"],
-        image: userData["image"],
+        userName: userData["userName"],
+        userPermission: userData["userPermission"],
         plants: plantsFromJson(userData["plants"]),
       );
       print("Got user");
@@ -111,17 +110,15 @@ class AuthPage extends StatelessWidget {
       await usersCollection.doc(user.uid).set({
         'uid': user.uid,
         'email': user.email,
-        'name': (user.displayName == "" || user.displayName == null) ? "User" : user.displayName,
-        'permission': "user",
-        'image': null,
+        'userName': (user.displayName == "" || user.displayName == null) ? "User" : user.displayName,
+        'userPermission': "user",
         'plants': []
       }).whenComplete(() {
         person = Person(
           uid:  user.uid,
           email: user.email,
-          name: (user.displayName == "" || user.displayName == null) ? "User" : user.displayName,
-          permission: "user",
-          image: null,
+          userName: (user.displayName == "" || user.displayName == null) ? "User" : user.displayName,
+          userPermission: "user",
           plants: [],
         );
         print("Init user");
