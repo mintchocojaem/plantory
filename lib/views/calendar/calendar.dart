@@ -270,7 +270,7 @@ class _Calendar extends State<Calendar>{
                                                 borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.14))),
                                             child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.08,color: Colors.black54,)
                                         ),
-                                        title: Text('${ value[index]["plant"].userName}'),
+                                        title: Text('${ value[index]["plant"].name}'),
                                         subtitle: Text(value[index]["cycle"]),
                                         shape: RoundedRectangleBorder(
                                           side: BorderSide(color: Colors.black38, width: 1),

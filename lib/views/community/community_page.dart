@@ -5,6 +5,7 @@ import 'package:get/instance_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:plantory/views/community/post_add_page.dart';
 import 'package:plantory/views/community/post_detail_page.dart';
+import 'package:unicons/unicons.dart';
 import '../../../utils/colors.dart';
 import '../../data/person.dart';
 import '../../data/post.dart';
@@ -89,7 +90,8 @@ class _CommunityPage extends State<CommunityPage>{
                                       children: [
                                         Text(posts[index].date!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54),),
                                         Text("    |    ",style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54)),
-                                        Text(posts[index].userName! + (posts[index].userPermission == "expert" ? " / 🌱 전문가" : ""),style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black54)),
+                                        Text(posts[index].userName! + (posts[index].userPermission == "expert" ? " / 🌱 전문가" : posts[index].userPermission == "admin" ? " / ♠ 관리자" : ""),
+                                            style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035,color: Colors.black87)),
                                       ],
                                     ),
                                     Row(

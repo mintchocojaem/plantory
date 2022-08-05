@@ -130,7 +130,8 @@ class _PostDetailPage extends State<PostDetailPage>{
                                         children: [
                                           ListTile(
                                             contentPadding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
-                                            title: Text(post.userName! + " / 🌱 전문가",style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04)),
+                                            title: Text(post.userName! + (post.userPermission! == "expert"? " / 🌱 전문가" : post.userPermission == "admin" ? " / ♠ 관리자" : ""),
+                                                style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.04)),
                                             subtitle: Text(post.date!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035),),
                                             leading: post.userPermission == "expert" ? Container(
                                               width: MediaQuery.of(context).size.width * 0.1,
@@ -238,7 +239,9 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                         contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                                                         dense: true,
                                                         visualDensity: VisualDensity(horizontal: -4, vertical: -4),
-                                                        title: Text(post.comments![index]!.userName! +" / 🌱 전문가" ,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
+                                                        title: Text(post.comments![index]!.userName! + (post.comments![index]!.userPermission! == "expert"
+                                                            ? " / 🌱 전문가" : post.comments![index]!.userPermission == "admin" ? " / ♠ 관리자" : ""),
+                                                            style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
                                                         leading: post.comments![index]!.userPermission == "expert" ? Container(
                                                           width: MediaQuery.of(context).size.width * 0.08,
                                                           height: MediaQuery.of(context).size.width * 0.08,
@@ -385,7 +388,9 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                                     contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                                                                     dense: true,
                                                                     visualDensity: VisualDensity(horizontal: -4, vertical: -4),
-                                                                    title: Text("${post.comments![index]!.subComments![position]!.userName!} / 🌱 전문가",style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
+                                                                    title: Text("${post.comments![index]!.subComments![position]!.userName!}${post.comments![index]!.subComments![position]!.userPermission == "expert"
+                                                                        ? " / 🌱 전문가" : post.comments![index]!.subComments![position]!.userPermission == "admin"
+                                                                        ? " / ♠ 관리자" : ""}",style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.035)),
                                                                     leading: post.comments![index]!.subComments![position]!.userPermission == "expert" ? Container(
                                                                       width: MediaQuery.of(context).size.width * 0.08,
                                                                       height: MediaQuery.of(context).size.width * 0.08,

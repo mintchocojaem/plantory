@@ -113,7 +113,7 @@ class _SettingPage extends State<SettingPage>{
                                     var usersCollection = firestore.collection('users');
                                     await usersCollection.doc(widget.person.uid).update(
                                         {
-                                          "name": nameController.text
+                                          "userName": nameController.text
                                         }).whenComplete(() {
                                           print("user name Changed");
                                           widget.person.userName = name;
