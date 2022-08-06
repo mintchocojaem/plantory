@@ -28,7 +28,7 @@ class PlantNotification {
     );
 
     var initializationSettingsAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
+    AndroidInitializationSettings('@drawable/ic_stat_1');
 
     var initializationSettingsIOS = const IOSInitializationSettings(
       requestSoundPermission: true,
@@ -77,7 +77,8 @@ class PlantNotification {
             id,
             title,
             content,
-            tz.TZDateTime.from(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()), tz.local).add(Duration(seconds: days)),
+            //tz.TZDateTime.from(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()), tz.local).add(Duration(seconds: days)),
+            tz.TZDateTime.from(DateTime.now(), tz.local).add(Duration(seconds: days)),
             details,
             androidAllowWhileIdle: true,
             uiLocalNotificationDateInterpretation:

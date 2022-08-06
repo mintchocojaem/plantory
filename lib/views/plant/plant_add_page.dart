@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:plantory/views/notification/notification.dart';
 import 'package:unicons/unicons.dart';
 import '../../../data/plant.dart';
 import '../../../utils/colors.dart';
@@ -100,10 +101,12 @@ class _PlantAddPage extends State<PlantAddPage>{
             padding: const EdgeInsets.only(left: 12, right: 12),
             child: IconButton(
                 onPressed: () async{
+                  var id = generateID(widget.person.plants!);
                   if (_formKey.currentState!.validate()) {
+
                     widget.person.plants!.add(
                         Plant(
-                          id: generateID(widget.person.plants!),
+                          id: id,
                           pinned: false,
                           name: nameController.text,
                           type: typeController.text,
@@ -119,6 +122,15 @@ class _PlantAddPage extends State<PlantAddPage>{
                         {
                           "plants": widget.person.plantsToJson(widget.person.plants!)
                         }).then((value) => Get.back());
+                    PlantNotification plantNotification = PlantNotification();
+
+                    plantNotification.zonedMidnightSchedule(cycles[CycleType.watering.index][Cycles.id.name], "Plantory 알림",
+                        "\"${nameController.text}\"에게 물을 줄 시간입니다!", cycles[CycleType.watering.index][Cycles.cycle.name]);
+
+                    plantNotification.zonedMidnightSchedule(cycles[CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
+                        "\"${nameController.text}\"의 분갈이 시간입니다!", cycles[CycleType.repotting.index][Cycles.cycle.name]);
+
+
                   }
 
                 },
