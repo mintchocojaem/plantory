@@ -12,6 +12,7 @@ import 'package:unicons/unicons.dart';
 import '../../../data/plant.dart';
 import '../../../utils/colors.dart';
 import '../../data/person.dart';
+import '../notification/notification.dart';
 
 class HomePage extends StatefulWidget{
 
@@ -29,6 +30,7 @@ class HomePage extends StatefulWidget{
 
 class _HomePage extends State<HomePage>{
 
+  PlantNotification plantNotification = PlantNotification();
 
   final PageController pageController = PageController(initialPage: 0,viewportFraction: 0.9);
 
@@ -221,6 +223,13 @@ class _HomePage extends State<HomePage>{
                             {
                               "plants": widget.person.plantsToJson(widget.person.plants!)
                             });
+
+                        plantNotification.zonedMidnightSchedule(plant.cycles![CycleType.watering.index][Cycles.id.name], "Plantory 알림",
+                            "\"${plant.name}\"에게 물을 줄 시간입니다!", getFastWateringDate(plant.cycles!));
+
+                        plantNotification.zonedMidnightSchedule(plant.cycles![CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
+                            "\"${plant.name}\"의 분갈이 시간입니다!", getFastRepottingDate(plant.cycles!));
+
                       },
                       icon: Icon(Icons.check_circle_outline)
                   )

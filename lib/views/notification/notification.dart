@@ -77,8 +77,7 @@ class PlantNotification {
             id,
             title,
             content,
-            //tz.TZDateTime.from(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()), tz.local).add(Duration(seconds: days)),
-            tz.TZDateTime.from(DateTime.now(), tz.local).add(Duration(seconds: days)),
+            tz.TZDateTime.from(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()), tz.local).add(Duration(days: days)),
             details,
             androidAllowWhileIdle: true,
             uiLocalNotificationDateInterpretation:
@@ -87,8 +86,6 @@ class PlantNotification {
       }
     }
   }
-
-
 
   show(int id, String title, String content) async{
 
@@ -100,6 +97,10 @@ class PlantNotification {
         details,
       );
     }
+  }
+
+  cancel(int id) async{
+    await flutterLocalNotificationsPlugin.cancel(id);
   }
 
 

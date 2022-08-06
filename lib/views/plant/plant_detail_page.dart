@@ -8,13 +8,12 @@ import 'package:get/instance_manager.dart';
 import 'package:get/route_manager.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:line_icons/line_icons.dart';
-import 'package:plantory/views/auth/auth_page.dart';
-import 'package:plantory/views/index_page.dart';
 import 'package:unicons/unicons.dart';
 import '../../../data/plant.dart';
 import '../../../utils/colors.dart';
 import '../../data/person.dart';
 import '../home/home_page.dart';
+import '../notification/notification.dart';
 import 'input_field.dart';
 import 'package:intl/intl.dart';
 
@@ -51,6 +50,8 @@ class _PlantDetailPage extends State<PlantDetailPage>{
 
   final TextEditingController repottingStartDateController = TextEditingController();
   final TextEditingController repottingCycleController = TextEditingController();
+
+  PlantNotification plantNotification = PlantNotification();
 
   List? cycles;
 
@@ -117,6 +118,13 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                         {
                           "plants": widget.person.plantsToJson(widget.person.plants!)
                         }).then((value) => Get.back());
+
+                    plantNotification.zonedMidnightSchedule(cycles![CycleType.watering.index][Cycles.id.name], "Plantory 알림",
+                        "\"${nameController.text}\"에게 물을 줄 시간입니다!", cycles![CycleType.watering.index][Cycles.cycle.name]);
+
+                    plantNotification.zonedMidnightSchedule(cycles![CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
+                        "\"${nameController.text}\"의 분갈이 시간입니다!", cycles![CycleType.repotting.index][Cycles.cycle.name]);
+
                   }
                 },
                 icon: Icon(Icons.check, color: Colors.black54,)),
@@ -331,6 +339,7 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                                   }),
                                   CupertinoDialogAction(isDefaultAction: false, child: const Text("확인",style: TextStyle(color: Colors.red),),
                                       onPressed: () async {
+
                                         widget.person.plants!.remove(widget.plant);
                                         var usersCollection = firestore.collection('users');
                                         await usersCollection.doc(widget.person.uid).update(
@@ -340,6 +349,9 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                                           Navigator.pop(context);
                                           Get.back();
                                         });
+                                        plantNotification.cancel(cycles![CycleType.watering.index][Cycles.id.name]);
+                                        plantNotification.cancel(cycles![CycleType.repotting.index][Cycles.id.name]);
+
                                       }
                                   ),
                                 ],
@@ -393,6 +405,7 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                           : getFastRepottingDate(cycles!)) == plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name]
                       ? IconButton(
                       onPressed: () async{
+
                         setState((){
                           cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name]
                           = DateFormat('yyyy-MM-dd').format(DateTime.now()
@@ -403,6 +416,13 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                             {
                               "plants": widget.person.plantsToJson(widget.person.plants!)
                             });
+
+                        plantNotification.zonedMidnightSchedule(cycles![CycleType.watering.index][Cycles.id.name], "Plantory 알림",
+                            "\"${nameController.text}\"에게 물을 줄 시간입니다!", getFastWateringDate(cycles!));
+
+                        plantNotification.zonedMidnightSchedule(cycles![CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
+                            "\"${nameController.text}\"의 분갈이 시간입니다!", getFastRepottingDate(cycles!));
+
                       },
                       icon: Icon(Icons.check_circle_outline)
                   )

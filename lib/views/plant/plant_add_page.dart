@@ -122,14 +122,13 @@ class _PlantAddPage extends State<PlantAddPage>{
                         {
                           "plants": widget.person.plantsToJson(widget.person.plants!)
                         }).then((value) => Get.back());
-                    PlantNotification plantNotification = PlantNotification();
 
+                    PlantNotification plantNotification = PlantNotification();
                     plantNotification.zonedMidnightSchedule(cycles[CycleType.watering.index][Cycles.id.name], "Plantory 알림",
                         "\"${nameController.text}\"에게 물을 줄 시간입니다!", cycles[CycleType.watering.index][Cycles.cycle.name]);
 
                     plantNotification.zonedMidnightSchedule(cycles[CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
                         "\"${nameController.text}\"의 분갈이 시간입니다!", cycles[CycleType.repotting.index][Cycles.cycle.name]);
-
 
                   }
 
