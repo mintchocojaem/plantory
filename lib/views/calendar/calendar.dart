@@ -62,7 +62,7 @@ class _Calendar extends State<Calendar>{
         "repottingDays" : List.empty(growable: true),
       };
       for(int i = 0; DateFormat('yyyy-MM-dd').parse(j!.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
-          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![0][Cycles.cycle.name])){
+          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![0][Cycles.cycle.name].toString())){
 
         if(!DateFormat('yyyy-MM-dd').parse(j.cycles![0][Cycles.startDate.name])
             .add(Duration(days: i)).isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()))){
@@ -74,7 +74,7 @@ class _Calendar extends State<Calendar>{
 
       }
       for(int i = 0; DateFormat('yyyy-MM-dd').parse(j.cycles![1][Cycles.startDate.name]).add(Duration(days: i))
-          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![1][Cycles.cycle.name])){
+          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![1][Cycles.cycle.name].toString())){
 
         if(!DateFormat('yyyy-MM-dd').parse(j.cycles![1][Cycles.startDate.name])
             .add(Duration(days: i)).isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()))){
@@ -133,7 +133,7 @@ class _Calendar extends State<Calendar>{
         "repottingDays" : List.empty(growable: true),
       };
       for(int i = 0; DateFormat('yyyy-MM-dd').parse(j!.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
-          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![0][Cycles.cycle.name])){
+          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![0][Cycles.cycle.name].toString())){
 
         if(!DateFormat('yyyy-MM-dd').parse(j.cycles![0][Cycles.startDate.name])
             .add(Duration(days: i)).isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()))){
@@ -145,7 +145,7 @@ class _Calendar extends State<Calendar>{
 
       }
       for(int i = 0; DateFormat('yyyy-MM-dd').parse(j.cycles![1][Cycles.startDate.name]).add(Duration(days: i))
-          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![1][Cycles.cycle.name])){
+          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![1][Cycles.cycle.name].toString())){
 
         if(!DateFormat('yyyy-MM-dd').parse(j.cycles![1][Cycles.startDate.name])
             .add(Duration(days: i)).isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()))){

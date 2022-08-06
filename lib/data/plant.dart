@@ -1,5 +1,5 @@
 
-enum Cycles{id,type,cycle,startDate,init}
+enum Cycles{id,type,cycle,startDate,initDate}
 enum CycleType{watering, repotting}
 
 class Plant{
@@ -29,7 +29,7 @@ class Plant{
   Plant.fromJson(Map<String, dynamic> json)
       : id = json["id"],
         image = json['image'],
-        pinned = json['pinned'] == "true" ? true : false,
+        pinned = json['pinned'],
         name = json["name"],
         type = json["type"],
         date = json["date"],

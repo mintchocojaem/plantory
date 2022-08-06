@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/instance_manager.dart';
 import 'package:get/route_manager.dart';
@@ -31,6 +32,8 @@ class _HomePage extends State<HomePage>{
 
   final PageController pageController = PageController(initialPage: 0,viewportFraction: 0.9);
 
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
   @override
   void initState() {
     super.initState();
@@ -38,6 +41,13 @@ class _HomePage extends State<HomePage>{
 
   @override
   Widget build(BuildContext context) {
+
+    widget.person.plants!.sort((a, b) {
+      if(b!.pinned!) {
+        return 1;
+      }
+      return -1;
+    });
 
     return Scaffold(
       backgroundColor: Color(0xffEEF1F1),
@@ -169,6 +179,7 @@ class _HomePage extends State<HomePage>{
   }
 
   Widget cycleTile(Plant plant, int position, CycleType cycleType){
+
     return GestureDetector(
       child: Card(
         color: primaryColor,
@@ -194,15 +205,22 @@ class _HomePage extends State<HomePage>{
                     side: BorderSide(color: Colors.black38, width: 1),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  trailing: !plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.init.name] &&
+                  trailing: (DateFormat('yyyy-MM-dd').parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name]))
+                      .isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())) &&
                       (cycleType == CycleType.watering ? getFastWateringDate(plant.cycles!)
-                          : getFastRepottingDate(plant.cycles!)) ==
-                          int.parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name])
+                          : getFastRepottingDate(plant.cycles!)) == plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name]
                       ? IconButton(
-                      onPressed: (){
+                      onPressed: () async{
                         setState((){
-                          plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.init.name] = true;
+                          plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name]
+                          = DateFormat('yyyy-MM-dd').format(DateTime.now()
+                              .add(Duration(days: int.parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name].toString()))));
                         });
+                        var usersCollection = firestore.collection('users');
+                        await usersCollection.doc(widget.person.uid).update(
+                            {
+                              "plants": widget.person.plantsToJson(widget.person.plants!)
+                            });
                       },
                       icon: Icon(Icons.check_circle_outline)
                   )
@@ -221,10 +239,10 @@ class _HomePage extends State<HomePage>{
 
 int getFastWateringDate(List cycles){
   for(int i = 0; DateFormat('yyyy-MM-dd').parse(cycles[0][Cycles.startDate.name]).add(Duration(days: i))
-      .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(cycles[0][Cycles.cycle.name])){
+      .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(cycles[0][Cycles.cycle.name].toString())){
 
     if(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()).isBefore( DateFormat('yyyy-MM-dd')
-        .parse(cycles[0][Cycles.startDate.name]).add(Duration(days: i)))){
+        .parse(cycles[CycleType.watering.index][Cycles.startDate.name]).add(Duration(days: i)))){
 
       return  DateFormat('yyyy-MM-dd').parse(cycles[0][Cycles.startDate.name]).add(Duration(days: i))
           .difference(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())).inDays;
@@ -237,7 +255,7 @@ int getFastWateringDate(List cycles){
 
 int getFastRepottingDate(List cycles){
   for(int i = 0; DateFormat('yyyy-MM-dd').parse(cycles[1][Cycles.startDate.name]).add(Duration(days: i))
-      .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(cycles[1][Cycles.cycle.name])){
+      .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(cycles[1][Cycles.cycle.name].toString())){
 
     if(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()).isBefore( DateFormat('yyyy-MM-dd')
         .parse(cycles[1][Cycles.startDate.name]).add(Duration(days: i)))){

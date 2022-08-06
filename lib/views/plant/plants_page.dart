@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/instance_manager.dart';
 import 'package:get/route_manager.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:plantory/views/plant/plant_add_page.dart';
 import 'package:plantory/views/plant/plant_detail_page.dart';
 import 'package:unicons/unicons.dart';
@@ -25,16 +26,21 @@ class PlantsPage extends StatefulWidget {
 
 class _PlantsPage extends State<PlantsPage> {
 
-  late List<Plant?> plantList;
-
   @override
   void initState() {
-    plantList = widget.person.plants ?? [];
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+
+    widget.person.plants!.sort((a, b) {
+      if(b!.pinned!) {
+        return 1;
+      }
+      return -1;
+    });
+
     return Scaffold(
       backgroundColor: Color(0xffEEF1F1),
       appBar: AppBar(
@@ -46,13 +52,13 @@ class _PlantsPage extends State<PlantsPage> {
           style: TextStyle(color: primaryColor),
         ),
       ),
-      body: plantList.isNotEmpty ? Padding(
+      body: widget.person.plants!.isNotEmpty ? Padding(
         padding: const EdgeInsets.all(10.0),
         child: GridView.builder(
           gridDelegate:
           const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
           itemBuilder: (context, position) {
-            return Card(
+            return  Card(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
               elevation: 2,
@@ -62,34 +68,50 @@ class _PlantsPage extends State<PlantsPage> {
                       padding: const EdgeInsets.all(10.0),
                       child: InkWell(
                           onTap: () {
-                            Get.to(() => PlantDetailPage(plant:plantList[position]!, person: widget.person,))?.then((value) => setState((){}));
+                            Get.to(() => PlantDetailPage(plant:widget.person.plants![position]!, person: widget.person,))!.then((value) => setState((){}));
                           },
                           child: Center(
                             child: Column(
                               children: [
-                                Center(
-                                  child: plantList[position]!.image != null ? ClipOval(
-                                        child: Image.memory(base64Decode(plantList[position]!.image!),
+                                Stack(
+                                  children: [
+                                    Center(
+                                      child: widget.person.plants![position]!.image != null ? ClipOval(
+                                            child: Image.memory(base64Decode(widget.person.plants![position]!.image!),
+                                            width: MediaQuery.of(context).size.width * 0.3,
+                                            height: MediaQuery.of(context).size.width * 0.3,
+                                            fit: BoxFit.cover,
+                                          )
+                                      ) :
+                                      Container(
                                         width: MediaQuery.of(context).size.width * 0.3,
                                         height: MediaQuery.of(context).size.width * 0.3,
-                                        fit: BoxFit.cover,
-                                      )
-                                  ) :
-                                  Container(
-                                    width: MediaQuery.of(context).size.width * 0.3,
-                                    height: MediaQuery.of(context).size.width * 0.3,
-                                    decoration: BoxDecoration(
-                                        color: Color(0xffC9D9CF),
-                                        borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.3))),
-                                    child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.15,color: Colors.black54,)
-                                  ),
+                                        decoration: BoxDecoration(
+                                            color: Color(0xffC9D9CF),
+                                            borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.3))),
+                                        child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.15,color: Colors.black54,)
+                                      ),
+                                    ),
+                                    widget.person.plants![position]!.pinned == true ? Positioned(
+                                        top: 0,
+                                        right:  MediaQuery.of(context).size.width * 0.08,
+                                        child: Container(
+                                          padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.01),
+                                          decoration: BoxDecoration(
+                                              color: primaryColor,
+                                              borderRadius: BorderRadius.all(Radius.circular(100)),
+                                          ),
+                                          child: Icon(LineIcons.byName('crown',), color: Colors.amber),
+                                        )
+                                    ) : Container(),
+                                  ],
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(10),
                                   child: Container(
                                     alignment: Alignment.bottomCenter,
                                     child: Text(
-                                      plantList[position]!.name!,
+                                      widget.person.plants![position]!.name!,
                                       textAlign: TextAlign.center,
                                       style: TextStyle(),
                                     ),
@@ -102,9 +124,9 @@ class _PlantsPage extends State<PlantsPage> {
               ),
             );
           },
-          itemCount: plantList.length,
+          itemCount: widget.person.plants!.length,
         ),
-      ) :  Center(
+      ) : Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -122,7 +144,7 @@ class _PlantsPage extends State<PlantsPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Get.to(() => PlantAddPage(person: widget.person,))?.then((value) => setState((){}));
+          Get.to(() => PlantAddPage(person: widget.person,))!.then((value) => setState((){}));
         },
         heroTag: null,
         child: Icon(Icons.add,),backgroundColor: primaryColor,),

@@ -39,16 +39,16 @@ class _PlantAddPage extends State<PlantAddPage>{
     {
       Cycles.id.name : 0,
       Cycles.type.name : "물",
-      Cycles.cycle.name : "14",
+      Cycles.cycle.name : 14,
       Cycles.startDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-      Cycles.init.name : false
+      Cycles.initDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
     },
     {
       Cycles.id.name : 1,
       Cycles.type.name : "분갈이",
-      Cycles.cycle.name : "60",
+      Cycles.cycle.name : 60,
       Cycles.startDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-      Cycles.init.name : false
+      Cycles.initDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
     },
   ];
 
@@ -72,14 +72,14 @@ class _PlantAddPage extends State<PlantAddPage>{
 
     dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
-    wateringStartDateController.text = cycles[0][Cycles.startDate.name];
-    wateringCycleController.text = cycles[0][Cycles.cycle.name];
+    wateringStartDateController.text = cycles[CycleType.watering.index][Cycles.startDate.name];
+    wateringCycleController.text = cycles[CycleType.watering.index][Cycles.cycle.name].toString();
 
-    repottingStartDateController.text = cycles[1][Cycles.startDate.name];
-    repottingCycleController.text = cycles[1][Cycles.cycle.name];
+    repottingStartDateController.text = cycles[CycleType.repotting.index][Cycles.startDate.name];
+    repottingCycleController.text = cycles[CycleType.repotting.index][Cycles.cycle.name].toString();
 
-    cycles[0][Cycles.id.name] = generateCycleID(widget.person.plants!);
-    cycles[1][Cycles.id.name] = generateCycleID(widget.person.plants!)+1;
+    cycles[CycleType.watering.index][Cycles.id.name] = generateCycleID(widget.person.plants!);
+    cycles[CycleType.repotting.index][Cycles.id.name] = generateCycleID(widget.person.plants!)+1;
 
     super.initState();
   }
@@ -118,7 +118,7 @@ class _PlantAddPage extends State<PlantAddPage>{
                     await usersCollection.doc(widget.person.uid).update(
                         {
                           "plants": widget.person.plantsToJson(widget.person.plants!)
-                        }).then((value) => Navigator.pop(context));
+                        }).then((value) => Get.back());
                   }
 
                 },
@@ -381,7 +381,7 @@ class _PlantAddPage extends State<PlantAddPage>{
                       decoration: InputDecoration(
                         labelStyle: const TextStyle(height:0.1),
                         labelText: "주기(일)",
-                        hintText:  cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name],
+                        hintText:  cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name].toString(),
                       ),
                     ),
                     SizedBox(
@@ -404,7 +404,8 @@ class _PlantAddPage extends State<PlantAddPage>{
                   setState((){
                     if(int.parse(cycleController.text) > 0){
                       cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name] = startDateController.text;
-                      cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name] = cycleController.text;
+                      cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name] = startDateController.text;
+                      cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name] = int.parse(cycleController.text);
                       Navigator.pop(context);
                     }else{
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -419,7 +420,7 @@ class _PlantAddPage extends State<PlantAddPage>{
                           )
                       );
                       setState((){
-                        cycleController.text = cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name];
+                        cycleController.text = cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name].toString();
                       });
                     }
                   });

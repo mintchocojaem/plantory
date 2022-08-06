@@ -65,10 +65,10 @@ class _PlantDetailPage extends State<PlantDetailPage>{
     dateController.text = widget.plant.date!;
 
     wateringStartDateController.text = widget.plant.cycles![0][Cycles.startDate.name];
-    wateringCycleController.text = widget.plant.cycles![0][Cycles.cycle.name];
+    wateringCycleController.text = widget.plant.cycles![0][Cycles.cycle.name].toString();
 
     repottingStartDateController.text = widget.plant.cycles![1][Cycles.startDate.name];
-    repottingCycleController.text = widget.plant.cycles![1][Cycles.cycle.name];
+    repottingCycleController.text = widget.plant.cycles![1][Cycles.cycle.name].toString();
 
     pinned = widget.plant.pinned!;
 
@@ -97,8 +97,13 @@ class _PlantDetailPage extends State<PlantDetailPage>{
           Padding(
             padding: const EdgeInsets.only(left: 12, right: 12),
             child: IconButton(
-                onPressed: (){
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
+                    if(pinned){
+                      for(Plant? i in widget.person.plants!){
+                        i!.pinned = false;
+                      }
+                    }
                     widget.plant.pinned = pinned;
                     widget.plant.name = nameController.text;
                     widget.plant.type = typeController.text;
@@ -106,7 +111,12 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                     widget.plant.note = noteController.text;
                     widget.plant.cycles = cycles;
                     widget.plant.image = image != null ? base64Encode(image) : null;
-                    Get.back();
+
+                    var usersCollection = firestore.collection('users');
+                    await usersCollection.doc(widget.person.uid).update(
+                        {
+                          "plants": widget.person.plantsToJson(widget.person.plants!)
+                        }).then((value) => Get.back());
                   }
                 },
                 icon: Icon(Icons.check, color: Colors.black54,)),
@@ -377,15 +387,22 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                     side: BorderSide(color: Colors.black38, width: 1),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  trailing: !cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.init.name] &&
+                  trailing:  (DateFormat('yyyy-MM-dd').parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name]))
+                      .isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())) &&
                       (cycleType == CycleType.watering ? getFastWateringDate(cycles!)
-                          : getFastRepottingDate(cycles!)) ==
-                          int.parse(cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name])
+                          : getFastRepottingDate(cycles!)) == plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name]
                       ? IconButton(
-                      onPressed: () {
+                      onPressed: () async{
                         setState((){
-                          cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.init.name] = true;
+                          cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name]
+                          = DateFormat('yyyy-MM-dd').format(DateTime.now()
+                              .add(Duration(days: int.parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name].toString()))));
                         });
+                        var usersCollection = firestore.collection('users');
+                        await usersCollection.doc(widget.person.uid).update(
+                            {
+                              "plants": widget.person.plantsToJson(widget.person.plants!)
+                            });
                       },
                       icon: Icon(Icons.check_circle_outline)
                   )
@@ -441,7 +458,7 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                       decoration: InputDecoration(
                         labelStyle: const TextStyle(height:0.1),
                         labelText: "주기(일)",
-                        hintText: cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name],
+                        hintText: cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name].toString(),
                       ),
                     ),
                     SizedBox(
@@ -463,7 +480,8 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                 onPressed: () {
                   setState((){
                     cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name] = startDateController.text;
-                    cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name] = cycleController.text;
+                    cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name] = startDateController.text;
+                    cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name] = int.parse(cycleController.text);
                     Navigator.pop(context);
                   });
                 },
