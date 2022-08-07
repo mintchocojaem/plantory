@@ -7,6 +7,7 @@ import 'package:flutterfire_ui/i10n.dart';
 import 'package:get/instance_manager.dart';
 import 'package:get/route_manager.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:plantory/binding/binding.dart';
 import 'package:plantory/views/auth/auth_page.dart';
 import 'package:plantory/views/auth/lang/ko.dart';
@@ -23,7 +24,8 @@ void main() async{
   await initNotification();
 
 
-  runApp(const MyApp());
+  runApp(const MyApp(
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -31,7 +33,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(localizationsDelegates: [
+    return GetMaterialApp(
+      localizationsDelegates: [
 
       // Delegates below take care of built-in flutter widgets
       GlobalMaterialLocalizations.delegate,
@@ -40,13 +43,16 @@ class MyApp extends StatelessWidget {
       // This delegate is required to provide the labels that are not overridden by LabelOverrides
       FlutterFireUIRuLocalizationsDelegate(),
       FlutterFireUILocalizations.delegate,
-    ],
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData.light(),
-        home: //SplashScreen(),
-              //IndexPage(),
-              AuthPage(),
-        initialBinding: InitBinding(),
+      ],
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        brightness: Brightness.light,
+        textTheme: GoogleFonts.gowunDodumTextTheme()
+      ),
+      home: //SplashScreen(),
+            //IndexPage(),
+            AuthPage(),
+      initialBinding: InitBinding(),
     );
   }
 
