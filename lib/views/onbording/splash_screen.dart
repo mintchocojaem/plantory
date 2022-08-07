@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:delayed_display/delayed_display.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:plantory/views/auth/auth_page.dart';
 import 'package:unicons/unicons.dart';
 
 import '../../utils/colors.dart';
-import 'onbording1.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -24,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
         () => Navigator.pushReplacement(
             context,
             PageTransition(
-                child: const OnbordingIntro(),
+                child: AuthPage(),
                 type: PageTransitionType.rightToLeft)));
   }
 

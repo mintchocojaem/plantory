@@ -188,7 +188,18 @@ class _TimelineAddPage extends State<TimelineAddPage>{
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              title: const Text("식물 선택"),
+                              title: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("식물 선택"),
+                                  IconButton(
+                                      onPressed: (){
+                                        Get.back();
+                                      },
+                                      icon: Icon(Icons.close,color: Colors.black54,)
+                                  )
+                                ],
+                              ),
                               content: SizedBox(
                                 height: MediaQuery.of(context).size.height * 0.4,
                                 width: MediaQuery.of(context).size.width * 0.4,
@@ -196,34 +207,32 @@ class _TimelineAddPage extends State<TimelineAddPage>{
                                   shrinkWrap: true,
                                   itemCount: widget.person.plants!.length,
                                   itemBuilder: (BuildContext context, int index) =>
-                                       Card(
-                                        color: Color(0xffC9D9CF),
-                                        child: ListTile(
-                                          leading: widget.person.plants![index]!.image != null ? ClipOval(
-                                              child: Image.memory(base64Decode(widget.person.plants![index]!.image!),
-                                                width: MediaQuery.of(context).size.width * 0.1,
-                                                height: MediaQuery.of(context).size.width * 0.1,
-                                                fit: BoxFit.cover,
-                                              )
-                                          ) :
-                                          Container(
-                                              width: MediaQuery.of(context).size.width * 0.1,
-                                              height: MediaQuery.of(context).size.width * 0.1,
-                                              decoration: BoxDecoration(
-                                                  color: Color(0xff8bbb88),
-                                                  borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))),
-                                              child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.06,color: Colors.black54,)
-                                          ),
-                                          title : Text(widget.person.plants![index]!.name!),
-                                          onTap: (){
-                                            Navigator.of(context).pop();
-                                            setState(() {
-                                              plant = widget.person.plants![index]!;
-                                              nameController.text = widget.person.plants![index]!.name!;
-                                            });
-                                          },
-                                        )
-                                      )
+                                       Column(
+                                         children: [
+                                           Divider(thickness: 1,),
+                                           GestureDetector(
+                                             child: Row(children: [
+                                               Padding(
+                                                 padding: const EdgeInsets.all(8.0),
+                                                 child: Text(widget.person.plants![index]!.name!,style: TextStyle(fontWeight: FontWeight.bold),),
+                                               ),
+                                               Padding(
+                                                 padding: const EdgeInsets.all(8.0),
+                                                 child: Text(widget.person.plants![index]!.type!),
+                                               ),
+                                             ],),
+                                             onTap: (){
+                                               setState(() {
+                                                 plant = widget.person.plants![index]!;
+                                                 nameController.text = widget.person.plants![index]!.name!;
+                                               });
+                                               Navigator.of(context).pop();
+                                             },
+
+                                           ),
+                                           Divider(thickness: 1,),
+                                         ],
+                                       )
                                 ),
                               ),
                             );

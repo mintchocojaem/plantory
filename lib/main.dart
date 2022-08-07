@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.light,
-        textTheme: GoogleFonts.gowunDodumTextTheme()
+        textTheme: GoogleFonts.gowunDodumTextTheme(),
       ),
       home: //SplashScreen(),
             //IndexPage(),

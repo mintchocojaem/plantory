@@ -32,7 +32,7 @@ class IndexPage extends GetView<BottomNavController> {
           HomePage(person: person),
           CalendarPage(person: person),
           CommunityPage(person: person,),
-          PlantsPage(person: person,),
+          //PlantsPage(person: person,),
           //SettingPage(person: person),
         ],
       ),
@@ -60,11 +60,13 @@ class IndexPage extends GetView<BottomNavController> {
                   Icons.comment,
                 ),
                 label: "Community"),
-            BottomNavigationBarItem(
+            /*BottomNavigationBarItem(
                 icon: Icon(
                   UniconsLine.flower,
                 ),
                 label: "Plants"),
+
+             */
             /*BottomNavigationBarItem(
                 icon: Icon(
                   UniconsLine.setting,

@@ -180,6 +180,7 @@ class _Calendar extends State<Calendar>{
               child: Theme(
                 data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
                 child: ExpansionTile(
+                  initiallyExpanded: true,
                   leading: Icon(Icons.calendar_month_outlined),
                   title: Text(DateFormat('yyyy-MM-dd').format(_selectedDay!)),
                   children: [

@@ -13,6 +13,7 @@ import '../../../data/plant.dart';
 import '../../../utils/colors.dart';
 import '../../data/person.dart';
 import '../notification/notification.dart';
+import '../plant/plant_detail_page.dart';
 
 class HomePage extends StatefulWidget{
 
@@ -32,7 +33,7 @@ class _HomePage extends State<HomePage>{
 
   PlantNotification plantNotification = PlantNotification();
 
-  final PageController pageController = PageController(initialPage: 0,viewportFraction: 0.9);
+  final PageController pageController = PageController(initialPage: 0,viewportFraction: 0.85);
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -58,125 +59,185 @@ class _HomePage extends State<HomePage>{
         elevation: 0,
         automaticallyImplyLeading: false,
         backgroundColor: Color(0xffEEF1F1),
-        title: const Text(
-          "Home",
-          style: TextStyle(color: primaryColor),
-        ),
       ),
-      body: widget.person.plants!.isNotEmpty ? PageView.builder(
-          itemCount: widget.person.plants!.length,
+      body: PageView.builder(
+          itemCount: widget.person.plants!.length +1,
           pageSnapping: true,
           controller: pageController,
           itemBuilder: (context, pagePosition) {
             return Container(
               margin: EdgeInsets.only(left: 5,right: 5,bottom: 20),
-              child: Card(
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Stack(
+              child: GestureDetector(
+                onTap: (){
+                  Get.to(() => PlantDetailPage(plant:widget.person.plants![pagePosition]!, person: widget.person,))
+                      ?.then((value) => setState((){}));
+                },
+                child:Column(
                   children: [
-                    widget.person.plants![pagePosition]!.pinned == true ? Positioned(
-                        top: 20,
-                        right: 20,
-                        child: Container(
-                            decoration: BoxDecoration(
-                              color: primaryColor,
-                              borderRadius: BorderRadius.all(Radius.circular(100))
-                            ),
-                            padding: EdgeInsets.all(10),
-                            child: Icon(LineIcons.byName('crown',),color: Colors.amber,)
-                        )
-                    ) : Container(),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20),
-                      child: Column(
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.15,
+                      child: pagePosition <= widget.person.plants!.indexOf(widget.person.plants!.last) ? Column(
                         children: [
-                          Center(
-                            child: widget.person.plants![pagePosition]!.image != null ? ClipOval(
-                                child: Image.memory(base64Decode(widget.person.plants![pagePosition]!.image!),
-                                  width: MediaQuery.of(context).size.width * 0.6,
-                                  height: MediaQuery.of(context).size.width * 0.6,
-                                  fit: BoxFit.cover,
-                                )
-                            ) :
-                            Container(
-                                width: MediaQuery.of(context).size.width * 0.6,
-                                height: MediaQuery.of(context).size.width * 0.6,
-                                decoration: BoxDecoration(
-                                    color: primaryColor,
-                                    borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.6))),
-                                child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.15,color: Colors.black54,)
-                            ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              Text("${widget.person.plants![pagePosition]!.name!}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 36),),
+                              Text("  |  "),
+                              Text("${widget.person.plants![pagePosition]!.type!}"),
+                            ],
                           ),
-                          SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                          Text("${widget.person.plants![pagePosition]!.type!}", style: TextStyle(),),
-                          SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                          Text("${widget.person.plants![pagePosition]!.name!}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),),
-                          SizedBox(height: MediaQuery.of(context).size.height * 0.02),
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                    topLeft:Radius.circular(30),
-                                    topRight:Radius.circular(30)
-                                ),
-                                color: Color(0xffC9D9CF)
-                              ),
-                              padding: EdgeInsets.only(bottom: 10,left: 10,right: 10),
-                              child: Column(
-                                children: [
-                                  SizedBox(height: 10,),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text("${widget.person.plants![pagePosition]!.name!}와 함께한지 ",),
-                                      Text("${DateFormat('yyyy-MM-dd')
-                                          .parse(DateTime.now().toString()).difference(DateFormat('yyyy-MM-dd')
-                                          .parse(widget.person.plants![pagePosition]!.date!)).inDays}일이 지났어요!",
-                                        style: TextStyle(fontWeight: FontWeight.w500),)
-                                    ],
-                                  ),
-                                  SizedBox(height: 10,),
-                                  Divider(thickness: 1,color: Colors.black38,),
-                                  SizedBox(height: 10,),
-                                  cycleTile(widget.person.plants![pagePosition]!, pagePosition, CycleType.watering),
-                                  cycleTile(widget.person.plants![pagePosition]!, pagePosition, CycleType.repotting)
-                                ],
-                              ),
-                            ),
+                          SizedBox(height: MediaQuery.of(context).size.height * 0.01,),
+                          Row(
+                            children: [
+                              Text("${widget.person.plants![pagePosition]!.name!}와 함께한지 ",),
+                              Text("${DateFormat('yyyy-MM-dd')
+                                  .parse(DateTime.now().toString()).difference(DateFormat('yyyy-MM-dd')
+                                  .parse(widget.person.plants![pagePosition]!.date!)).inDays}일이 지났어요!",
+                                style: TextStyle(fontWeight: FontWeight.w500),)
+                            ],
                           ),
                         ],
+                      ) : Align(
+                        alignment: Alignment.center,
+                        child: Text("새로운 식물 추가하기",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                      ),
+                    ),
+                    pagePosition != widget.person.plants!.length ? Expanded(
+                      child: Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Stack(
+                          children: [
+                            widget.person.plants![pagePosition]!.pinned == true ? Positioned(
+                                top: 20,
+                                right: 20,
+                                child: Container(
+                                    decoration: BoxDecoration(
+                                      color: primaryColor,
+                                      borderRadius: BorderRadius.all(Radius.circular(100))
+                                    ),
+                                    padding: EdgeInsets.all(10),
+                                    child: Icon(LineIcons.byName('crown',),color: Colors.amber,)
+                                )
+                            ) : Container(),
+                            Align(
+                              alignment: Alignment.center,
+                              child: Image.asset("assets/images/default_plant6_512.png",
+                                width: MediaQuery.of(context).size.width * 0.5,),
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                widget.person.plants![pagePosition]!.image != null ?
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(18),
+                                    child: Container(
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                                          image: DecorationImage(
+                                            fit: BoxFit.cover,
+                                            image: Image.memory(base64Decode(widget.person.plants![pagePosition]!.image!), fit: BoxFit.cover,).image,
+                                          )
+                                      ),
+                                    ),
+                                  ),
+                                ) :
+                                Flexible(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(18),
+                                    child: Container(
+                                      height: MediaQuery.of(context).size.height,
+                                      decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                                          border: Border.all(color: Colors.black26),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  width: double.infinity,
+                                  height: MediaQuery.of(context).size.height * 0.1,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                        bottomLeft:Radius.circular(10),
+                                        bottomRight:Radius.circular(10)
+                                    ),
+                                    color: Color(0xffC9D9CF)
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          cycleTile(widget.person.plants![pagePosition]!, pagePosition, CycleType.watering),
+                                          cycleTile(widget.person.plants![pagePosition]!, pagePosition, CycleType.repotting),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
+                      ),
+                    ) : Expanded(
+                      child: GestureDetector(
+                        child: Card(
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child:  Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(18),
+                                  child: Container(
+                                    height: MediaQuery.of(context).size.height,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                                      border: Border.all(color: Colors.black26),
+                                    ),
+                                    child: Center(
+                                        child: Icon(Icons.add,size: MediaQuery.of(context).size.width * 0.1,color: Colors.black54,)
+
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                width: double.infinity,
+                                height: MediaQuery.of(context).size.height * 0.1,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                        bottomLeft:Radius.circular(10),
+                                        bottomRight:Radius.circular(10)
+                                    ),
+                                    color: Color(0xffC9D9CF)
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        onTap: (){
+                          Get.to(() => PlantAddPage(person: widget.person,))?.then((value) => setState((){}));
+                        },
                       ),
                     ),
                   ],
                 ),
               ),
             );
-          }) : Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(UniconsLine.flower),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text("Plantory에 처음 오신 것을 환영합니다."),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text("이용자님의 첫 식물을 추가해보세요!"),
-                  ),
-                  MaterialButton(
-                    color: Color(0xffC9D9CF),
-                    onPressed: (){
-                      Get.to(() => PlantAddPage(person: widget.person,));
-                    },
-                    child: Text("식물 추가"),
-                  )
-                ],
-            ),
-          ),
+          })
     );
   }
 
@@ -184,60 +245,50 @@ class _HomePage extends State<HomePage>{
 
     return GestureDetector(
       child: Card(
-        color: primaryColor,
-        elevation: 5,
+        elevation: 1,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
         child: Wrap(
           children: [
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                      bottomRight: Radius.circular(10),
-                      topRight: Radius.circular(10))),
-              margin: EdgeInsets.only(left: 10),
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: ListTile(
-                  leading: cycleType == CycleType.watering ? Icon(Icons.water_drop) : Icon(UniconsLine.shovel),
-                  title: Text(cycleType ==  CycleType.watering ? "물" : "분갈이"),
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(color: Colors.black38, width: 1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  trailing: (DateFormat('yyyy-MM-dd').parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name]))
-                      .isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())) &&
-                      (cycleType == CycleType.watering ? getFastWateringDate(plant.cycles!)
-                          : getFastRepottingDate(plant.cycles!)) == plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name]
-                      ? IconButton(
-                      onPressed: () async{
-                        setState((){
-                          plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name]
-                          = DateFormat('yyyy-MM-dd').format(DateTime.now()
-                              .add(Duration(days: int.parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name].toString()))));
-                        });
-                        var usersCollection = firestore.collection('users');
-                        await usersCollection.doc(widget.person.uid).update(
-                            {
-                              "plants": widget.person.plantsToJson(widget.person.plants!)
-                            });
-
-                        plantNotification.zonedMidnightSchedule(plant.cycles![CycleType.watering.index][Cycles.id.name], "Plantory 알림",
-                            "\"${plant.name}\"에게 물을 줄 시간입니다!", getFastWateringDate(plant.cycles!));
-
-                        plantNotification.zonedMidnightSchedule(plant.cycles![CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
-                            "\"${plant.name}\"의 분갈이 시간입니다!", getFastRepottingDate(plant.cycles!));
-
-                      },
-                      icon: Icon(Icons.check_circle_outline)
-                  )
-                      : Text("D ${cycleType == CycleType.watering
-                      ? -getFastWateringDate(plant.cycles!)
-                      : -getFastRepottingDate(plant.cycles!)}")
-              ),
+            Padding(
+              padding: const EdgeInsets.only(left:8,top: 8,bottom: 8),
+              child: cycleType == CycleType.watering ? Icon(Icons.water_drop,color: Colors.black87,) : Icon(UniconsLine.shovel,color: Colors.black87),
             ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(cycleType ==  CycleType.watering ? "물" : "분갈이",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black87)),
+            ),
+            (DateFormat('yyyy-MM-dd').parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name]))
+                .isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())) &&
+                (cycleType == CycleType.watering ? getFastWateringDate(plant.cycles!)
+                    : getFastRepottingDate(plant.cycles!)) == plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name]
+          ? Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: IconButton(
+                onPressed: () async{
+                  setState((){
+                    plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name]
+                    = DateFormat('yyyy-MM-dd').format(DateTime.now()
+                        .add(Duration(days: int.parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name].toString()))));
+                  });
+                  var usersCollection = firestore.collection('users');
+                  await usersCollection.doc(widget.person.uid).update(
+                      {
+                        "plants": widget.person.plantsToJson(widget.person.plants!)
+                      });
+
+                  plantNotification.zonedMidnightSchedule(plant.cycles![CycleType.watering.index][Cycles.id.name], "Plantory 알림",
+                      "\"${plant.name}\"에게 물을 줄 시간입니다!", getFastWateringDate(plant.cycles!));
+
+                  plantNotification.zonedMidnightSchedule(plant.cycles![CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
+                      "\"${plant.name}\"의 분갈이 시간입니다!", getFastRepottingDate(plant.cycles!));
+
+                  }, icon: Icon(Icons.check_circle_outline)),)
+                : Padding(padding: const EdgeInsets.all(8.0), child: Text("D${cycleType == CycleType.watering
+                  ? -getFastWateringDate(plant.cycles!)
+                  : -getFastRepottingDate(plant.cycles!)}",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black87),),
+                )
           ],
         ),
       ),

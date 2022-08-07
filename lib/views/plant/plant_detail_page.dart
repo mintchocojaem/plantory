@@ -365,7 +365,7 @@ class _PlantDetailPage extends State<PlantDetailPage>{
             ),
           ),
         ),
-      ),
+      )
     );
   }
 

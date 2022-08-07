@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:plantory/views/notification/notification.dart';
 import 'package:unicons/unicons.dart';
@@ -91,222 +92,233 @@ class _PlantAddPage extends State<PlantAddPage>{
     // TODO: implement build
     return Scaffold(
       backgroundColor: Color(0xffEEF1F1),
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black54,),
-          onPressed: () { Navigator.pop(context); },
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(left: 12, right: 12),
-            child: IconButton(
-                onPressed: () async{
-                  var id = generateID(widget.person.plants!);
-                  if (_formKey.currentState!.validate()) {
-
-                    widget.person.plants!.add(
-                        Plant(
-                          id: id,
-                          pinned: false,
-                          name: nameController.text,
-                          type: typeController.text,
-                          date: dateController.text,
-                          note: noteController.text,
-                          cycles: cycles,
-                          image: image != null ? base64Encode(image) : null,
-                          timelines: List.empty(growable: true),
-                        )
-                    );
-                    var usersCollection = firestore.collection('users');
-                    await usersCollection.doc(widget.person.uid).update(
-                        {
-                          "plants": widget.person.plantsToJson(widget.person.plants!)
-                        }).then((value) => Get.back());
-
-                    PlantNotification plantNotification = PlantNotification();
-                    plantNotification.zonedMidnightSchedule(cycles[CycleType.watering.index][Cycles.id.name], "Plantory 알림",
-                        "\"${nameController.text}\"에게 물을 줄 시간입니다!", cycles[CycleType.watering.index][Cycles.cycle.name]);
-
-                    plantNotification.zonedMidnightSchedule(cycles[CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
-                        "\"${nameController.text}\"의 분갈이 시간입니다!", cycles[CycleType.repotting.index][Cycles.cycle.name]);
-
-                  }
-
-                },
-                icon: Icon(Icons.check, color: Colors.black54,)),
-          )
-        ],
-        elevation: 0,
-        backgroundColor: Color(0xffEEF1F1),
-        title: const Text(
-          "Add Plant",
-          style: TextStyle(color: primaryColor),
-        ),
-      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            margin: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Center(
-                      child: GestureDetector(
-                        child: image == null ? Container(
-                            width: MediaQuery.of(context).size.width * 0.4,
-                            height: MediaQuery.of(context).size.width * 0.4,
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Colors.black54,
-                                ),
-                                borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.4))
-                            ),
-                            child: Icon(Icons.add_a_photo_outlined,)
-                        ) : ClipOval(
-                            child: Image.memory(image, fit: BoxFit.cover,
-                              width: MediaQuery.of(context).size.width * 0.4,
-                              height: MediaQuery.of(context).size.width * 0.4,)
-                        ),
-                        onTap: () {
-                          var picker = ImagePicker();
-                          showDialog(
-                            barrierColor: Colors.black54,
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                                title: Center(child: Text("사진 선택")),
-                                titlePadding: EdgeInsets.all(15),
-                                content: SizedBox(
-                                  width: double.infinity,
-                                  height: MediaQuery.of(context).size.height * 0.2,
-                                  child: SingleChildScrollView(
-                                    child: Column(
-                                      children: [
-                                        Divider(thickness: 1,color: Colors.black54,),
-                                        ListTile(title: Text("카메라"),
-                                          leading: Icon(Icons.camera_alt_outlined),
-                                          onTap: () async{
-                                          await picker.pickImage(source: ImageSource.camera)
-                                              .then((value) =>  Navigator.of(context).pop(value));},
-
-                                        ),
-                                        Divider(thickness: 1),
-                                        ListTile(title: Text("갤러리"),
-                                          leading: Icon(Icons.photo_camera_back),
-                                          onTap: () async{
-                                          await picker.pickImage(source: ImageSource.gallery)
-                                              .then((value) =>  Navigator.of(context).pop(value));},
-                                          ),
-                                        Divider(thickness: 1),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              contentPadding: EdgeInsets.all(0),
-                              actions: [
-                                TextButton(
-                                  child: const Text('취소'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
+        child: Scrollbar(
+          thumbVisibility: true,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Stack(
+                  children: [
+                    GestureDetector(
+                        child: image == null ? Container()
+                            : Image.memory(image, fit: BoxFit.cover,
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.width,
+                        )
+                    ),
+                    Container(
+                      width: double.infinity,
+                      height: MediaQuery.of(context).size.height * 0.08,
+                      color: Colors.black54,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 8, left: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IconButton(
+                                onPressed: (){
+                                  Get.back();
                                   },
-                                ),
-                              ],
+                                icon: Icon(Icons.arrow_back_ios_rounded, color: Color(0xffEEF1F1),)
                             ),
-                          ).then((value) async{
-                            if(value != null){
-                              image = await value.readAsBytes();
-                              setState((){});
-                            }
-                          });
+                            IconButton(onPressed: () async{
+                              var id = generateID(widget.person.plants!);
+                              if (_formKey.currentState!.validate()) {
 
-                        },
-                      )
-                  ),
-                  InputField(
-                    isEditable: true,
-                    label: "이름",
-                    controller: nameController,
-                    emptyText: false,
-                    maxLength: 20,
-                    maxLines: 1,
-                  ),
-                  InputField(
-                    isEditable: true,
-                    label: '종류',
-                    controller: typeController,
-                    emptyText: false,
-                    maxLength: 20,
-                    maxLines: 1,
-                  ),
-                  InputField(
-                    onTap: () async{
-                      dateController.text = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(), //초기값
-                        firstDate: DateTime(DateTime.now().year-1), //시작일
-                        lastDate: DateTime(DateTime.now().year+1), //마지막일
-                        builder: (BuildContext context, Widget? child) {
-                          return Theme(
-                            data: ThemeData.light(), //다크 테마
-                            child: child!,
-                          );
-                        },
-                      ).then((value) => value != null ? DateFormat('yyyy-MM-dd').format(value) : dateController.text );
-                    },
-                    controller: dateController,
-                    isEditable: false,
-                    label: '만날 날',
-                    emptyText: false,
-                    icon: Icon(Icons.calendar_month_outlined),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  TextFormField(
-                    controller: noteController,
-                    maxLines: null,
-                    keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
-                      labelStyle: const TextStyle(height:0.1),
-                      labelText: "노트",
-                      hintText:  "주요 특징, 꽃말 등을 적어보세요!",
+                                widget.person.plants!.add(
+                                    Plant(
+                                      id: id,
+                                      pinned: false,
+                                      name: nameController.text,
+                                      type: typeController.text,
+                                      date: dateController.text,
+                                      note: noteController.text,
+                                      cycles: cycles,
+                                      image: image != null ? base64Encode(image) : null,
+                                      timelines: List.empty(growable: true),
+                                    )
+                                );
+                                var usersCollection = firestore.collection('users');
+                                await usersCollection.doc(widget.person.uid).update(
+                                    {
+                                      "plants": widget.person.plantsToJson(widget.person.plants!)
+                                    }).then((value) => Get.back());
+
+                                PlantNotification plantNotification = PlantNotification();
+                                plantNotification.zonedMidnightSchedule(cycles[CycleType.watering.index][Cycles.id.name], "Plantory 알림",
+                                    "\"${nameController.text}\"에게 물을 줄 시간입니다!", cycles[CycleType.watering.index][Cycles.cycle.name]);
+
+                                plantNotification.zonedMidnightSchedule(cycles[CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
+                                    "\"${nameController.text}\"의 분갈이 시간입니다!", cycles[CycleType.repotting.index][Cycles.cycle.name]);
+
+                              }
+                            }, icon: Icon(Icons.check_rounded, color: Color(0xffEEF1F1)))
+                          ],
+                        ),
+                      ),
                     ),
-                    maxLength: 200,
-                  ),
-                  Theme(
-                    data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(
-                        initiallyExpanded: true,
-                        title: Text("주기"),
-                        children: [
-                          ListView(
-                            shrinkWrap: true,
-                            children: [
-                              Padding(
-                                  padding: const EdgeInsets.only(bottom: 10),
-                                  child: cycleTile(cycles, CycleType.watering, wateringStartDateController, wateringCycleController)
-                              ),
-                              Padding(
-                                  padding: const EdgeInsets.only(bottom: 10),
-                                  child: cycleTile(cycles, CycleType.repotting, repottingStartDateController, repottingCycleController)
-                              )
-                            ],
+                  ],
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        InputField(
+                          isEditable: true,
+                          label: "이름",
+                          controller: nameController,
+                          emptyText: false,
+                          maxLength: 20,
+                          maxLines: 1,
+                        ),
+                        InputField(
+                          isEditable: true,
+                          label: '종류',
+                          controller: typeController,
+                          emptyText: false,
+                          maxLength: 20,
+                          maxLines: 1,
+                        ),
+                        InputField(
+                          onTap: () async{
+
+                            await showCupertinoModalPopup(
+                                context: context,
+                                builder: (BuildContext builder) {
+                                  return Container(
+                                    height: MediaQuery.of(context).copyWith().size.height*0.25,
+                                    color: Colors.white,
+                                    child: CupertinoDatePicker(
+                                      initialDateTime: DateTime.now(), //초기값
+                                      minimumDate: DateTime(DateTime.now().year-1), //시작일
+                                      maximumDate: DateTime(DateTime.now().year+1), //마지막일
+                                      mode: CupertinoDatePickerMode.date,
+                                      onDateTimeChanged: (value) {
+                                        if (DateFormat('yyyy-MM-dd').format(value) != dateController.text) {
+                                          setState(() {
+                                            dateController.text = DateFormat('yyyy-MM-dd').format(value);
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  );
+                                }
+                            );
+                          },
+                          controller: dateController,
+                          isEditable: false,
+                          label: '만날 날',
+                          emptyText: false,
+                          icon: Icon(Icons.calendar_month_outlined),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextFormField(
+                          controller: noteController,
+                          maxLines: null,
+                          keyboardType: TextInputType.multiline,
+                          decoration: InputDecoration(
+                            labelStyle: const TextStyle(height:0.1),
+                            labelText: "노트",
+                            hintText:  "주요 특징, 꽃말 등을 적어보세요!",
                           ),
-                        ]
+                          maxLength: 200,
+                        ),
+                        Theme(
+                          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                          child: ExpansionTile(
+                              initiallyExpanded: true,
+                              title: Text("주기"),
+                              children: [
+                                ListView(
+                                  shrinkWrap: true,
+                                  children: [
+                                    Padding(
+                                        padding: const EdgeInsets.only(bottom: 10),
+                                        child: cycleTile(cycles, CycleType.watering, wateringStartDateController, wateringCycleController)
+                                    ),
+                                    Padding(
+                                        padding: const EdgeInsets.only(bottom: 10),
+                                        child: cycleTile(cycles, CycleType.repotting, repottingStartDateController, repottingCycleController)
+                                    )
+                                  ],
+                                ),
+                              ]
+                          ),
+                        ),
+                        Divider(thickness: 1,color: Colors.black38,),
+                      ],
                     ),
                   ),
-                  Divider(thickness: 1,color: Colors.black38,),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          var picker = ImagePicker();
+          showDialog(
+            barrierColor: Colors.black54,
+            context: context,
+            builder: (context) => AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: Center(child: Text("사진 선택")),
+              titlePadding: EdgeInsets.all(15),
+              content: SizedBox(
+                width: double.infinity,
+                height: MediaQuery.of(context).size.height * 0.2,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Divider(thickness: 1,color: Colors.black54,),
+                      ListTile(title: Text("카메라"),
+                        leading: Icon(Icons.camera_alt_outlined),
+                        onTap: () async{
+                          await picker.pickImage(source: ImageSource.camera)
+                              .then((value) =>  Navigator.of(context).pop(value));},
+
+                      ),
+                      Divider(thickness: 1),
+                      ListTile(title: Text("갤러리"),
+                        leading: Icon(Icons.photo_camera_back),
+                        onTap: () async{
+                          await picker.pickImage(source: ImageSource.gallery)
+                              .then((value) =>  Navigator.of(context).pop(value));},
+                      ),
+                      Divider(thickness: 1),
+                    ],
+                  ),
+                ),
+              ),
+              contentPadding: EdgeInsets.all(0),
+              actions: [
+                TextButton(
+                  child: const Text('취소'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ).then((value) async{
+            if(value != null){
+              image = await value.readAsBytes();
+              setState((){});
+            }
+          });
+        },
+        heroTag: null,
+        child: Icon(Icons.camera_alt_outlined,),backgroundColor: primaryColor,),
     );
   }
 
@@ -364,18 +376,27 @@ class _PlantAddPage extends State<PlantAddPage>{
                         hintText:  cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name],
                       ),
                       onTap: () async{
-                        startDateController.text = await showDatePicker(
+                        await showCupertinoModalPopup(
                             context: context,
-                            initialDate: DateFormat('yyyy-MM-dd').parse(cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name]), //초기값
-                            firstDate: DateTime(DateTime.now().year), //시작일
-                            lastDate: DateTime(DateTime.now().year+1).subtract(Duration(days: 1)), //마지막일
-                            builder: (BuildContext context, Widget? child) {
-                              return Theme(
-                                data: ThemeData.light(),
-                                child: child!,
-                              );
-                            }).then((value) => value != null ? DateFormat('yyyy-MM-dd').format(value)
-                            : startDateController.text);
+                            builder: (BuildContext builder) {
+                          return Container(
+                            height: MediaQuery.of(context).copyWith().size.height*0.25,
+                            color: Colors.white,
+                            child: CupertinoDatePicker(
+                              initialDateTime: DateFormat('yyyy-MM-dd').parse(cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name]),
+                              minimumDate: DateTime(DateTime.now().year), //시작일
+                              maximumDate: DateTime(DateTime.now().year+1).subtract(Duration(days: 1)), //마지막일
+                              mode: CupertinoDatePickerMode.date,
+                              onDateTimeChanged: (value) {
+                                if (DateFormat('yyyy-MM-dd').format(value) != startDateController.text) {
+                                  setState(() {
+                                    startDateController.text = DateFormat('yyyy-MM-dd').format(value);
+                                  });
+                                }
+                              },
+                            ),
+                          );
+                        });
                       },
                     ),
                     SizedBox(
