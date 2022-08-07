@@ -2,8 +2,12 @@
 
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:intl/intl.dart';
 import 'package:plantory/utils/colors.dart';
 import 'package:plantory/views/plant/plant_detail_page.dart';
@@ -30,7 +34,9 @@ class Calendar extends StatefulWidget {
 
 class _Calendar extends State<Calendar>{
 
-   ValueNotifier<List<Map>>? _selectedEvents;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  ValueNotifier<List<Map>>? _selectedEvents;
 
   List<Map> plants = List.empty(growable: true);
   List<DateTime> wateringDays = List.empty(growable: true);
@@ -276,54 +282,101 @@ class _Calendar extends State<Calendar>{
                                           side: BorderSide(color: Colors.black38, width: 1),
                                           borderRadius: BorderRadius.circular(20),
                                         ),
-                                        trailing: value[index]["cycle"] != null
-                                            ? Icon(value[index]["cycle"] == "물주기" ? Icons.water_drop : UniconsLine.shovel)
-                                            : Container(),
+                                        trailing: value[index]["cycle"] != null ? SizedBox(
+                                          width: MediaQuery.of(context).size.width * 0.1,
+                                          height: MediaQuery.of(context).size.width * 0.1,
+                                          child: IconButton(
+                                            icon: value[index]["cycle"] == "물주기" ? Icon(Icons.water_drop) : Icon(UniconsLine.shovel),
+                                            onPressed: (){
+
+                                              },),
+                                        ) : Container(),
                                       ) : Theme(
                                         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-                                        child: ExpansionTile(
-                                            initiallyExpanded: true,
-                                            leading: value[index]["plant"].image != null ? ClipOval(
-                                                child: Image.memory(base64Decode(value[index]["plant"].image),
+                                        child: Column(
+                                          children: [
+                                            ListTile(
+                                              leading: value[index]["plant"].image != null ? ClipOval(
+                                                  child: Image.memory(base64Decode(value[index]["plant"].image),
+                                                    width: MediaQuery.of(context).size.width * 0.15,
+                                                    height: MediaQuery.of(context).size.width * 0.15,
+                                                    fit: BoxFit.cover,
+                                                  )
+                                              ) :
+                                              Container(
                                                   width: MediaQuery.of(context).size.width * 0.15,
                                                   height: MediaQuery.of(context).size.width * 0.15,
-                                                  fit: BoxFit.cover,
-                                                )
-                                            ) :
-                                            Container(
-                                                width: MediaQuery.of(context).size.width * 0.15,
-                                                height: MediaQuery.of(context).size.width * 0.15,
-                                                decoration: BoxDecoration(
-                                                    color: Color(0xffC9D9CF),
-                                                    borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.14))),
-                                                child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.08,color: Colors.black54,)
-                                            ),
-                                            title: Text(value[index]["timelines"]["title"]),
-                                            subtitle: Text(value[index]["plant"].userName),
-                                            children: [
-                                              value[index]["timelines"]["image"] != null
-                                                  ? Container(
-                                                  width: MediaQuery.of(context).size.width * 0.6,
-                                                  height: MediaQuery.of(context).size.width * 0.6,
                                                   decoration: BoxDecoration(
-                                                      image: DecorationImage(
-                                                        fit: BoxFit.cover,
-                                                        image: Image.memory(base64Decode(value[index]["timelines"]["image"]),
-                                                          fit: BoxFit.cover,).image,
-                                                      ),
-                                                      borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
-                                                  )
-                                              ) : Container(),
-                                              Padding(
-                                                padding: EdgeInsets.only(
-                                                    top: MediaQuery.of(context).size.height * 0.02,
-                                                    bottom: MediaQuery.of(context).size.height * 0.02,
-                                                    right: MediaQuery.of(context).size.width * 0.1,
-                                                    left: MediaQuery.of(context).size.width * 0.1,
-                                                ),
-                                                child: Center(child: Text( value[index]["timelines"]["content"],style: TextStyle(fontSize: 16),)),
+                                                      color: Color(0xffC9D9CF),
+                                                      borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.14))),
+                                                  child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.08,color: Colors.black54,)
                                               ),
-                                            ],
+                                              title: Text(value[index]["timelines"]["title"]),
+                                              subtitle: Text(value[index]["plant"].name),
+                                              trailing: SizedBox(
+                                                  width: MediaQuery.of(context).size.width * 0.1,
+                                                  height: MediaQuery.of(context).size.width * 0.1,
+                                                  child: IconButton(
+                                                    icon: Icon(Icons.delete_outline),
+                                                    onPressed: (){
+                                                      showDialog(barrierColor: Colors.black54, context: context, builder: (context) {
+                                                        return CupertinoAlertDialog(
+                                                          title: const Text("타임로그 삭제"),
+                                                          content: Padding(
+                                                            padding: const EdgeInsets.only(top: 8),
+                                                            child: Text("해당 타임로그를 삭제하시겠습니까?"),
+                                                          ),
+                                                          actions: [
+                                                            CupertinoDialogAction(isDefaultAction: false, child: Text("취소"), onPressed: () {
+                                                              Navigator.pop(context);
+                                                            }),
+                                                            CupertinoDialogAction(isDefaultAction: false, child: const Text("확인",style: TextStyle(color: Colors.red),),
+                                                                onPressed: () async {
+
+                                                                  widget.person.plants![widget.person.plants!.indexOf(value[index]["plant"])]!.timelines!.remove(value[index]["timelines"]);
+
+                                                                  var usersCollection = firestore.collection('users');
+                                                                  await usersCollection.doc(widget.person.uid).update(
+                                                                      {
+                                                                        "plants": widget.person.plantsToJson(widget.person.plants!)
+                                                                      }).then((value) {
+                                                                    setState(() {
+                                                                      Navigator.pop(context);
+                                                                      Get.back();
+                                                                    });
+                                                                  });
+
+                                                                }
+                                                            ),
+                                                          ],
+                                                        );
+                                                      });
+                                                    },)
+                                              ),
+                                            ),
+                                            value[index]["timelines"]["image"] != null
+                                                ? Container(
+                                                width: MediaQuery.of(context).size.width * 0.6,
+                                                height: MediaQuery.of(context).size.width * 0.6,
+                                                decoration: BoxDecoration(
+                                                    image: DecorationImage(
+                                                      fit: BoxFit.cover,
+                                                      image: Image.memory(base64Decode(value[index]["timelines"]["image"]),
+                                                        fit: BoxFit.cover,).image,
+                                                    ),
+                                                    borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
+                                                )
+                                            ) : Container(),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                top: MediaQuery.of(context).size.height * 0.02,
+                                                bottom: MediaQuery.of(context).size.height * 0.02,
+                                                right: MediaQuery.of(context).size.width * 0.1,
+                                                left: MediaQuery.of(context).size.width * 0.1,
+                                              ),
+                                              child: Center(child: Text( value[index]["timelines"]["content"],style: TextStyle(fontSize: 16),)),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),

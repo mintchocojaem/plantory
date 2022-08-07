@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -7,9 +7,7 @@ import 'package:get/instance_manager.dart';
 import 'package:get/route_manager.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:plantory/views/index_page.dart';
 import 'package:unicons/unicons.dart';
-
 import '../../data/person.dart';
 import '../../data/plant.dart';
 import '../../utils/colors.dart';
@@ -30,6 +28,8 @@ class TimelineAddPage extends StatefulWidget{
 }
 
 class _TimelineAddPage extends State<TimelineAddPage>{
+
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -67,7 +67,7 @@ class _TimelineAddPage extends State<TimelineAddPage>{
           Padding(
             padding: const EdgeInsets.only(left: 12, right: 12),
             child: IconButton(
-                onPressed: (){
+                onPressed: () async{
                   if(_formKey.currentState!.validate()){
                     plant.timelines!.add({
                       'image': image != null ? base64Encode(image) : null,
@@ -75,6 +75,13 @@ class _TimelineAddPage extends State<TimelineAddPage>{
                       'title' : titleController.text,
                       'content' : contentController.text
                     });
+
+                    var usersCollection = firestore.collection('users');
+                    await usersCollection.doc(widget.person.uid).update(
+                        {
+                          "plants": widget.person.plantsToJson(widget.person.plants!)
+                        }).then((value) => Get.back());
+
                     Get.back();
                   }
                 },
