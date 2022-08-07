@@ -325,7 +325,7 @@ class _TimelineAddPage extends State<TimelineAddPage>{
                       ListTile(title: Text("카메라"),
                         leading: Icon(Icons.camera_alt_outlined),
                         onTap: () async{
-                          await picker.pickImage(source: ImageSource.camera)
+                          await picker.pickImage(source: ImageSource.camera,maxWidth: 1024, maxHeight: 1024)
                               .then((value) =>  Navigator.of(context).pop(value));},
 
                       ),
@@ -333,7 +333,7 @@ class _TimelineAddPage extends State<TimelineAddPage>{
                       ListTile(title: Text("갤러리"),
                         leading: Icon(Icons.photo_camera_back),
                         onTap: () async{
-                          await picker.pickImage(source: ImageSource.gallery)
+                          await picker.pickImage(source: ImageSource.gallery,maxWidth: 1024, maxHeight: 1024)
                               .then((value) =>  Navigator.of(context).pop(value));},
                       ),
                       Divider(thickness: 1),
