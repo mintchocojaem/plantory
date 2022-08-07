@@ -321,10 +321,10 @@ class _Calendar extends State<Calendar>{
                                                     onPressed: (){
                                                       showDialog(barrierColor: Colors.black54, context: context, builder: (context) {
                                                         return CupertinoAlertDialog(
-                                                          title: const Text("타임로그 삭제"),
+                                                          title: const Text("타임라인 삭제"),
                                                           content: Padding(
                                                             padding: const EdgeInsets.only(top: 8),
-                                                            child: Text("해당 타임로그를 삭제하시겠습니까?"),
+                                                            child: Text("해당 타임라인을 삭제하시겠습니까?"),
                                                           ),
                                                           actions: [
                                                             CupertinoDialogAction(isDefaultAction: false, child: Text("취소"), onPressed: () {

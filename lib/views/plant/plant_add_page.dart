@@ -232,18 +232,16 @@ class _PlantAddPage extends State<PlantAddPage>{
                     label: "이름",
                     controller: nameController,
                     emptyText: false,
-                  ),
-                  const SizedBox(
-                    height: 20,
+                    maxLength: 20,
+                    maxLines: 1,
                   ),
                   InputField(
                     isEditable: true,
                     label: '종류',
                     controller: typeController,
                     emptyText: false,
-                  ),
-                  const SizedBox(
-                    height: 20,
+                    maxLength: 20,
+                    maxLines: 1,
                   ),
                   InputField(
                     onTap: () async{
@@ -278,9 +276,7 @@ class _PlantAddPage extends State<PlantAddPage>{
                       labelText: "노트",
                       hintText:  "주요 특징, 꽃말 등을 적어보세요!",
                     ),
-                  ),
-                  const SizedBox(
-                    height: 20,
+                    maxLength: 200,
                   ),
                   Theme(
                     data: Theme.of(context).copyWith(dividerColor: Colors.transparent),

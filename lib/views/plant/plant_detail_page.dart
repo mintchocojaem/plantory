@@ -243,9 +243,8 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                     hint: widget.plant.name,
                     controller: nameController,
                     emptyText: false,
-                  ),
-                  const SizedBox(
-                    height: 20,
+                    maxLength: 20,
+                    maxLines: 1,
                   ),
                   InputField(
                     isEditable: true,
@@ -253,9 +252,8 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                     hint: widget.plant.note,
                     controller: typeController,
                     emptyText: false,
-                  ),
-                  const SizedBox(
-                    height: 20,
+                    maxLength: 20,
+                    maxLines: 1,
                   ),
                   InputField(
                     onTap: () async{
@@ -284,15 +282,13 @@ class _PlantDetailPage extends State<PlantDetailPage>{
                   TextFormField(
                     controller: noteController,
                     maxLines: null,
+                    maxLength: 200,
                     keyboardType: TextInputType.multiline,
                     decoration: InputDecoration(
                       labelStyle: const TextStyle(height:0.1),
                       labelText: "노트",
                       hintText:  "주요 특징, 꽃말 등을 적어보세요!",
                     ),
-                  ),
-                  const SizedBox(
-                    height: 10,
                   ),
                   Theme(
                     data: Theme.of(context).copyWith(dividerColor: Colors.transparent),

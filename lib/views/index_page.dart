@@ -31,9 +31,9 @@ class IndexPage extends GetView<BottomNavController> {
         children: [
           HomePage(person: person),
           CalendarPage(person: person),
-          PlantsPage(person: person,),
           CommunityPage(person: person,),
-          SettingPage(person: person),
+          PlantsPage(person: person,),
+          //SettingPage(person: person),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -57,19 +57,21 @@ class IndexPage extends GetView<BottomNavController> {
                 icon: Icon(UniconsLine.calender), label: "Calender"),
             BottomNavigationBarItem(
                 icon: Icon(
-                  UniconsLine.flower,
-                ),
-                label: "Plants"),
-            BottomNavigationBarItem(
-                icon: Icon(
                   Icons.comment,
                 ),
                 label: "Community"),
             BottomNavigationBarItem(
                 icon: Icon(
+                  UniconsLine.flower,
+                ),
+                label: "Plants"),
+            /*BottomNavigationBarItem(
+                icon: Icon(
                   UniconsLine.setting,
                 ),
                 label: "Settings"),
+
+             */
           ]
       )
     ));

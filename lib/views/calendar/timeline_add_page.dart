@@ -259,7 +259,6 @@ class _TimelineAddPage extends State<TimelineAddPage>{
                       ),
                       TextFormField(
                         controller: titleController,
-                        keyboardType: TextInputType.multiline,
                         maxLength: 20,
                         validator: (value){
                           if (value.toString().isEmpty) {
@@ -275,6 +274,7 @@ class _TimelineAddPage extends State<TimelineAddPage>{
                         controller: contentController,
                         keyboardType: TextInputType.multiline,
                         maxLength: 50,
+                        maxLines: null,
                         validator: (value){
                           if (value.toString().isEmpty) {
                             return '내용을 입력해주세요';

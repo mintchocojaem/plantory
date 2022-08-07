@@ -12,7 +12,9 @@ class InputField extends StatefulWidget {
         this.hint,
         required this.isEditable,
         required this.emptyText,
-        this.icon
+        this.icon,
+        this.maxLength,
+        this.maxLines
       })
       : super(key: key);
 
@@ -23,6 +25,8 @@ class InputField extends StatefulWidget {
   final bool emptyText;
   final OnTap? onTap;
   final Icon? icon;
+  final int? maxLines;
+  final int? maxLength;
 
   @override
   InputFieldState createState() => InputFieldState();
@@ -32,6 +36,8 @@ class InputFieldState extends State<InputField> {
   @override
   Widget build(BuildContext context) {
     return  TextFormField(
+      maxLines: widget.maxLines,
+      maxLength: widget.maxLength,
       onTap: widget.onTap ?? (){},
       readOnly: !widget.isEditable,
       controller: widget.controller,

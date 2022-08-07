@@ -30,10 +30,13 @@ class _CommunityPage extends State<CommunityPage>{
 
   List<Post> posts = List.empty(growable: true);
 
+  final TextEditingController nameController = TextEditingController();
+  String name = "User";
+  bool editName = false;
+  var image;
 
   @override
   Widget build(BuildContext context) {
-
 
     return Scaffold(
       backgroundColor: Color(0xffEEF1F1),
@@ -46,11 +49,104 @@ class _CommunityPage extends State<CommunityPage>{
           "Community",
           style: TextStyle(color: primaryColor),
         ),
+        actions: [
+         MaterialButton(
+           onPressed: () {
+
+             name = widget.person.userName!;
+             nameController.text = widget.person.userName!;
+
+             showDialog(context: context, barrierColor: Colors.black54,builder: (context) {
+               return AlertDialog(
+                 actionsPadding: EdgeInsets.all(0),
+                 contentPadding: EdgeInsets.only(top: 8),
+                 buttonPadding: EdgeInsets.only(right: 8,left: 8),
+                 insetPadding: EdgeInsets.all(0),
+                 shape: RoundedRectangleBorder(
+                   borderRadius: BorderRadius.circular(20),
+                 ),
+                 title: const Text("유저 정보"),
+                 content: Wrap(
+                   children: [
+                     Column(
+                       mainAxisAlignment: MainAxisAlignment.center,
+                       children: [
+                         Center(
+                             child: GestureDetector(
+                                 child:  Container(
+                                     width: MediaQuery.of(context).size.width * 0.2,
+                                     height: MediaQuery.of(context).size.width * 0.2,
+                                     decoration: BoxDecoration(
+                                         border: Border.all(
+                                           color: Colors.black54,
+                                         ),
+                                         borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.2))
+                                     ),
+                                     child: Icon(Icons.person_outline_rounded,size: MediaQuery.of(context).size.width * 0.1,)
+                                 )
+                             )
+                         ),
+                         Padding(
+                           padding: const EdgeInsets.only(left: 24, right: 24),
+                           child: TextFormField(
+                             autofocus: true,
+                             textAlign: TextAlign.center,
+                             controller: nameController,
+                             decoration: InputDecoration(
+                               border: InputBorder.none,
+                               hintText: name,
+                             ),
+                           ),
+                         )
+                       ],
+                     ),
+                   ],
+                 ),
+                 actions: [
+                   TextButton(
+                     child: const Text('취소'),
+                     onPressed: () {
+                       Navigator.of(context).pop();
+                     },
+                   ),
+                   TextButton(
+                     child: const Text('확인'),
+                     onPressed: () async{
+                       var usersCollection = firestore.collection('users');
+                       await usersCollection.doc(widget.person.uid).update(
+                           {
+                             "userName": nameController.text == "" ? name : nameController.text
+                           }).whenComplete(() {
+                         print("user name Changed");
+                         widget.person.userName = nameController.text == "" ? name : nameController.text;
+                       });
+                       setState((){
+                         Navigator.pop(context);
+                       });
+                     },
+                   ),
+                 ],
+               );
+             });
+           },
+           child: Container(
+               width: MediaQuery.of(context).size.width * 0.08,
+               height: MediaQuery.of(context).size.width * 0.08,
+               decoration: BoxDecoration(
+                   border: Border.all(
+                     color: Colors.black54,
+                   ),
+                   borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.08))
+               ),
+               child: Icon(Icons.person,size: MediaQuery.of(context).size.width * 0.05,color: Colors.black54,)
+           ),
+         ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
-            margin: const EdgeInsets.only(left: 16,right: 16,top: 8,bottom: 8),
+            margin: const EdgeInsets.only(left: 16,right: 16),
             child: Center(
               child: FutureBuilder(
                 future: getBoardData(),
