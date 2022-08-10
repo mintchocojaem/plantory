@@ -1,13 +1,13 @@
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:get/instance_manager.dart';
 import 'package:get/route_manager.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:line_icons/line_icons.dart';
-import 'package:plantory/views/index_page.dart';
-import 'package:plantory/views/plant/plant_add_page.dart';
 import 'package:unicons/unicons.dart';
 import '../../../data/plant.dart';
 import '../../../utils/colors.dart';
@@ -29,7 +29,7 @@ class HomePage extends StatefulWidget{
 
 }
 
-class _HomePage extends State<HomePage>{
+class _HomePage extends State<HomePage> with TickerProviderStateMixin{
 
   PlantNotification plantNotification = PlantNotification();
 
@@ -37,130 +37,472 @@ class _HomePage extends State<HomePage>{
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
+  bool isEditable = false;
+  bool isNewPlant = false;
+
+  int pageIndex = 0;
+
+  final TextEditingController newNameController = TextEditingController();
+  final TextEditingController newTypeController = TextEditingController();
+  final TextEditingController newDateController = TextEditingController();
+
+  final TextEditingController newWateringStartDateController = TextEditingController();
+  final TextEditingController newWateringCycleController = TextEditingController();
+
+  final TextEditingController newRepottingStartDateController = TextEditingController();
+  final TextEditingController newRepottingCycleController = TextEditingController();
+
+  var newImage;
+
+
+  List<Map> newCycles = [
+    {
+      Cycles.id.name : 0,
+      Cycles.type.name : "물",
+      Cycles.cycle.name : 14,
+      Cycles.startDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+      Cycles.initDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+    },
+    {
+      Cycles.id.name : 1,
+      Cycles.type.name : "분갈이",
+      Cycles.cycle.name : 60,
+      Cycles.startDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+      Cycles.initDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+    },
+  ];
+
   @override
   void initState() {
+
+    newDateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    newWateringStartDateController.text = newCycles[CycleType.watering.index][Cycles.startDate.name];
+    newWateringCycleController.text = newCycles[CycleType.watering.index][Cycles.cycle.name].toString();
+
+    newRepottingStartDateController.text = newCycles[CycleType.repotting.index][Cycles.startDate.name];
+    newRepottingCycleController.text = newCycles[CycleType.repotting.index][Cycles.cycle.name].toString();
+
+    newCycles[CycleType.watering.index][Cycles.id.name] = generateCycleID(widget.person.plants!);
+    newCycles[CycleType.repotting.index][Cycles.id.name] = generateCycleID(widget.person.plants!)+1;
+
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
 
-    widget.person.plants!.sort((a, b) {
-      if(b!.pinned!) {
-        return 1;
-      }
-      return -1;
-    });
 
     return Scaffold(
       backgroundColor: Color(0xffEEF1F1),
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        backgroundColor: Color(0xffEEF1F1),
-      ),
       body: PageView.builder(
+          physics: isEditable ? NeverScrollableScrollPhysics() : null,
           itemCount: widget.person.plants!.length +1,
           pageSnapping: true,
           controller: pageController,
-          itemBuilder: (context, pagePosition) {
+          onPageChanged: (index){
+
+            pageIndex = index;
+              if(!isNewPlant && index > widget.person.plants!.indexOf(widget.person.plants!.last)){
+                setState(() {
+                  isNewPlant = true;
+                });
+              }else if(isNewPlant){
+                setState(() {
+                  isNewPlant = false;
+                  FocusScope.of(context).unfocus();
+                });
+              }
+          },
+          itemBuilder: (context, index) {
+
+            final TextEditingController nameController = TextEditingController();
+            final TextEditingController typeController = TextEditingController();
+            final TextEditingController dateController = TextEditingController();
+            final TextEditingController noteController = TextEditingController();
+
+            final TextEditingController wateringStartDateController = TextEditingController();
+            final TextEditingController wateringCycleController = TextEditingController();
+
+            final TextEditingController repottingStartDateController = TextEditingController();
+            final TextEditingController repottingCycleController = TextEditingController();
+
+            var image;
+
+            late String beforeName;
+            late String beforeType;
+
+            if(index <= widget.person.plants!.indexOf(widget.person.plants!.last)){
+
+              beforeName = widget.person.plants![index]!.name!;
+              beforeType = widget.person.plants![index]!.type!;
+
+              nameController.text = widget.person.plants![index]!.name!;
+              typeController.text = widget.person.plants![index]!.type!;
+              if(widget.person.plants![index]!.note != null) noteController.text = widget.person.plants![index]!.note!;
+              dateController.text = widget.person.plants![index]!.date!;
+
+              wateringStartDateController.text = widget.person.plants![index]!.cycles![0][Cycles.startDate.name];
+              wateringCycleController.text = widget.person.plants![index]!.cycles![0][Cycles.cycle.name].toString();
+
+              repottingStartDateController.text = widget.person.plants![index]!.cycles![1][Cycles.startDate.name];
+              repottingCycleController.text = widget.person.plants![index]!.cycles![1][Cycles.cycle.name].toString();
+
+            }
+
             return Container(
-              margin: EdgeInsets.only(left: 5,right: 5,bottom: 20),
-              child: GestureDetector(
-                onTap: (){
-                  Get.to(() => PlantDetailPage(plant:widget.person.plants![pagePosition]!, person: widget.person,))
-                      ?.then((value) => setState((){}));
-                },
-                child:Column(
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.15,
-                      child: pagePosition <= widget.person.plants!.indexOf(widget.person.plants!.last) ? Column(
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
+              margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.08,
+                  left: 5,right: 5,bottom: MediaQuery.of(context).size.height * 0.1),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).size.height * 0.01,
+                        bottom: MediaQuery.of(context).size.height * 0.01,
+                        left: 18,
+                        right: 18,
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            IntrinsicWidth(
+                              child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? TextFormField(
+                                autofocus: false,
+                                controller: nameController,
+                                maxLines: 1,
+                                maxLength: 5,
+                                readOnly: !isEditable,
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  border: isEditable ? null : InputBorder.none,
+                                  counterText: "",
+                                  hintStyle: const  TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+                                  hintText: widget.person.plants![index]!.name!,
+                                ),
+                                onChanged: (value){
+                                  if(value != ""){
+                                    widget.person.plants![index]!.name = value;
+                                  }else{
+                                    widget.person.plants![index]!.name = beforeName;
+                                  }
+                                },
+                              ) : TextFormField(
+                                autofocus: false,
+                                controller: newNameController,
+                                maxLines: 1,
+                                maxLength: 5,
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  counterText: "",
+                                  hintStyle: const  TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+                                  hintText: "이름",
+                                ),
+                              )
+                            ),
+                            Text(" | "),
+                            IntrinsicWidth(
+                              child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? TextFormField(
+                                autofocus: false,
+                                controller: typeController,
+                                maxLines: 1,
+                                maxLength: 25,
+                                readOnly: !isEditable,
+                                decoration: InputDecoration(
+                                    isDense: true,
+                                    border: isEditable ? null : InputBorder.none,
+                                    counterText: "",
+                                    hintText: widget.person.plants![index]!.type!
+                                ),
+                                onChanged: (value){
+                                  if(value != ""){
+                                    widget.person.plants![index]!.type = value;
+                                  }else{
+                                    widget.person.plants![index]!.type = beforeType;
+                                  }
+                                },
+                              ) : TextFormField(
+                                autofocus: false,
+                                controller: newTypeController,
+                                maxLines: 1,
+                                maxLength: 25,
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  counterText: "",
+                                  hintText: "식물 종류",
+                                ),
+                              )
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.05,
+                          child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? Row(
                             children: [
-                              Text("${widget.person.plants![pagePosition]!.name!}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 36),),
-                              Text("  |  "),
-                              Text("${widget.person.plants![pagePosition]!.type!}"),
-                            ],
-                          ),
-                          SizedBox(height: MediaQuery.of(context).size.height * 0.01,),
-                          Row(
-                            children: [
-                              Text("${widget.person.plants![pagePosition]!.name!}와 함께한지 ",),
+                              Text("${widget.person.plants![index]!.name!}와 함께한지 ",),
                               Text("${DateFormat('yyyy-MM-dd')
                                   .parse(DateTime.now().toString()).difference(DateFormat('yyyy-MM-dd')
-                                  .parse(widget.person.plants![pagePosition]!.date!)).inDays}일이 지났어요!",
+                                  .parse(widget.person.plants![index]!.date!)).inDays}일이 지났어요!",
                                 style: TextStyle(fontWeight: FontWeight.w500),)
                             ],
-                          ),
-                        ],
-                      ) : Align(
-                        alignment: Alignment.center,
-                        child: Text("새로운 식물 추가하기",
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
-                      ),
-                    ),
-                    pagePosition != widget.person.plants!.length ? Expanded(
-                      child: Card(
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          ) : Container(),
                         ),
-                        child: Stack(
-                          children: [
-                            widget.person.plants![pagePosition]!.pinned == true ? Positioned(
-                                top: 20,
-                                right: 20,
-                                child: Container(
-                                    decoration: BoxDecoration(
-                                      color: primaryColor,
-                                      borderRadius: BorderRadius.all(Radius.circular(100))
-                                    ),
-                                    padding: EdgeInsets.all(10),
-                                    child: Icon(LineIcons.byName('crown',),color: Colors.amber,)
-                                )
-                            ) : Container(),
-                            Align(
-                              alignment: Alignment.center,
-                              child: Image.asset("assets/images/default_plant6_512.png",
-                                width: MediaQuery.of(context).size.width * 0.5,),
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                widget.person.plants![pagePosition]!.image != null ?
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(18),
-                                    child: Container(
-                                      width: double.infinity,
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                                          image: DecorationImage(
-                                            fit: BoxFit.cover,
-                                            image: Image.memory(base64Decode(widget.person.plants![pagePosition]!.image!), fit: BoxFit.cover,).image,
-                                          )
+                      ],
+                    )
+                  ),
+                 Expanded(
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Stack(
+                        children: [
+                           Align(
+                            alignment: Alignment.center,
+                            child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? Image.asset("assets/images/default_plant6_512.png",
+                              width: MediaQuery.of(context).size.width * 0.4,) : Icon(Icons.add_a_photo_outlined),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.05,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 18,left: 18),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () async{
+                                          if(isEditable){
+                                            await showCupertinoModalPopup(
+                                                context: context,
+                                                builder: (BuildContext builder) {
+                                                  return Container(
+                                                    height: MediaQuery.of(context).copyWith().size.height*0.25,
+                                                    color: Colors.white,
+                                                    child: CupertinoDatePicker(
+                                                      initialDateTime: DateFormat('yyyy-MM-dd').parse(dateController.text), //초기값
+                                                      maximumDate: DateTime.now(), //마지막일
+                                                      mode: CupertinoDatePickerMode.date,
+                                                      onDateTimeChanged: (value) {
+                                                        if (DateFormat('yyyy-MM-dd').format(value) != dateController.text) {
+                                                            setState(() {
+                                                              dateController.text = DateFormat('yyyy-MM-dd').format(value);
+                                                              widget.person.plants![index]!.date = DateFormat('yyyy-MM-dd').format(value);
+                                                            });
+                                                        }
+                                                      },
+                                                    ),
+                                                  );
+                                                }
+                                            ).then((value) {
+                                              setState(() {});
+                                            });
+                                          }else if(isNewPlant){
+                                            await showCupertinoModalPopup(
+                                                context: context,
+                                                builder: (BuildContext builder) {
+                                                  return Container(
+                                                    height: MediaQuery.of(context).copyWith().size.height*0.25,
+                                                    color: Colors.white,
+                                                    child: CupertinoDatePicker(
+                                                      initialDateTime:  DateFormat('yyyy-MM-dd').parse(newDateController.text),
+                                                      maximumDate: DateTime.now(), //마지막일
+                                                      mode: CupertinoDatePickerMode.date,
+                                                      onDateTimeChanged: (value) {
+                                                        if (DateFormat('yyyy-MM-dd').format(value) != newDateController.text) {
+                                                          newDateController.text = DateFormat('yyyy-MM-dd').format(value);
+                                                        }
+                                                      },
+                                                    ),
+                                                  );
+                                                }
+                                            ).then((value) {
+                                              setState(() {});
+                                            });
+                                          }
+                                        },
+                                        child: Row(
+                                          children: [
+                                            isNewPlant ? Text(newDateController.text,
+                                              style: TextStyle(color: Color(0xff404040),fontWeight: FontWeight.bold),)
+                                                : Text(dateController.text != "" ? dateController.text : DateFormat('yyyy-MM-dd').format(DateTime.now()) ,
+                                              style: TextStyle(color: Color(0xff404040),fontWeight: FontWeight.bold),),
+                                            isEditable || isNewPlant ? Padding(
+                                              padding: const EdgeInsets.only(right: 8, left: 8),
+                                              child: Icon(
+                                                  Icons.edit_calendar_outlined,
+                                                  size: MediaQuery.of(context).size.width * 0.05,
+                                                  color: Color(0xff404040)),
+                                            ) : Container(),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                ) :
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(18),
-                                    child: Container(
-                                      height: MediaQuery.of(context).size.height,
-                                      decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                                          border: Border.all(color: Colors.black26),
-                                      ),
-                                    ),
+                                      !isEditable && !isNewPlant ? PopupMenuButton<String>(
+                                        child: Container(
+                                          width: MediaQuery.of(context).size.width * 0.1,
+                                          alignment: Alignment.centerRight,
+                                          child: Icon(
+                                            Icons.more_vert,color: Colors.black54,
+                                          ),
+                                        ),
+                                        onSelected: (value){
+                                          switch (value) {
+                                            case '수정':
+                                              setState((){
+                                                isEditable = true;
+                                              });
+                                              break;
+                                            case '정보':
+                                              break;
+                                            case '삭제':
+                                              showDialog(barrierColor: Colors.black54, context: context, builder: (context) {
+                                                return CupertinoAlertDialog(
+                                                  title: const Text("식물 삭제"),
+                                                  content: Padding(
+                                                    padding: const EdgeInsets.only(top: 8),
+                                                    child: Text("\"${widget.person.plants![index]!.name}\"를 삭제하시겠습니까?"),
+                                                  ),
+                                                  actions: [
+                                                    CupertinoDialogAction(isDefaultAction: false, child: Text("취소"), onPressed: () {
+                                                      Navigator.pop(context);
+                                                    }),
+                                                    CupertinoDialogAction(isDefaultAction: false, child: const Text("확인",style: TextStyle(color: Colors.red),),
+                                                        onPressed: () async {
+
+                                                          plantNotification.cancel(widget.person.plants![index]!.cycles![CycleType.watering.index][Cycles.id.name]);
+                                                          plantNotification.cancel(widget.person.plants![index]!.cycles![CycleType.repotting.index][Cycles.id.name]);
+
+                                                          widget.person.plants!.remove(widget.person.plants![index]!);
+                                                          var usersCollection = firestore.collection('users');
+                                                          await usersCollection.doc(widget.person.uid).update(
+                                                              {
+                                                                "plants": widget.person.plantsToJson(widget.person.plants!)
+                                                              }).then((value) {
+                                                           setState(() {});
+                                                           pageController.animateToPage(index-1, duration: Duration(milliseconds: 300), curve: Curves.ease);
+                                                           Get.back();
+                                                          });
+                                                        }
+                                                    ),
+                                                  ],
+                                                );
+                                              });
+                                              break;
+                                          }
+                                        },
+                                        itemBuilder: (context) => [
+                                          PopupMenuItem<String>(
+                                            height: MediaQuery.of(context).size.height * 0.05,
+                                            value: '수정',
+                                            child	: Text('수정'),
+                                          ),
+                                          PopupMenuDivider(),
+                                          PopupMenuItem<String>(
+                                            height: MediaQuery.of(context).size.height * 0.05,
+                                            value: '정보',
+                                            child: Text('정보'),
+                                          ),
+                                          PopupMenuDivider(),
+                                          PopupMenuItem<String>(
+                                            height: MediaQuery.of(context).size.height * 0.05,
+                                            value: '삭제',
+                                            child: Text('삭제'),
+                                          ),
+                                        ],
+                                      ) : Container(),
+                                    ],
                                   ),
                                 ),
-                                Container(
+                              ),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 18,left: 18),
+                                  child: GestureDetector(
+                                    onTap: (){
+                                      if(isEditable || isNewPlant){
+                                        var picker = ImagePicker();
+                                        showCupertinoModalPopup(
+                                          barrierColor: Colors.black54,
+                                          context: context,
+                                          builder: (BuildContext context) => Padding(
+                                            padding: const EdgeInsets.only(left: 16,right: 16),
+                                            child: CupertinoActionSheet(
+                                                actions: <Widget>[
+                                                  CupertinoActionSheetAction(
+                                                    child: const Text('갤러리에서 가져오기'),
+                                                    onPressed: () async{
+                                                      await picker.pickImage(source: ImageSource.gallery,maxWidth: 1024, maxHeight: 1024)
+                                                          .then((value) async{
+                                                        image = await value?.readAsBytes();
+                                                        setState(() {
+                                                          if(isEditable){
+                                                            widget.person.plants![index]!.image = base64Encode(image);
+                                                          }else if(isNewPlant){
+                                                            newImage =  base64Encode(image);
+                                                          }
+                                                        });
+                                                        Get.back();
+                                                      });
+                                                    },
+                                                  ),
+                                                  CupertinoActionSheetAction(
+                                                    child: const Text('사진 찍기'),
+                                                    onPressed: () async{
+                                                      await picker.pickImage(source: ImageSource.camera,maxWidth: 1024, maxHeight: 1024)
+                                                          .then((value) async{
+                                                        image = await value?.readAsBytes();
+                                                        setState(() {
+                                                          if(isEditable){
+                                                            widget.person.plants![index]!.image = base64Encode(image);
+                                                          }else if(isNewPlant){
+                                                            newImage =  base64Encode(image);
+                                                          }
+                                                        });
+                                                        Get.back();
+                                                      });
+                                                    },
+                                                  )
+                                                ],
+                                                cancelButton: CupertinoActionSheetAction(
+                                                  child: const Text('Cancel'),
+                                                  isDefaultAction: true,
+                                                  onPressed: () {
+                                                    Navigator.pop(context, 'Cancel');
+                                                  },
+                                                )),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) && widget.person.plants![index]!.image != null ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.memory(base64Decode(widget.person.plants![index]!.image!), fit: BoxFit.cover,gaplessPlayback: true,),
+                                    ) : newImage != null ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.memory(base64Decode(newImage), fit: BoxFit.cover,gaplessPlayback: true,),
+                                    ) : Container(
+                                        height: MediaQuery.of(context).size.height,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                                          border: Border.all(color: Colors.black26),
+                                        )
+                                    )
+                                  ),
+                                )
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 18, left: 18),
+                                child: Container(
                                   width: double.infinity,
                                   height: MediaQuery.of(context).size.height * 0.1,
                                   decoration: BoxDecoration(
@@ -168,130 +510,322 @@ class _HomePage extends State<HomePage>{
                                         bottomLeft:Radius.circular(10),
                                         bottomRight:Radius.circular(10)
                                     ),
-                                    color: Color(0xffC9D9CF)
                                   ),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                        mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
-                                          cycleTile(widget.person.plants![pagePosition]!, pagePosition, CycleType.watering),
-                                          cycleTile(widget.person.plants![pagePosition]!, pagePosition, CycleType.repotting),
+                                          index <= widget.person.plants!.indexOf(widget.person.plants!.last)
+                                              ? cycleTile(widget.person.plants![index]!.cycles!, widget.person.plants![index]!.name!,
+                                              CycleType.watering, wateringStartDateController, wateringCycleController)
+                                              : cycleTile(newCycles,nameController.text, CycleType.watering, newWateringStartDateController,
+                                              newWateringCycleController),
+                                          index <= widget.person.plants!.indexOf(widget.person.plants!.last)
+                                              ? cycleTile(widget.person.plants![index]!.cycles!, widget.person.plants![index]!.name!,
+                                              CycleType.repotting, repottingStartDateController, repottingCycleController)
+                                              : cycleTile(newCycles,nameController.text, CycleType.repotting, newRepottingStartDateController,
+                                              newRepottingCycleController),
                                         ],
                                       ),
                                     ],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ],
-                        )
-                      ),
-                    ) : Expanded(
-                      child: GestureDetector(
-                        child: Card(
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child:  Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(18),
-                                  child: Container(
-                                    height: MediaQuery.of(context).size.height,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                                      border: Border.all(color: Colors.black26),
-                                    ),
-                                    child: Center(
-                                        child: Icon(Icons.add,size: MediaQuery.of(context).size.width * 0.1,color: Colors.black54,)
-
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                width: double.infinity,
-                                height: MediaQuery.of(context).size.height * 0.1,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.only(
-                                        bottomLeft:Radius.circular(10),
-                                        bottomRight:Radius.circular(10)
-                                    ),
-                                    color: Color(0xffC9D9CF)
-                                ),
                               ),
                             ],
                           ),
-                        ),
-                        onTap: (){
-                          Get.to(() => PlantAddPage(person: widget.person,))?.then((value) => setState((){}));
-                        },
-                      ),
+                        ],
+                      )
                     ),
-                  ],
-                ),
+                  )
+                ],
               ),
             );
-          })
+          }),
+      floatingActionButton: isEditable || isNewPlant ? FloatingActionButton.extended(
+        backgroundColor: primaryColor,
+        label: Text("완료"),
+        icon: Icon(Icons.check),
+        onPressed: () async{
+          if(isEditable){
+
+            var usersCollection = firestore.collection('users');
+            await usersCollection.doc(widget.person.uid).update(
+                {
+                  "plants": widget.person.plantsToJson(widget.person.plants!)
+                }).then((value) {
+
+              plantNotification.zonedMidnightSchedule(widget.person.plants![pageIndex]!.cycles![CycleType.watering.index][Cycles.id.name], "Plantory 알림",
+                  "\"${widget.person.plants![pageIndex]!.name}\"에게 물을 줄 시간입니다!", getFastWateringDate(widget.person.plants![pageIndex]!.cycles!));
+
+              plantNotification.zonedMidnightSchedule(widget.person.plants![pageIndex]!.cycles![CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
+                  "\"${widget.person.plants![pageIndex]!.name}\"의 분갈이 시간입니다!", getFastRepottingDate(widget.person.plants![pageIndex]!.cycles!));
+
+            });
+            setState(() {
+              isEditable = false;
+            });
+
+          }else if(isNewPlant){
+
+            if(newNameController.text == ""){
+              showCupertinoDialog(context: context, builder: (context) {
+                return CupertinoAlertDialog(
+                  content: Text("식물 이름을 입력해주세요"),
+                  actions: [
+                    CupertinoDialogAction(isDefaultAction: true, child: Text("확인"), onPressed: () {
+                      Navigator.pop(context);
+                    })
+                  ],
+                );
+              });
+            }else if(newTypeController.text == ""){
+              showCupertinoDialog(context: context, builder: (context) {
+                return CupertinoAlertDialog(
+                  content: Text("식물 종류를 입력해주세요"),
+                  actions: [
+                    CupertinoDialogAction(isDefaultAction: true, child: Text("확인"), onPressed: () {
+                      Navigator.pop(context);
+                    })
+                  ],
+                );
+              });
+            }else{
+              pageController.jumpToPage(pageIndex+1);
+              setState(() {
+                isNewPlant = false;
+                var id = generateID(widget.person.plants!);
+                widget.person.plants!.add(
+                    Plant(
+                      id: id,
+                      pinned: false,
+                      name: newNameController.text,
+                      type: newTypeController.text,
+                      date: newDateController.text,
+                      note: null,
+                      cycles: newCycles,
+                      image: newImage,
+                      timelines: List.empty(growable: true),
+                    )
+                );
+              });
+
+              var usersCollection = firestore.collection('users');
+              await usersCollection.doc(widget.person.uid).update(
+                  {
+                    "plants": widget.person.plantsToJson(widget.person.plants!)
+                  }).then((value) {
+
+                plantNotification.zonedMidnightSchedule(newCycles[CycleType.watering.index][Cycles.id.name], "Plantory 알림",
+                    "\"${newNameController.text}\"에게 물을 줄 시간입니다!", getFastWateringDate(widget.person.plants![pageIndex]!.cycles!));
+
+                plantNotification.zonedMidnightSchedule(newCycles[CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
+                    "\"${newNameController.text}\"의 분갈이 시간입니다!",  getFastRepottingDate(widget.person.plants![pageIndex]!.cycles!));
+
+                newNameController.text = "";
+                newTypeController.text = "";
+                newDateController.text = "";
+                newImage = null;
+
+                newDateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+                newCycles = [
+                  {
+                    Cycles.id.name : 0,
+                    Cycles.type.name : "물",
+                    Cycles.cycle.name : 14,
+                    Cycles.startDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                    Cycles.initDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                  },
+                  {
+                    Cycles.id.name : 1,
+                    Cycles.type.name : "분갈이",
+                    Cycles.cycle.name : 60,
+                    Cycles.startDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                    Cycles.initDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                  },
+                ];
+
+                newWateringStartDateController.text = newCycles[CycleType.watering.index][Cycles.startDate.name];
+                newWateringCycleController.text = newCycles[CycleType.watering.index][Cycles.cycle.name].toString();
+
+                newRepottingStartDateController.text = newCycles[CycleType.repotting.index][Cycles.startDate.name];
+                newRepottingCycleController.text = newCycles[CycleType.repotting.index][Cycles.cycle.name].toString();
+
+                newCycles[CycleType.watering.index][Cycles.id.name] = generateCycleID(widget.person.plants!);
+                newCycles[CycleType.repotting.index][Cycles.id.name] = generateCycleID(widget.person.plants!)+1;
+
+              }).then((value) => pageController.animateToPage(pageIndex, duration: Duration(milliseconds: 300), curve: Curves.ease)
+              );
+            }
+          }
+        },
+      ) : FloatingActionButton.extended(
+        onPressed: (){
+        },
+        backgroundColor: primaryColor,
+        label: Text("Menu"),
+        icon: Icon(Icons.menu),
+      ),
     );
   }
 
-  Widget cycleTile(Plant plant, int position, CycleType cycleType){
+  Widget cycleTile(List cycles,String plantName,CycleType cycleType, TextEditingController startDateController, TextEditingController cycleController){
 
     return GestureDetector(
       child: Card(
-        elevation: 1,
+        //color: Color(0xffEEF1F1),
+        elevation: 0,
         shape: RoundedRectangleBorder(
+          side: BorderSide(
+            color: Colors.black26, //<-- SEE HERE
+          ),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Wrap(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left:8,top: 8,bottom: 8),
-              child: cycleType == CycleType.watering ? Icon(Icons.water_drop,color: Colors.black87,) : Icon(UniconsLine.shovel,color: Colors.black87),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(cycleType ==  CycleType.watering ? "물" : "분갈이",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black87)),
-            ),
-            (DateFormat('yyyy-MM-dd').parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name]))
-                .isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())) &&
-                (cycleType == CycleType.watering ? getFastWateringDate(plant.cycles!)
-                    : getFastRepottingDate(plant.cycles!)) == plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name]
-          ? Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: IconButton(
-                onPressed: () async{
-                  setState((){
-                    plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name]
-                    = DateFormat('yyyy-MM-dd').format(DateTime.now()
-                        .add(Duration(days: int.parse(plant.cycles![cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name].toString()))));
-                  });
-                  var usersCollection = firestore.collection('users');
-                  await usersCollection.doc(widget.person.uid).update(
-                      {
-                        "plants": widget.person.plantsToJson(widget.person.plants!)
-                      });
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height * 0.06,
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left:8,top: 8,bottom: 8),
+                child: cycleType == CycleType.watering ? Icon(Icons.water_drop,color: Color(0xff404040),) : Icon(UniconsLine.shovel,color: Color(0xff404040)),
+              ),
+              Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(cycleType ==  CycleType.watering ? "물" : "분갈이",style: TextStyle(color: Colors.black87))
+              ),
+              (DateFormat('yyyy-MM-dd').parse(cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name]))
+                  .isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())) &&
+                  (cycleType == CycleType.watering ? getFastWateringDate(cycles)
+                      : getFastRepottingDate(cycles)) == cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name]
+            ? IconButton(
+              onPressed: () async{
+                setState((){
+                  cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name]
+                  = DateFormat('yyyy-MM-dd').format(DateTime.now()
+                      .add(Duration(days: int.parse(cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name].toString()))));
+                });
+                var usersCollection = firestore.collection('users');
+                await usersCollection.doc(widget.person.uid).update(
+                    {
+                      "plants": widget.person.plantsToJson(widget.person.plants!)
+                    });
 
-                  plantNotification.zonedMidnightSchedule(plant.cycles![CycleType.watering.index][Cycles.id.name], "Plantory 알림",
-                      "\"${plant.name}\"에게 물을 줄 시간입니다!", getFastWateringDate(plant.cycles!));
+                plantNotification.zonedMidnightSchedule(cycles[CycleType.watering.index][Cycles.id.name], "Plantory 알림",
+                    "\"$plantName\"에게 물을 줄 시간입니다!", getFastWateringDate(cycles));
 
-                  plantNotification.zonedMidnightSchedule(plant.cycles![CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
-                      "\"${plant.name}\"의 분갈이 시간입니다!", getFastRepottingDate(plant.cycles!));
+                plantNotification.zonedMidnightSchedule(cycles[CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
+                    "\"$plantName\"의 분갈이 시간입니다!", getFastRepottingDate(cycles));
 
-                  }, icon: Icon(Icons.check_circle_outline)),)
-                : Padding(padding: const EdgeInsets.all(8.0), child: Text("D${cycleType == CycleType.watering
-                  ? -getFastWateringDate(plant.cycles!)
-                  : -getFastRepottingDate(plant.cycles!)}",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black87),),
-                )
-          ],
+                }, icon: Icon(Icons.check_circle_outline))
+                  : Padding(padding: const EdgeInsets.all(8.0), child: Text("D${cycleType == CycleType.watering
+                    ? -getFastWateringDate(cycles)
+                    : -getFastRepottingDate(cycles)}",style: TextStyle(fontWeight: FontWeight.bold,color: Color(0xff404040)),),
+                  )
+            ],
+          ),
         ),
       ),
+      onTap: () async{
+        if(isEditable || isNewPlant){
+          await showDialog(context: context, barrierColor: Colors.black54,builder: (context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              contentPadding: EdgeInsets.only(right: 18,left: 18,top: 18),
+              title: const Text("주기 설정"),
+              content: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.2,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      TextField(
+                        readOnly: true,
+                        controller: startDateController,
+                        decoration: InputDecoration(
+                          labelStyle: TextStyle(height:0.1),
+                          labelText: "시작일",
+                          hintText:  cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name],
+                        ),
+                        onTap: () async{
+                          await showCupertinoModalPopup(
+                              context: context,
+                              builder: (BuildContext builder) {
+                                return Container(
+                                  height: MediaQuery.of(context).copyWith().size.height*0.25,
+                                  color: Colors.white,
+                                  child: CupertinoDatePicker(
+                                    initialDateTime: DateFormat('yyyy-MM-dd').parse(startDateController.text),
+                                    maximumDate: DateTime.now(), //마지막일
+                                    mode: CupertinoDatePickerMode.date,
+                                    onDateTimeChanged: (value) {
+                                      if (DateFormat('yyyy-MM-dd').format(value) != startDateController.text) {
+                                        startDateController.text = DateFormat('yyyy-MM-dd').format(value);
+                                      }
+                                    },
+                                  ),
+                                );
+                              });
+                        },
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      TextField(
+                        controller: cycleController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        decoration: InputDecoration(
+                          labelStyle: const TextStyle(height:0.1),
+                          labelText: "주기(일)",
+                          hintText: cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name].toString(),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  child: const Text('취소'),
+                  onPressed: () {
+                      Get.back();
+                    },
+                ),
+                TextButton(
+                  child: const Text('확인',style: TextStyle(color: Colors.red)),
+                  onPressed: () async{
+                    if(cycleController.text == "0"){
+                      await showCupertinoDialog(context: context, builder: (context) {
+                        return CupertinoAlertDialog(
+                          content: Text("0보다 큰 값을 입력해주세요"),
+                          actions: [
+                            CupertinoDialogAction(isDefaultAction: true, child: Text("확인"), onPressed: () {
+                              Navigator.pop(context);
+                            })
+                          ],
+                        );
+                      });
+                    }else{
+                      setState(() {
+                        cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name] = startDateController.text;
+                        cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name] = startDateController.text;
+                        cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name] = int.parse(cycleController.text);
+                      });
+                      Get.back();
+                    }
+                  },
+                ),
+              ],
+            );
+          });
+        }
+      },
     );
   }
 

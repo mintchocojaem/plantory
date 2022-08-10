@@ -147,10 +147,10 @@ class _PlantAddPage extends State<PlantAddPage>{
 
                                 PlantNotification plantNotification = PlantNotification();
                                 plantNotification.zonedMidnightSchedule(cycles[CycleType.watering.index][Cycles.id.name], "Plantory 알림",
-                                    "\"${nameController.text}\"에게 물을 줄 시간입니다!", cycles[CycleType.watering.index][Cycles.cycle.name]);
+                                    "\"${nameController.text}\"에게 물을 줄 시간입니다!", getFastWateringDate(cycles));
 
                                 plantNotification.zonedMidnightSchedule(cycles[CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
-                                    "\"${nameController.text}\"의 분갈이 시간입니다!", cycles[CycleType.repotting.index][Cycles.cycle.name]);
+                                    "\"${nameController.text}\"의 분갈이 시간입니다!", getFastRepottingDate(cycles));
 
                               }
                             }, icon: Icon(Icons.check_rounded, color: Color(0xffEEF1F1)))
@@ -264,58 +264,48 @@ class _PlantAddPage extends State<PlantAddPage>{
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+
           var picker = ImagePicker();
-          showDialog(
+
+          showCupertinoModalPopup(
             barrierColor: Colors.black54,
             context: context,
-            builder: (context) => AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              title: Center(child: Text("사진 선택")),
-              titlePadding: EdgeInsets.all(15),
-              content: SizedBox(
-                width: double.infinity,
-                height: MediaQuery.of(context).size.height * 0.2,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Divider(thickness: 1,color: Colors.black54,),
-                      ListTile(title: Text("카메라"),
-                        leading: Icon(Icons.camera_alt_outlined),
-                        onTap: () async{
-                          await picker.pickImage(source: ImageSource.camera,maxWidth: 1024, maxHeight: 1024)
-                              .then((value) =>  Navigator.of(context).pop(value));},
-
-                      ),
-                      Divider(thickness: 1),
-                      ListTile(title: Text("갤러리"),
-                        leading: Icon(Icons.photo_camera_back),
-                        onTap: () async{
-                          await picker.pickImage(source: ImageSource.gallery,maxWidth: 1024, maxHeight: 1024)
-                              .then((value) =>  Navigator.of(context).pop(value));},
-                      ),
-                      Divider(thickness: 1),
-                    ],
-                  ),
-                ),
-              ),
-              contentPadding: EdgeInsets.all(0),
-              actions: [
-                TextButton(
-                  child: const Text('취소'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
+            builder: (BuildContext context) => Padding(
+              padding: const EdgeInsets.only(left: 16,right: 16),
+              child: CupertinoActionSheet(
+                  actions: <Widget>[
+                    CupertinoActionSheetAction(
+                      child: const Text('갤러리에서 가져오기'),
+                      onPressed: () async{
+                        await picker.pickImage(source: ImageSource.gallery,maxWidth: 1024, maxHeight: 1024)
+                            .then((value) async{
+                          image = await value?.readAsBytes();
+                          setState(() {});
+                          Get.back();
+                        });
+                      },
+                    ),
+                    CupertinoActionSheetAction(
+                      child: const Text('사진 찍기'),
+                      onPressed: () async{
+                        await picker.pickImage(source: ImageSource.camera,maxWidth: 1024, maxHeight: 1024)
+                            .then((value) async{
+                              image = await value?.readAsBytes();
+                              setState(() {});
+                              Get.back();
+                            });
+                      },
+                    )
+                  ],
+                  cancelButton: CupertinoActionSheetAction(
+                    child: const Text('Cancel'),
+                    isDefaultAction: true,
+                    onPressed: () {
+                      Navigator.pop(context, 'Cancel');
+                    },
+                  )),
             ),
-          ).then((value) async{
-            if(value != null){
-              image = await value.readAsBytes();
-              setState((){});
-            }
-          });
+          );
         },
         heroTag: null,
         child: Icon(Icons.camera_alt_outlined,),backgroundColor: primaryColor,),

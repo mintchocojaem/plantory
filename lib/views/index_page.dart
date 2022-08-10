@@ -36,7 +36,7 @@ class IndexPage extends GetView<BottomNavController> {
           //SettingPage(person: person),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      /*bottomNavigationBar: BottomNavigationBar(
           showSelectedLabels: false,
           showUnselectedLabels: false,
           onTap: (value){
@@ -76,6 +76,17 @@ class IndexPage extends GetView<BottomNavController> {
              */
           ]
       )
+
+       */
+      /*
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: (){},
+        backgroundColor: primaryColor,
+        icon: Icon(Icons.menu),
+        label: Text("Menu"),
+    ),
+
+       */
     ));
   }
 }
