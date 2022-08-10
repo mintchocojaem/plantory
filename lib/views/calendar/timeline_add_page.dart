@@ -81,8 +81,6 @@ class _TimelineAddPage extends State<TimelineAddPage>{
                         {
                           "plants": widget.person.plantsToJson(widget.person.plants!)
                         }).then((value) => Get.back());
-
-                    Get.back();
                   }
                 },
                 icon: Icon(Icons.check, color: Colors.black54,)
@@ -230,7 +228,7 @@ class _TimelineAddPage extends State<TimelineAddPage>{
                                              },
 
                                            ),
-                                           Divider(thickness: 1,),
+                                           index == widget.person.plants!.indexOf(widget.person.plants!.last) ? Divider(thickness: 1,) : Container(),
                                          ],
                                        )
                                 ),

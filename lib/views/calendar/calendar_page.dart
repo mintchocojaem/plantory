@@ -40,7 +40,12 @@ class _CalendarPage extends State<CalendarPage>{
       backgroundColor: Color(0xffEEF1F1),
       appBar: AppBar(
         elevation: 0,
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          onPressed: (){
+            Get.back();
+          },
+          icon: Icon(Icons.arrow_back_ios_rounded, color: Colors.black54,),
+        ),
         backgroundColor: Color(0xffEEF1F1),
         title: const Text(
           "Calender",

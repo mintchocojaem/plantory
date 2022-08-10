@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,10 +9,12 @@ import 'package:get/instance_manager.dart';
 import 'package:get/route_manager.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:plantory/views/community/community_page.dart';
 import 'package:unicons/unicons.dart';
 import '../../../data/plant.dart';
 import '../../../utils/colors.dart';
 import '../../data/person.dart';
+import '../calendar/calendar_page.dart';
 import '../notification/notification.dart';
 import '../plant/plant_detail_page.dart';
 
@@ -37,10 +40,16 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
+  late AnimationController _controller;
+
+  static const List<IconData> floatingIcons = [ Icons.calendar_month_outlined, Icons.comment ];
+
   bool isEditable = false;
   bool isNewPlant = false;
 
   int pageIndex = 0;
+
+  bool isOpen = false;
 
   final TextEditingController newNameController = TextEditingController();
   final TextEditingController newTypeController = TextEditingController();
@@ -86,6 +95,10 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
     newCycles[CycleType.watering.index][Cycles.id.name] = generateCycleID(widget.person.plants!);
     newCycles[CycleType.repotting.index][Cycles.id.name] = generateCycleID(widget.person.plants!)+1;
 
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
 
     super.initState();
   }
@@ -97,452 +110,467 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
     return Scaffold(
       backgroundColor: Color(0xffEEF1F1),
       resizeToAvoidBottomInset: false,
-      body: PageView.builder(
-          physics: isEditable ? NeverScrollableScrollPhysics() : null,
-          itemCount: widget.person.plants!.length +1,
-          pageSnapping: true,
-          controller: pageController,
-          onPageChanged: (index){
+      body: Stack(
+        children: [
+          PageView.builder(
+              physics: isEditable ? NeverScrollableScrollPhysics() : null,
+              itemCount: widget.person.plants!.length +1,
+              pageSnapping: true,
+              controller: pageController,
+              onPageChanged: (index){
 
-            pageIndex = index;
-              if(!isNewPlant && index > widget.person.plants!.indexOf(widget.person.plants!.last)){
-                setState(() {
-                  isNewPlant = true;
-                });
-              }else if(isNewPlant){
-                setState(() {
-                  isNewPlant = false;
-                  FocusScope.of(context).unfocus();
-                });
-              }
-          },
-          itemBuilder: (context, index) {
+                pageIndex = index;
+                  if(!isNewPlant && index > widget.person.plants!.indexOf(widget.person.plants!.last)){
+                    setState(() {
+                      isNewPlant = true;
+                    });
+                  }else if(isNewPlant){
+                    setState(() {
+                      isNewPlant = false;
+                      FocusScope.of(context).unfocus();
+                    });
+                  }
+              },
+              itemBuilder: (context, index) {
 
-            final TextEditingController nameController = TextEditingController();
-            final TextEditingController typeController = TextEditingController();
-            final TextEditingController dateController = TextEditingController();
-            final TextEditingController noteController = TextEditingController();
+                final TextEditingController nameController = TextEditingController();
+                final TextEditingController typeController = TextEditingController();
+                final TextEditingController dateController = TextEditingController();
+                final TextEditingController noteController = TextEditingController();
 
-            final TextEditingController wateringStartDateController = TextEditingController();
-            final TextEditingController wateringCycleController = TextEditingController();
+                final TextEditingController wateringStartDateController = TextEditingController();
+                final TextEditingController wateringCycleController = TextEditingController();
 
-            final TextEditingController repottingStartDateController = TextEditingController();
-            final TextEditingController repottingCycleController = TextEditingController();
+                final TextEditingController repottingStartDateController = TextEditingController();
+                final TextEditingController repottingCycleController = TextEditingController();
 
-            var image;
+                var image;
 
-            late String beforeName;
-            late String beforeType;
+                late String beforeName;
+                late String beforeType;
 
-            if(index <= widget.person.plants!.indexOf(widget.person.plants!.last)){
+                if(index <= widget.person.plants!.indexOf(widget.person.plants!.last)){
 
-              beforeName = widget.person.plants![index]!.name!;
-              beforeType = widget.person.plants![index]!.type!;
+                  beforeName = widget.person.plants![index]!.name!;
+                  beforeType = widget.person.plants![index]!.type!;
 
-              nameController.text = widget.person.plants![index]!.name!;
-              typeController.text = widget.person.plants![index]!.type!;
-              if(widget.person.plants![index]!.note != null) noteController.text = widget.person.plants![index]!.note!;
-              dateController.text = widget.person.plants![index]!.date!;
+                  nameController.text = widget.person.plants![index]!.name!;
+                  typeController.text = widget.person.plants![index]!.type!;
+                  if(widget.person.plants![index]!.note != null) noteController.text = widget.person.plants![index]!.note!;
+                  dateController.text = widget.person.plants![index]!.date!;
 
-              wateringStartDateController.text = widget.person.plants![index]!.cycles![0][Cycles.startDate.name];
-              wateringCycleController.text = widget.person.plants![index]!.cycles![0][Cycles.cycle.name].toString();
+                  wateringStartDateController.text = widget.person.plants![index]!.cycles![0][Cycles.startDate.name];
+                  wateringCycleController.text = widget.person.plants![index]!.cycles![0][Cycles.cycle.name].toString();
 
-              repottingStartDateController.text = widget.person.plants![index]!.cycles![1][Cycles.startDate.name];
-              repottingCycleController.text = widget.person.plants![index]!.cycles![1][Cycles.cycle.name].toString();
+                  repottingStartDateController.text = widget.person.plants![index]!.cycles![1][Cycles.startDate.name];
+                  repottingCycleController.text = widget.person.plants![index]!.cycles![1][Cycles.cycle.name].toString();
 
-            }
+                }
 
-            return Container(
-              margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.08,
-                  left: 5,right: 5,bottom: MediaQuery.of(context).size.height * 0.1),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).size.height * 0.01,
-                        bottom: MediaQuery.of(context).size.height * 0.01,
-                        left: 18,
-                        right: 18,
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
+                return Container(
+                  margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.08,
+                      left: 5,right: 5,bottom: MediaQuery.of(context).size.height * 0.1),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: MediaQuery.of(context).size.height * 0.01,
+                            bottom: MediaQuery.of(context).size.height * 0.01,
+                            left: 18,
+                            right: 18,
+                        ),
+                        child: Column(
                           children: [
-                            IntrinsicWidth(
-                              child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? TextFormField(
-                                autofocus: false,
-                                controller: nameController,
-                                maxLines: 1,
-                                maxLength: 5,
-                                readOnly: !isEditable,
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
-                                decoration: InputDecoration(
-                                  isDense: true,
-                                  border: isEditable ? null : InputBorder.none,
-                                  counterText: "",
-                                  hintStyle: const  TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
-                                  hintText: widget.person.plants![index]!.name!,
-                                ),
-                                onChanged: (value){
-                                  if(value != ""){
-                                    widget.person.plants![index]!.name = value;
-                                  }else{
-                                    widget.person.plants![index]!.name = beforeName;
-                                  }
-                                },
-                              ) : TextFormField(
-                                autofocus: false,
-                                controller: newNameController,
-                                maxLines: 1,
-                                maxLength: 5,
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
-                                decoration: InputDecoration(
-                                  isDense: true,
-                                  counterText: "",
-                                  hintStyle: const  TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
-                                  hintText: "이름",
-                                ),
-                              )
-                            ),
-                            Text(" | "),
-                            IntrinsicWidth(
-                              child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? TextFormField(
-                                autofocus: false,
-                                controller: typeController,
-                                maxLines: 1,
-                                maxLength: 25,
-                                readOnly: !isEditable,
-                                decoration: InputDecoration(
-                                    isDense: true,
-                                    border: isEditable ? null : InputBorder.none,
-                                    counterText: "",
-                                    hintText: widget.person.plants![index]!.type!
-                                ),
-                                onChanged: (value){
-                                  if(value != ""){
-                                    widget.person.plants![index]!.type = value;
-                                  }else{
-                                    widget.person.plants![index]!.type = beforeType;
-                                  }
-                                },
-                              ) : TextFormField(
-                                autofocus: false,
-                                controller: newTypeController,
-                                maxLines: 1,
-                                maxLength: 25,
-                                decoration: InputDecoration(
-                                  isDense: true,
-                                  counterText: "",
-                                  hintText: "식물 종류",
-                                ),
-                              )
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.05,
-                          child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? Row(
-                            children: [
-                              Text("${widget.person.plants![index]!.name!}와 함께한지 ",),
-                              Text("${DateFormat('yyyy-MM-dd')
-                                  .parse(DateTime.now().toString()).difference(DateFormat('yyyy-MM-dd')
-                                  .parse(widget.person.plants![index]!.date!)).inDays}일이 지났어요!",
-                                style: TextStyle(fontWeight: FontWeight.w500),)
-                            ],
-                          ) : Container(),
-                        ),
-                      ],
-                    )
-                  ),
-                 Expanded(
-                    child: Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Stack(
-                        children: [
-                           Align(
-                            alignment: Alignment.center,
-                            child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? Image.asset("assets/images/default_plant6_512.png",
-                              width: MediaQuery.of(context).size.width * 0.4,) : Icon(Icons.add_a_photo_outlined),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                height: MediaQuery.of(context).size.height * 0.05,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(right: 18,left: 18),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () async{
-                                          if(isEditable){
-                                            await showCupertinoModalPopup(
-                                                context: context,
-                                                builder: (BuildContext builder) {
-                                                  return Container(
-                                                    height: MediaQuery.of(context).copyWith().size.height*0.25,
-                                                    color: Colors.white,
-                                                    child: CupertinoDatePicker(
-                                                      initialDateTime: DateFormat('yyyy-MM-dd').parse(dateController.text), //초기값
-                                                      maximumDate: DateTime.now(), //마지막일
-                                                      mode: CupertinoDatePickerMode.date,
-                                                      onDateTimeChanged: (value) {
-                                                        if (DateFormat('yyyy-MM-dd').format(value) != dateController.text) {
-                                                            setState(() {
-                                                              dateController.text = DateFormat('yyyy-MM-dd').format(value);
-                                                              widget.person.plants![index]!.date = DateFormat('yyyy-MM-dd').format(value);
-                                                            });
-                                                        }
-                                                      },
-                                                    ),
-                                                  );
-                                                }
-                                            ).then((value) {
-                                              setState(() {});
-                                            });
-                                          }else if(isNewPlant){
-                                            await showCupertinoModalPopup(
-                                                context: context,
-                                                builder: (BuildContext builder) {
-                                                  return Container(
-                                                    height: MediaQuery.of(context).copyWith().size.height*0.25,
-                                                    color: Colors.white,
-                                                    child: CupertinoDatePicker(
-                                                      initialDateTime:  DateFormat('yyyy-MM-dd').parse(newDateController.text),
-                                                      maximumDate: DateTime.now(), //마지막일
-                                                      mode: CupertinoDatePickerMode.date,
-                                                      onDateTimeChanged: (value) {
-                                                        if (DateFormat('yyyy-MM-dd').format(value) != newDateController.text) {
-                                                          newDateController.text = DateFormat('yyyy-MM-dd').format(value);
-                                                        }
-                                                      },
-                                                    ),
-                                                  );
-                                                }
-                                            ).then((value) {
-                                              setState(() {});
-                                            });
-                                          }
-                                        },
-                                        child: Row(
-                                          children: [
-                                            isNewPlant ? Text(newDateController.text,
-                                              style: TextStyle(color: Color(0xff404040),fontWeight: FontWeight.bold),)
-                                                : Text(dateController.text != "" ? dateController.text : DateFormat('yyyy-MM-dd').format(DateTime.now()) ,
-                                              style: TextStyle(color: Color(0xff404040),fontWeight: FontWeight.bold),),
-                                            isEditable || isNewPlant ? Padding(
-                                              padding: const EdgeInsets.only(right: 8, left: 8),
-                                              child: Icon(
-                                                  Icons.edit_calendar_outlined,
-                                                  size: MediaQuery.of(context).size.width * 0.05,
-                                                  color: Color(0xff404040)),
-                                            ) : Container(),
-                                          ],
-                                        ),
-                                      ),
-                                      !isEditable && !isNewPlant ? PopupMenuButton<String>(
-                                        child: Container(
-                                          width: MediaQuery.of(context).size.width * 0.1,
-                                          alignment: Alignment.centerRight,
-                                          child: Icon(
-                                            Icons.more_vert,color: Colors.black54,
-                                          ),
-                                        ),
-                                        onSelected: (value){
-                                          switch (value) {
-                                            case '수정':
-                                              setState((){
-                                                isEditable = true;
-                                              });
-                                              break;
-                                            case '정보':
-                                              break;
-                                            case '삭제':
-                                              showDialog(barrierColor: Colors.black54, context: context, builder: (context) {
-                                                return CupertinoAlertDialog(
-                                                  title: const Text("식물 삭제"),
-                                                  content: Padding(
-                                                    padding: const EdgeInsets.only(top: 8),
-                                                    child: Text("\"${widget.person.plants![index]!.name}\"를 삭제하시겠습니까?"),
-                                                  ),
-                                                  actions: [
-                                                    CupertinoDialogAction(isDefaultAction: false, child: Text("취소"), onPressed: () {
-                                                      Navigator.pop(context);
-                                                    }),
-                                                    CupertinoDialogAction(isDefaultAction: false, child: const Text("확인",style: TextStyle(color: Colors.red),),
-                                                        onPressed: () async {
-
-                                                          plantNotification.cancel(widget.person.plants![index]!.cycles![CycleType.watering.index][Cycles.id.name]);
-                                                          plantNotification.cancel(widget.person.plants![index]!.cycles![CycleType.repotting.index][Cycles.id.name]);
-
-                                                          widget.person.plants!.remove(widget.person.plants![index]!);
-                                                          var usersCollection = firestore.collection('users');
-                                                          await usersCollection.doc(widget.person.uid).update(
-                                                              {
-                                                                "plants": widget.person.plantsToJson(widget.person.plants!)
-                                                              }).then((value) {
-                                                           setState(() {});
-                                                           pageController.animateToPage(index-1, duration: Duration(milliseconds: 300), curve: Curves.ease);
-                                                           Get.back();
-                                                          });
-                                                        }
-                                                    ),
-                                                  ],
-                                                );
-                                              });
-                                              break;
-                                          }
-                                        },
-                                        itemBuilder: (context) => [
-                                          PopupMenuItem<String>(
-                                            height: MediaQuery.of(context).size.height * 0.05,
-                                            value: '수정',
-                                            child	: Text('수정'),
-                                          ),
-                                          PopupMenuDivider(),
-                                          PopupMenuItem<String>(
-                                            height: MediaQuery.of(context).size.height * 0.05,
-                                            value: '정보',
-                                            child: Text('정보'),
-                                          ),
-                                          PopupMenuDivider(),
-                                          PopupMenuItem<String>(
-                                            height: MediaQuery.of(context).size.height * 0.05,
-                                            value: '삭제',
-                                            child: Text('삭제'),
-                                          ),
-                                        ],
-                                      ) : Container(),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(right: 18,left: 18),
-                                  child: GestureDetector(
-                                    onTap: (){
-                                      if(isEditable || isNewPlant){
-                                        var picker = ImagePicker();
-                                        showCupertinoModalPopup(
-                                          barrierColor: Colors.black54,
-                                          context: context,
-                                          builder: (BuildContext context) => Padding(
-                                            padding: const EdgeInsets.only(left: 16,right: 16),
-                                            child: CupertinoActionSheet(
-                                                actions: <Widget>[
-                                                  CupertinoActionSheetAction(
-                                                    child: const Text('갤러리에서 가져오기'),
-                                                    onPressed: () async{
-                                                      await picker.pickImage(source: ImageSource.gallery,maxWidth: 1024, maxHeight: 1024)
-                                                          .then((value) async{
-                                                        image = await value?.readAsBytes();
-                                                        setState(() {
-                                                          if(isEditable){
-                                                            widget.person.plants![index]!.image = base64Encode(image);
-                                                          }else if(isNewPlant){
-                                                            newImage =  base64Encode(image);
-                                                          }
-                                                        });
-                                                        Get.back();
-                                                      });
-                                                    },
-                                                  ),
-                                                  CupertinoActionSheetAction(
-                                                    child: const Text('사진 찍기'),
-                                                    onPressed: () async{
-                                                      await picker.pickImage(source: ImageSource.camera,maxWidth: 1024, maxHeight: 1024)
-                                                          .then((value) async{
-                                                        image = await value?.readAsBytes();
-                                                        setState(() {
-                                                          if(isEditable){
-                                                            widget.person.plants![index]!.image = base64Encode(image);
-                                                          }else if(isNewPlant){
-                                                            newImage =  base64Encode(image);
-                                                          }
-                                                        });
-                                                        Get.back();
-                                                      });
-                                                    },
-                                                  )
-                                                ],
-                                                cancelButton: CupertinoActionSheetAction(
-                                                  child: const Text('Cancel'),
-                                                  isDefaultAction: true,
-                                                  onPressed: () {
-                                                    Navigator.pop(context, 'Cancel');
-                                                  },
-                                                )),
-                                          ),
-                                        );
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              children: [
+                                IntrinsicWidth(
+                                  child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? TextFormField(
+                                    autofocus: false,
+                                    controller: nameController,
+                                    maxLines: 1,
+                                    maxLength: 5,
+                                    readOnly: !isEditable,
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      border: isEditable ? null : InputBorder.none,
+                                      counterText: "",
+                                      hintStyle: const  TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+                                      hintText: widget.person.plants![index]!.name!,
+                                    ),
+                                    onChanged: (value){
+                                      if(value != ""){
+                                        widget.person.plants![index]!.name = value;
+                                      }else{
+                                        widget.person.plants![index]!.name = beforeName;
                                       }
                                     },
-                                    child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) && widget.person.plants![index]!.image != null ? ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.memory(base64Decode(widget.person.plants![index]!.image!), fit: BoxFit.cover,gaplessPlayback: true,),
-                                    ) : newImage != null ? ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.memory(base64Decode(newImage), fit: BoxFit.cover,gaplessPlayback: true,),
-                                    ) : Container(
-                                        height: MediaQuery.of(context).size.height,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                                          border: Border.all(color: Colors.black26),
-                                        )
-                                    )
-                                  ),
-                                )
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(right: 18, left: 18),
-                                child: Container(
-                                  width: double.infinity,
-                                  height: MediaQuery.of(context).size.height * 0.1,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.only(
-                                        bottomLeft:Radius.circular(10),
-                                        bottomRight:Radius.circular(10)
+                                  ) : TextFormField(
+                                    autofocus: false,
+                                    controller: newNameController,
+                                    maxLines: 1,
+                                    maxLength: 5,
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      counterText: "",
+                                      hintStyle: const  TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+                                      hintText: "이름",
                                     ),
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
+                                  )
+                                ),
+                                Text(" | "),
+                                IntrinsicWidth(
+                                  child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? TextFormField(
+                                    autofocus: false,
+                                    controller: typeController,
+                                    maxLines: 1,
+                                    maxLength: 25,
+                                    readOnly: !isEditable,
+                                    decoration: InputDecoration(
+                                        isDense: true,
+                                        border: isEditable ? null : InputBorder.none,
+                                        counterText: "",
+                                        hintText: widget.person.plants![index]!.type!
+                                    ),
+                                    onChanged: (value){
+                                      if(value != ""){
+                                        widget.person.plants![index]!.type = value;
+                                      }else{
+                                        widget.person.plants![index]!.type = beforeType;
+                                      }
+                                    },
+                                  ) : TextFormField(
+                                    autofocus: false,
+                                    controller: newTypeController,
+                                    maxLines: 1,
+                                    maxLength: 25,
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      counterText: "",
+                                      hintText: "식물 종류",
+                                    ),
+                                  )
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.05,
+                              child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? Row(
+                                children: [
+                                  Text("${widget.person.plants![index]!.name!}와 함께한지 ",),
+                                  Text("${DateFormat('yyyy-MM-dd')
+                                      .parse(DateTime.now().toString()).difference(DateFormat('yyyy-MM-dd')
+                                      .parse(widget.person.plants![index]!.date!)).inDays}일이 지났어요!",
+                                    style: TextStyle(fontWeight: FontWeight.w500),)
+                                ],
+                              ) : Container(),
+                            ),
+                          ],
+                        )
+                      ),
+                     Expanded(
+                        child: Card(
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Stack(
+                            children: [
+                               Align(
+                                alignment: Alignment.center,
+                                child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? Image.asset("assets/images/default_plant6_512.png",
+                                  width: MediaQuery.of(context).size.width * 0.4,) : Icon(Icons.add_a_photo_outlined),
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height: MediaQuery.of(context).size.height * 0.05,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 18,left: 18),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          index <= widget.person.plants!.indexOf(widget.person.plants!.last)
-                                              ? cycleTile(widget.person.plants![index]!.cycles!, widget.person.plants![index]!.name!,
-                                              CycleType.watering, wateringStartDateController, wateringCycleController)
-                                              : cycleTile(newCycles,nameController.text, CycleType.watering, newWateringStartDateController,
-                                              newWateringCycleController),
-                                          index <= widget.person.plants!.indexOf(widget.person.plants!.last)
-                                              ? cycleTile(widget.person.plants![index]!.cycles!, widget.person.plants![index]!.name!,
-                                              CycleType.repotting, repottingStartDateController, repottingCycleController)
-                                              : cycleTile(newCycles,nameController.text, CycleType.repotting, newRepottingStartDateController,
-                                              newRepottingCycleController),
+                                          GestureDetector(
+                                            onTap: () async{
+                                              if(isEditable){
+                                                await showCupertinoModalPopup(
+                                                    context: context,
+                                                    builder: (BuildContext builder) {
+                                                      return Container(
+                                                        height: MediaQuery.of(context).copyWith().size.height*0.25,
+                                                        color: Colors.white,
+                                                        child: CupertinoDatePicker(
+                                                          initialDateTime: DateFormat('yyyy-MM-dd').parse(dateController.text), //초기값
+                                                          maximumDate: DateTime.now(), //마지막일
+                                                          mode: CupertinoDatePickerMode.date,
+                                                          onDateTimeChanged: (value) {
+                                                            if (DateFormat('yyyy-MM-dd').format(value) != dateController.text) {
+                                                                setState(() {
+                                                                  dateController.text = DateFormat('yyyy-MM-dd').format(value);
+                                                                  widget.person.plants![index]!.date = DateFormat('yyyy-MM-dd').format(value);
+                                                                });
+                                                            }
+                                                          },
+                                                        ),
+                                                      );
+                                                    }
+                                                ).then((value) {
+                                                  setState(() {});
+                                                });
+                                              }else if(isNewPlant){
+                                                await showCupertinoModalPopup(
+                                                    context: context,
+                                                    builder: (BuildContext builder) {
+                                                      return Container(
+                                                        height: MediaQuery.of(context).copyWith().size.height*0.25,
+                                                        color: Colors.white,
+                                                        child: CupertinoDatePicker(
+                                                          initialDateTime:  DateFormat('yyyy-MM-dd').parse(newDateController.text),
+                                                          maximumDate: DateTime.now(), //마지막일
+                                                          mode: CupertinoDatePickerMode.date,
+                                                          onDateTimeChanged: (value) {
+                                                            if (DateFormat('yyyy-MM-dd').format(value) != newDateController.text) {
+                                                              newDateController.text = DateFormat('yyyy-MM-dd').format(value);
+                                                            }
+                                                          },
+                                                        ),
+                                                      );
+                                                    }
+                                                ).then((value) {
+                                                  setState(() {});
+                                                });
+                                              }
+                                            },
+                                            child: Row(
+                                              children: [
+                                                isNewPlant ? Text(newDateController.text,
+                                                  style: TextStyle(color: Color(0xff404040),fontWeight: FontWeight.bold),)
+                                                    : Text(dateController.text != "" ? dateController.text : DateFormat('yyyy-MM-dd').format(DateTime.now()) ,
+                                                  style: TextStyle(color: Color(0xff404040),fontWeight: FontWeight.bold),),
+                                                isEditable || isNewPlant ? Padding(
+                                                  padding: const EdgeInsets.only(right: 8, left: 8),
+                                                  child: Icon(
+                                                      Icons.edit_calendar_outlined,
+                                                      size: MediaQuery.of(context).size.width * 0.05,
+                                                      color: Color(0xff404040)),
+                                                ) : Container(),
+                                              ],
+                                            ),
+                                          ),
+                                          !isEditable && !isNewPlant ? PopupMenuButton<String>(
+                                            child: Container(
+                                              width: MediaQuery.of(context).size.width * 0.1,
+                                              alignment: Alignment.centerRight,
+                                              child: Icon(
+                                                Icons.more_vert,color: Colors.black54,
+                                              ),
+                                            ),
+                                            onSelected: (value){
+                                              switch (value) {
+                                                case '수정':
+                                                  setState((){
+                                                    isEditable = true;
+                                                  });
+                                                  break;
+                                                case '정보':
+                                                  break;
+                                                case '삭제':
+                                                  showDialog(barrierColor: Colors.black54, context: context, builder: (context) {
+                                                    return CupertinoAlertDialog(
+                                                      title: const Text("식물 삭제"),
+                                                      content: Padding(
+                                                        padding: const EdgeInsets.only(top: 8),
+                                                        child: Text("\"${widget.person.plants![index]!.name}\"를 삭제하시겠습니까?"),
+                                                      ),
+                                                      actions: [
+                                                        CupertinoDialogAction(isDefaultAction: false, child: Text("취소"), onPressed: () {
+                                                          Navigator.pop(context);
+                                                        }),
+                                                        CupertinoDialogAction(isDefaultAction: false, child: const Text("확인",style: TextStyle(color: Colors.red),),
+                                                            onPressed: () async {
+
+                                                              plantNotification.cancel(widget.person.plants![index]!.cycles![CycleType.watering.index][Cycles.id.name]);
+                                                              plantNotification.cancel(widget.person.plants![index]!.cycles![CycleType.repotting.index][Cycles.id.name]);
+
+                                                              widget.person.plants!.remove(widget.person.plants![index]!);
+                                                              var usersCollection = firestore.collection('users');
+                                                              await usersCollection.doc(widget.person.uid).update(
+                                                                  {
+                                                                    "plants": widget.person.plantsToJson(widget.person.plants!)
+                                                                  }).then((value) {
+                                                               setState(() {});
+                                                               pageController.animateToPage(index-1, duration: Duration(milliseconds: 300), curve: Curves.ease);
+                                                               Get.back();
+                                                              });
+                                                            }
+                                                        ),
+                                                      ],
+                                                    );
+                                                  });
+                                                  break;
+                                              }
+                                            },
+                                            itemBuilder: (context) => [
+                                              PopupMenuItem<String>(
+                                                height: MediaQuery.of(context).size.height * 0.05,
+                                                value: '수정',
+                                                child	: Text('수정'),
+                                              ),
+                                              PopupMenuDivider(),
+                                              PopupMenuItem<String>(
+                                                height: MediaQuery.of(context).size.height * 0.05,
+                                                value: '정보',
+                                                child: Text('정보'),
+                                              ),
+                                              PopupMenuDivider(),
+                                              PopupMenuItem<String>(
+                                                height: MediaQuery.of(context).size.height * 0.05,
+                                                value: '삭제',
+                                                child: Text('삭제'),
+                                              ),
+                                            ],
+                                          ) : Container(),
                                         ],
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 18,left: 18),
+                                      child: GestureDetector(
+                                        onTap: (){
+                                          if(isEditable || isNewPlant){
+                                            var picker = ImagePicker();
+                                            showCupertinoModalPopup(
+                                              barrierColor: Colors.black54,
+                                              context: context,
+                                              builder: (BuildContext context) => Padding(
+                                                padding: const EdgeInsets.only(left: 16,right: 16),
+                                                child: CupertinoActionSheet(
+                                                    actions: <Widget>[
+                                                      CupertinoActionSheetAction(
+                                                        child: const Text('갤러리에서 가져오기'),
+                                                        onPressed: () async{
+                                                          await picker.pickImage(source: ImageSource.gallery,maxWidth: 1024, maxHeight: 1024)
+                                                              .then((value) async{
+                                                            image = await value?.readAsBytes();
+                                                            setState(() {
+                                                              if(isEditable){
+                                                                widget.person.plants![index]!.image = base64Encode(image);
+                                                              }else if(isNewPlant){
+                                                                newImage =  base64Encode(image);
+                                                              }
+                                                            });
+                                                            Get.back();
+                                                          });
+                                                        },
+                                                      ),
+                                                      CupertinoActionSheetAction(
+                                                        child: const Text('사진 찍기'),
+                                                        onPressed: () async{
+                                                          await picker.pickImage(source: ImageSource.camera,maxWidth: 1024, maxHeight: 1024)
+                                                              .then((value) async{
+                                                            image = await value?.readAsBytes();
+                                                            setState(() {
+                                                              if(isEditable){
+                                                                widget.person.plants![index]!.image = base64Encode(image);
+                                                              }else if(isNewPlant){
+                                                                newImage =  base64Encode(image);
+                                                              }
+                                                            });
+                                                            Get.back();
+                                                          });
+                                                        },
+                                                      )
+                                                    ],
+                                                    cancelButton: CupertinoActionSheetAction(
+                                                      child: const Text('Cancel'),
+                                                      isDefaultAction: true,
+                                                      onPressed: () {
+                                                        Navigator.pop(context, 'Cancel');
+                                                      },
+                                                    )),
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) && widget.person.plants![index]!.image != null ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(10),
+                                          child: Image.memory(base64Decode(widget.person.plants![index]!.image!), fit: BoxFit.cover,gaplessPlayback: true,),
+                                        ) : newImage != null ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(10),
+                                          child: Image.memory(base64Decode(newImage), fit: BoxFit.cover,gaplessPlayback: true,),
+                                        ) : Container(
+                                            height: MediaQuery.of(context).size.height,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                                              border: Border.all(color: Colors.black26),
+                                            )
+                                        )
+                                      ),
+                                    )
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 18, left: 18),
+                                    child: Container(
+                                      width: double.infinity,
+                                      height: MediaQuery.of(context).size.height * 0.1,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.only(
+                                            bottomLeft:Radius.circular(10),
+                                            bottomRight:Radius.circular(10)
+                                        ),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: [
+                                              index <= widget.person.plants!.indexOf(widget.person.plants!.last)
+                                                  ? cycleTile(widget.person.plants![index]!.cycles!, widget.person.plants![index]!.name!,
+                                                  CycleType.watering, wateringStartDateController, wateringCycleController)
+                                                  : cycleTile(newCycles,nameController.text, CycleType.watering, newWateringStartDateController,
+                                                  newWateringCycleController),
+                                              index <= widget.person.plants!.indexOf(widget.person.plants!.last)
+                                                  ? cycleTile(widget.person.plants![index]!.cycles!, widget.person.plants![index]!.name!,
+                                                  CycleType.repotting, repottingStartDateController, repottingCycleController)
+                                                  : cycleTile(newCycles,nameController.text, CycleType.repotting, newRepottingStartDateController,
+                                                  newRepottingCycleController),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
-                          ),
-                        ],
+                          )
+                        ),
                       )
-                    ),
-                  )
-                ],
-              ),
-            );
-          }),
+                    ],
+                  ),
+                );
+              }),
+          isOpen ? GestureDetector(
+              onTap: (){
+                setState((){isOpen = !isOpen;});
+                if (_controller.isDismissed) {
+                  _controller.forward();
+                } else {
+                  _controller.reverse();
+                }
+              },
+              child: Container(color: Colors.black26,)
+          ) : Container()
+        ],
+      ),
       floatingActionButton: isEditable || isNewPlant ? FloatingActionButton.extended(
         backgroundColor: primaryColor,
         label: Text("완료"),
@@ -661,12 +689,66 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
             }
           }
         },
-      ) : FloatingActionButton.extended(
-        onPressed: (){
-        },
-        backgroundColor: primaryColor,
-        label: Text("Menu"),
-        icon: Icon(Icons.menu),
+      ) : Column(
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(floatingIcons.length, (int index) {
+          Widget child = Container(
+            height: MediaQuery.of(context).size.height * 0.1,
+            width: MediaQuery.of(context).size.width * 0.1,
+            alignment: FractionalOffset.topCenter,
+            child: ScaleTransition(
+              scale: CurvedAnimation(
+                parent: _controller,
+                curve: Interval(
+                    0.0, 1.0 - index / floatingIcons.length / 2.0, curve: Curves.easeOut
+                ),
+              ),
+              child: FloatingActionButton(
+                heroTag: null,
+                backgroundColor: primaryColor,
+                mini: true,
+                child: Icon(floatingIcons[index],),
+                onPressed: () {
+                  setState((){
+                    isOpen = false;
+                    _controller.reverse();
+                  });
+                  switch(index){
+                    case 0 :
+                      Get.to(() => CalendarPage(person: widget.person));
+                      break;
+                    case 1 :
+                      Get.to(() => CommunityPage(person: widget.person));
+                      break;
+                  }
+                },
+              ),
+            ),
+          );
+          return child;
+        }).toList()..add(
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (BuildContext context, Widget? child) {
+              return FloatingActionButton.extended(
+                backgroundColor: primaryColor,
+                label: Text("Menu"),
+                icon: Icon(_controller.isDismissed ? Icons.menu : Icons.close),
+                heroTag: null,
+                onPressed: () {
+                  setState(() {
+                    isOpen = !isOpen;
+                  });
+                  if (_controller.isDismissed) {
+                    _controller.forward();
+                  } else {
+                    _controller.reverse();
+                  }
+                },
+              );
+            }
+          ),
+        ),
       ),
     );
   }

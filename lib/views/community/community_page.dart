@@ -45,6 +45,12 @@ class _CommunityPage extends State<CommunityPage>{
         elevation: 0,
         automaticallyImplyLeading: false,
         backgroundColor: Color(0xffEEF1F1),
+        leading: IconButton(
+          onPressed: (){
+            Get.back();
+          },
+          icon: Icon(Icons.arrow_back_ios_rounded, color: Colors.black54,),
+        ),
         title: const Text(
           "Community",
           style: TextStyle(color: primaryColor),

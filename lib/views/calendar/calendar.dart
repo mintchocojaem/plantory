@@ -267,6 +267,7 @@ class _Calendar extends State<Calendar>{
                                               width: MediaQuery.of(context).size.width * 0.15,
                                               height: MediaQuery.of(context).size.width * 0.15,
                                               fit: BoxFit.cover,
+                                              gaplessPlayback: true,
                                             )
                                         ) :
                                         Container(
@@ -342,7 +343,6 @@ class _Calendar extends State<Calendar>{
                                                                         "plants": widget.person.plantsToJson(widget.person.plants!)
                                                                       }).then((value) {
                                                                     setState(() {
-                                                                      Navigator.pop(context);
                                                                       Get.back();
                                                                     });
                                                                   });
