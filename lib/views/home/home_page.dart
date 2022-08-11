@@ -16,7 +16,6 @@ import '../../../utils/colors.dart';
 import '../../data/person.dart';
 import '../calendar/calendar_page.dart';
 import '../notification/notification.dart';
-import '../plant/plant_detail_page.dart';
 
 class HomePage extends StatefulWidget{
 
@@ -58,42 +57,25 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
   final TextEditingController newWateringStartDateController = TextEditingController();
   final TextEditingController newWateringCycleController = TextEditingController();
 
-  final TextEditingController newRepottingStartDateController = TextEditingController();
-  final TextEditingController newRepottingCycleController = TextEditingController();
-
   var newImage;
 
-
-  List<Map> newCycles = [
-    {
+  Map newCycles = {
       Cycles.id.name : 0,
       Cycles.type.name : "물",
       Cycles.cycle.name : 14,
       Cycles.startDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
       Cycles.initDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-    },
-    {
-      Cycles.id.name : 1,
-      Cycles.type.name : "분갈이",
-      Cycles.cycle.name : 60,
-      Cycles.startDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-      Cycles.initDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-    },
-  ];
+    };
 
   @override
   void initState() {
 
     newDateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
-    newWateringStartDateController.text = newCycles[CycleType.watering.index][Cycles.startDate.name];
-    newWateringCycleController.text = newCycles[CycleType.watering.index][Cycles.cycle.name].toString();
+    newWateringStartDateController.text = newCycles[Cycles.startDate.name];
+    newWateringCycleController.text = newCycles[Cycles.cycle.name].toString();
 
-    newRepottingStartDateController.text = newCycles[CycleType.repotting.index][Cycles.startDate.name];
-    newRepottingCycleController.text = newCycles[CycleType.repotting.index][Cycles.cycle.name].toString();
-
-    newCycles[CycleType.watering.index][Cycles.id.name] = generateCycleID(widget.person.plants!);
-    newCycles[CycleType.repotting.index][Cycles.id.name] = generateCycleID(widget.person.plants!)+1;
+    newCycles[Cycles.id.name] = generateCycleID(widget.person.plants!);
 
     _controller = AnimationController(
       vsync: this,
@@ -106,6 +88,9 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
   @override
   Widget build(BuildContext context) {
 
+    if(widget.person.plants!.isEmpty){
+      isNewPlant = true;
+    }
 
     return Scaffold(
       backgroundColor: Color(0xffEEF1F1),
@@ -141,15 +126,12 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                 final TextEditingController wateringStartDateController = TextEditingController();
                 final TextEditingController wateringCycleController = TextEditingController();
 
-                final TextEditingController repottingStartDateController = TextEditingController();
-                final TextEditingController repottingCycleController = TextEditingController();
-
                 var image;
 
                 late String beforeName;
                 late String beforeType;
 
-                if(index <= widget.person.plants!.indexOf(widget.person.plants!.last)){
+                if(widget.person.plants!.isNotEmpty && index <= widget.person.plants!.indexOf(widget.person.plants!.last)){
 
                   beforeName = widget.person.plants![index]!.name!;
                   beforeType = widget.person.plants![index]!.type!;
@@ -159,11 +141,8 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                   if(widget.person.plants![index]!.note != null) noteController.text = widget.person.plants![index]!.note!;
                   dateController.text = widget.person.plants![index]!.date!;
 
-                  wateringStartDateController.text = widget.person.plants![index]!.cycles![0][Cycles.startDate.name];
-                  wateringCycleController.text = widget.person.plants![index]!.cycles![0][Cycles.cycle.name].toString();
-
-                  repottingStartDateController.text = widget.person.plants![index]!.cycles![1][Cycles.startDate.name];
-                  repottingCycleController.text = widget.person.plants![index]!.cycles![1][Cycles.cycle.name].toString();
+                  wateringStartDateController.text = widget.person.plants![index]!.watering![Cycles.startDate.name];
+                  wateringCycleController.text = widget.person.plants![index]!.watering![Cycles.cycle.name].toString();
 
                 }
 
@@ -186,7 +165,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                               textBaseline: TextBaseline.alphabetic,
                               children: [
                                 IntrinsicWidth(
-                                  child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? TextFormField(
+                                  child: widget.person.plants!.isNotEmpty && index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? TextFormField(
                                     autofocus: false,
                                     controller: nameController,
                                     maxLines: 1,
@@ -223,7 +202,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                 ),
                                 Text(" | "),
                                 IntrinsicWidth(
-                                  child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? TextFormField(
+                                  child: widget.person.plants!.isNotEmpty && index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? TextFormField(
                                     autofocus: false,
                                     controller: typeController,
                                     maxLines: 1,
@@ -258,7 +237,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                             ),
                             SizedBox(
                               height: MediaQuery.of(context).size.height * 0.05,
-                              child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? Row(
+                              child: widget.person.plants!.isNotEmpty && index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? Row(
                                 children: [
                                   Text("${widget.person.plants![index]!.name!}와 함께한지 ",),
                                   Text("${DateFormat('yyyy-MM-dd')
@@ -281,7 +260,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                             children: [
                                Align(
                                 alignment: Alignment.center,
-                                child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? Image.asset("assets/images/default_plant6_512.png",
+                                child: widget.person.plants!.isNotEmpty && index <= widget.person.plants!.indexOf(widget.person.plants!.last) ? Image.asset("assets/images/default_plant6_512.png",
                                   width: MediaQuery.of(context).size.width * 0.4,) : Icon(Icons.add_a_photo_outlined),
                               ),
                               Column(
@@ -355,7 +334,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                                 isEditable || isNewPlant ? Padding(
                                                   padding: const EdgeInsets.only(right: 8, left: 8),
                                                   child: Icon(
-                                                      Icons.edit_calendar_outlined,
+                                                      Icons.edit_note,
                                                       size: MediaQuery.of(context).size.width * 0.05,
                                                       color: Color(0xff404040)),
                                                 ) : Container(),
@@ -394,8 +373,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                                         CupertinoDialogAction(isDefaultAction: false, child: const Text("확인",style: TextStyle(color: Colors.red),),
                                                             onPressed: () async {
 
-                                                              plantNotification.cancel(widget.person.plants![index]!.cycles![CycleType.watering.index][Cycles.id.name]);
-                                                              plantNotification.cancel(widget.person.plants![index]!.cycles![CycleType.repotting.index][Cycles.id.name]);
+                                                              plantNotification.cancel(widget.person.plants![index]!.watering![Cycles.id.name]);
 
                                                               widget.person.plants!.remove(widget.person.plants![index]!);
                                                               var usersCollection = firestore.collection('users');
@@ -499,7 +477,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                             );
                                           }
                                         },
-                                        child: index <= widget.person.plants!.indexOf(widget.person.plants!.last) && widget.person.plants![index]!.image != null ? ClipRRect(
+                                        child: widget.person.plants!.isNotEmpty && index <= widget.person.plants!.indexOf(widget.person.plants!.last) && widget.person.plants![index]!.image != null ? ClipRRect(
                                           borderRadius: BorderRadius.circular(10),
                                           child: Image.memory(base64Decode(widget.person.plants![index]!.image!), fit: BoxFit.cover,gaplessPlayback: true,),
                                         ) : newImage != null ? ClipRRect(
@@ -519,33 +497,16 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                     padding: const EdgeInsets.only(right: 18, left: 18),
                                     child: Container(
                                       width: double.infinity,
-                                      height: MediaQuery.of(context).size.height * 0.1,
+                                      height: MediaQuery.of(context).size.height * 0.08,
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.only(
                                             bottomLeft:Radius.circular(10),
                                             bottomRight:Radius.circular(10)
                                         ),
                                       ),
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            children: [
-                                              index <= widget.person.plants!.indexOf(widget.person.plants!.last)
-                                                  ? cycleTile(widget.person.plants![index]!.cycles!, widget.person.plants![index]!.name!,
-                                                  CycleType.watering, wateringStartDateController, wateringCycleController)
-                                                  : cycleTile(newCycles,nameController.text, CycleType.watering, newWateringStartDateController,
-                                                  newWateringCycleController),
-                                              index <= widget.person.plants!.indexOf(widget.person.plants!.last)
-                                                  ? cycleTile(widget.person.plants![index]!.cycles!, widget.person.plants![index]!.name!,
-                                                  CycleType.repotting, repottingStartDateController, repottingCycleController)
-                                                  : cycleTile(newCycles,nameController.text, CycleType.repotting, newRepottingStartDateController,
-                                                  newRepottingCycleController),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
+                                      child: widget.person.plants!.isNotEmpty && index <= widget.person.plants!.indexOf(widget.person.plants!.last)
+                                          ? wateringCycleTile(widget.person.plants![index]!.watering!, widget.person.plants![index]!.name!, wateringStartDateController, wateringCycleController)
+                                          : wateringCycleTile(newCycles,nameController.text, newWateringStartDateController, newWateringCycleController),
                                     ),
                                   ),
                                 ],
@@ -584,12 +545,8 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                   "plants": widget.person.plantsToJson(widget.person.plants!)
                 }).then((value) {
 
-              plantNotification.zonedMidnightSchedule(widget.person.plants![pageIndex]!.cycles![CycleType.watering.index][Cycles.id.name], "Plantory 알림",
-                  "\"${widget.person.plants![pageIndex]!.name}\"에게 물을 줄 시간입니다!", getFastWateringDate(widget.person.plants![pageIndex]!.cycles!));
-
-              plantNotification.zonedMidnightSchedule(widget.person.plants![pageIndex]!.cycles![CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
-                  "\"${widget.person.plants![pageIndex]!.name}\"의 분갈이 시간입니다!", getFastRepottingDate(widget.person.plants![pageIndex]!.cycles!));
-
+              plantNotification.zonedMidnightSchedule(widget.person.plants![pageIndex]!.watering![Cycles.id.name], "Plantory 알림",
+                  "\"${widget.person.plants![pageIndex]!.name}\"에게 물을 줄 시간입니다!", getFastWateringDate(widget.person.plants![pageIndex]!.watering!));
             });
             setState(() {
               isEditable = false;
@@ -620,7 +577,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                 );
               });
             }else{
-              pageController.jumpToPage(pageIndex+1);
+
               setState(() {
                 isNewPlant = false;
                 var id = generateID(widget.person.plants!);
@@ -632,7 +589,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                       type: newTypeController.text,
                       date: newDateController.text,
                       note: null,
-                      cycles: newCycles,
+                      watering: newCycles,
                       image: newImage,
                       timelines: List.empty(growable: true),
                     )
@@ -643,13 +600,12 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
               await usersCollection.doc(widget.person.uid).update(
                   {
                     "plants": widget.person.plantsToJson(widget.person.plants!)
-                  }).then((value) {
+                  }).whenComplete(() => pageController.jumpToPage(pageIndex+1)).then((value) {
 
-                plantNotification.zonedMidnightSchedule(newCycles[CycleType.watering.index][Cycles.id.name], "Plantory 알림",
-                    "\"${newNameController.text}\"에게 물을 줄 시간입니다!", getFastWateringDate(widget.person.plants![pageIndex]!.cycles!));
-
-                plantNotification.zonedMidnightSchedule(newCycles[CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
-                    "\"${newNameController.text}\"의 분갈이 시간입니다!",  getFastRepottingDate(widget.person.plants![pageIndex]!.cycles!));
+                pageController.animateToPage(pageIndex-1, duration: Duration(milliseconds: 500), curve: Curves.ease).whenComplete(() {
+                  plantNotification.zonedMidnightSchedule(newCycles[Cycles.id.name], "Plantory 알림",
+                      "\"${newNameController.text}\"에게 물을 줄 시간입니다!", getFastWateringDate(widget.person.plants![pageIndex]!.watering!));
+                });
 
                 newNameController.text = "";
                 newTypeController.text = "";
@@ -658,34 +614,22 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
 
                 newDateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
-                newCycles = [
-                  {
-                    Cycles.id.name : 0,
-                    Cycles.type.name : "물",
-                    Cycles.cycle.name : 14,
-                    Cycles.startDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-                    Cycles.initDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-                  },
-                  {
-                    Cycles.id.name : 1,
-                    Cycles.type.name : "분갈이",
-                    Cycles.cycle.name : 60,
-                    Cycles.startDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-                    Cycles.initDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-                  },
-                ];
+                newCycles = {
+                  Cycles.id.name : 0,
+                  Cycles.type.name : "물",
+                  Cycles.cycle.name : 14,
+                  Cycles.startDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                  Cycles.initDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                };
 
-                newWateringStartDateController.text = newCycles[CycleType.watering.index][Cycles.startDate.name];
-                newWateringCycleController.text = newCycles[CycleType.watering.index][Cycles.cycle.name].toString();
+                newWateringStartDateController.text = newCycles[Cycles.startDate.name];
+                newWateringCycleController.text = newCycles[Cycles.cycle.name].toString();
 
-                newRepottingStartDateController.text = newCycles[CycleType.repotting.index][Cycles.startDate.name];
-                newRepottingCycleController.text = newCycles[CycleType.repotting.index][Cycles.cycle.name].toString();
+                newCycles[Cycles.id.name] = generateCycleID(widget.person.plants!);
+                newCycles[Cycles.id.name] = generateCycleID(widget.person.plants!)+1;
 
-                newCycles[CycleType.watering.index][Cycles.id.name] = generateCycleID(widget.person.plants!);
-                newCycles[CycleType.repotting.index][Cycles.id.name] = generateCycleID(widget.person.plants!)+1;
+              });
 
-              }).then((value) => pageController.animateToPage(pageIndex, duration: Duration(milliseconds: 300), curve: Curves.ease)
-              );
             }
           }
         },
@@ -753,60 +697,55 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
     );
   }
 
-  Widget cycleTile(List cycles,String plantName,CycleType cycleType, TextEditingController startDateController, TextEditingController cycleController){
+  Widget wateringCycleTile(Map cycles,String plantName, TextEditingController startDateController, TextEditingController cycleController){
 
     return GestureDetector(
-      child: Card(
-        //color: Color(0xffEEF1F1),
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          side: BorderSide(
-            color: Colors.black26, //<-- SEE HERE
-          ),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.06,
-          child: Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left:8,top: 8,bottom: 8),
-                child: cycleType == CycleType.watering ? Icon(Icons.water_drop,color: Color(0xff404040),) : Icon(UniconsLine.shovel,color: Color(0xff404040)),
-              ),
-              Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(cycleType ==  CycleType.watering ? "물" : "분갈이",style: TextStyle(color: Colors.black87))
-              ),
-              (DateFormat('yyyy-MM-dd').parse(cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name]))
-                  .isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())) &&
-                  (cycleType == CycleType.watering ? getFastWateringDate(cycles)
-                      : getFastRepottingDate(cycles)) == cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name]
-            ? IconButton(
-              onPressed: () async{
-                setState((){
-                  cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name]
-                  = DateFormat('yyyy-MM-dd').format(DateTime.now()
-                      .add(Duration(days: int.parse(cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name].toString()))));
-                });
-                var usersCollection = firestore.collection('users');
-                await usersCollection.doc(widget.person.uid).update(
-                    {
-                      "plants": widget.person.plantsToJson(widget.person.plants!)
-                    });
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.06,
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left:8,top: 8,bottom: 8),
+              child: Icon(Icons.water_drop,color: Color(0xff404040),)
+            ),
+            Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text("물주기",style: TextStyle(color: Colors.black87))
+            ),
+            (isNewPlant || isEditable) ?  Icon(Icons.edit_note)
+                : (DateFormat('yyyy-MM-dd').parse(cycles[Cycles.initDate.name]))
+                .isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())) &&
+                getFastWateringDate(cycles) == cycles[Cycles.cycle.name]
+          ? Row(
+             children: [
+              IconButton(
+                onPressed: () async{
+                  setState((){
+                    cycles[Cycles.initDate.name]
+                    = DateFormat('yyyy-MM-dd').format(DateTime.now()
+                        .add(Duration(days: int.parse(cycles[Cycles.cycle.name].toString()))));
+                  });
+                  var usersCollection = firestore.collection('users');
+                  await usersCollection.doc(widget.person.uid).update(
+                      {
+                        "plants": widget.person.plantsToJson(widget.person.plants!)
+                      });
 
-                plantNotification.zonedMidnightSchedule(cycles[CycleType.watering.index][Cycles.id.name], "Plantory 알림",
-                    "\"$plantName\"에게 물을 줄 시간입니다!", getFastWateringDate(cycles));
+                  plantNotification.zonedMidnightSchedule(cycles[Cycles.id.name], "Plantory 알림",
+                      "\"$plantName\"에게 물을 줄 시간입니다!", getFastWateringDate(cycles));
+                  /*
+                  plantNotification.zonedMidnightSchedule(cycles[CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
+                      "\"$plantName\"의 분갈이 시간입니다!", getFastRepottingDate(cycles));
+                   */
 
-                plantNotification.zonedMidnightSchedule(cycles[CycleType.repotting.index][Cycles.id.name], "Plantory 알림",
-                    "\"$plantName\"의 분갈이 시간입니다!", getFastRepottingDate(cycles));
-
-                }, icon: Icon(Icons.check_circle_outline))
-                  : Padding(padding: const EdgeInsets.all(8.0), child: Text("D${cycleType == CycleType.watering
-                    ? -getFastWateringDate(cycles)
-                    : -getFastRepottingDate(cycles)}",style: TextStyle(fontWeight: FontWeight.bold,color: Color(0xff404040)),),
-                  )
+                  }, icon: Icon(Icons.check_circle_outline)),
+               Text("< 물을 준 후 클릭")
             ],
-          ),
+          )
+                : Padding(padding: const EdgeInsets.all(8.0), child: Text("D${-getFastWateringDate(cycles)}",
+              style: TextStyle(fontWeight: FontWeight.bold,color: Color(0xff404040)),),
+                )
+          ],
         ),
       ),
       onTap: () async{
@@ -829,7 +768,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                         decoration: InputDecoration(
                           labelStyle: TextStyle(height:0.1),
                           labelText: "시작일",
-                          hintText:  cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name],
+                          hintText:  cycles[Cycles.startDate.name],
                         ),
                         onTap: () async{
                           await showCupertinoModalPopup(
@@ -857,13 +796,33 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                       ),
                       TextField(
                         controller: cycleController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        readOnly: true,
                         decoration: InputDecoration(
                           labelStyle: const TextStyle(height:0.1),
                           labelText: "주기(일)",
-                          hintText: cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name].toString(),
+                          hintText: cycles[Cycles.cycle.name].toString(),
                         ),
+                        onTap: () async{
+                          await showCupertinoModalPopup(
+                              context: context,
+                              builder: (BuildContext builder) {
+                            return SizedBox(
+                              height: 200,
+                              child: Center(
+                                child: CupertinoPicker(
+                                  scrollController: FixedExtentScrollController(initialItem:  int.parse(cycleController.text)-1),
+                                  backgroundColor: Colors.white,
+                                  onSelectedItemChanged: (value){
+                                    cycleController.text = (value+1).toString();
+                                  },
+                                  itemExtent: 32,
+                                  diameterRatio:1,
+                                  children: List.generate(100, (index) => Text("${index+1}일 마다")),
+                                ),
+                              ),
+                            );
+                          });
+                        },
                       ),
                       SizedBox(
                         height: 10,
@@ -895,9 +854,9 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                       });
                     }else{
                       setState(() {
-                        cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.startDate.name] = startDateController.text;
-                        cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.initDate.name] = startDateController.text;
-                        cycles[cycleType == CycleType.watering ? 0 : 1][Cycles.cycle.name] = int.parse(cycleController.text);
+                        cycles[Cycles.startDate.name] = startDateController.text;
+                        cycles[Cycles.initDate.name] = startDateController.text;
+                        cycles[Cycles.cycle.name] = int.parse(cycleController.text);
                       });
                       Get.back();
                     }
@@ -913,30 +872,14 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
 
 }
 
-int getFastWateringDate(List cycles){
-  for(int i = 0; DateFormat('yyyy-MM-dd').parse(cycles[0][Cycles.startDate.name]).add(Duration(days: i))
-      .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(cycles[0][Cycles.cycle.name].toString())){
+int getFastWateringDate(Map cycles){
+  for(int i = 0; DateFormat('yyyy-MM-dd').parse(cycles[Cycles.startDate.name]).add(Duration(days: i))
+      .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(cycles[Cycles.cycle.name].toString())){
 
     if(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()).isBefore( DateFormat('yyyy-MM-dd')
-        .parse(cycles[CycleType.watering.index][Cycles.startDate.name]).add(Duration(days: i)))){
+        .parse(cycles[Cycles.startDate.name]).add(Duration(days: i)))){
 
-      return  DateFormat('yyyy-MM-dd').parse(cycles[0][Cycles.startDate.name]).add(Duration(days: i))
-          .difference(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())).inDays;
-
-    }
-
-  }
-  return 0;
-}
-
-int getFastRepottingDate(List cycles){
-  for(int i = 0; DateFormat('yyyy-MM-dd').parse(cycles[1][Cycles.startDate.name]).add(Duration(days: i))
-      .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(cycles[1][Cycles.cycle.name].toString())){
-
-    if(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()).isBefore( DateFormat('yyyy-MM-dd')
-        .parse(cycles[1][Cycles.startDate.name]).add(Duration(days: i)))){
-
-      return  DateFormat('yyyy-MM-dd').parse(cycles[1][Cycles.startDate.name]).add(Duration(days: i))
+      return  DateFormat('yyyy-MM-dd').parse(cycles[Cycles.startDate.name]).add(Duration(days: i))
           .difference(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())).inDays;
 
     }

@@ -1,6 +1,5 @@
 
 enum Cycles{id,type,cycle,startDate,initDate}
-enum CycleType{watering, repotting}
 
 class Plant{
 
@@ -12,7 +11,7 @@ class Plant{
     this.type,
     this.date,
     this.note,
-    this.cycles,
+    this.watering,
     this.timelines
   });
 
@@ -23,7 +22,7 @@ class Plant{
   String? type;
   String? date;
   String? note;
-  List? cycles;
+  Map? watering;
   List? timelines;
 
   Plant.fromJson(Map<String, dynamic> json)
@@ -34,7 +33,7 @@ class Plant{
         type = json["type"],
         date = json["date"],
         note = json["note"],
-        cycles = json["cycles"],
+        watering = json["watering"],
         timelines = json["timelines"];
 
   Map<String, dynamic> toJson() =>
@@ -46,7 +45,7 @@ class Plant{
         'type' : type,
         'date' : date,
         'note' : note,
-        'cycles' : cycles,
+        'watering' : watering,
         'timelines' : timelines,
       };
 
@@ -77,9 +76,7 @@ int generateCycleID(List plantList){
   List<int> idList = List.empty(growable: true);
   if(plantList.isNotEmpty){
     for(Plant i in plantList){
-      for(Map j in i.cycles!){
-        idList.add(j[Cycles.id.name]);
-      }
+      idList.add(i.watering![Cycles.id.name]);
     }
     for(int j = 0; j < 128; j++){
       if(!idList.contains(j)){

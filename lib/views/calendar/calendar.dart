@@ -10,7 +10,6 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:intl/intl.dart';
 import 'package:plantory/utils/colors.dart';
-import 'package:plantory/views/plant/plant_detail_page.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import 'package:unicons/unicons.dart';
@@ -40,7 +39,6 @@ class _Calendar extends State<Calendar>{
 
   List<Map> plants = List.empty(growable: true);
   List<DateTime> wateringDays = List.empty(growable: true);
-  List<DateTime> repottingDays = List.empty(growable: true);
 
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -65,27 +63,14 @@ class _Calendar extends State<Calendar>{
       Map temp = {
         "plant" : j,
         "wateringDays" : List.empty(growable: true),
-        "repottingDays" : List.empty(growable: true),
       };
-      for(int i = 0; DateFormat('yyyy-MM-dd').parse(j!.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
-          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![0][Cycles.cycle.name].toString())){
+      for(int i = 0; DateFormat('yyyy-MM-dd').parse(j!.watering![Cycles.startDate.name]).add(Duration(days: i))
+          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.watering![Cycles.cycle.name].toString())){
 
-        if(!DateFormat('yyyy-MM-dd').parse(j.cycles![0][Cycles.startDate.name])
+        if(!DateFormat('yyyy-MM-dd').parse(j.watering![Cycles.startDate.name])
             .add(Duration(days: i)).isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()))){
 
-          temp["wateringDays"].add(DateFormat('yyyy-MM-dd').parse(DateFormat('yyyy-MM-dd').parse(j.cycles![0][Cycles.startDate.name])
-              .add(Duration(days: i)).toString()));
-
-        }
-
-      }
-      for(int i = 0; DateFormat('yyyy-MM-dd').parse(j.cycles![1][Cycles.startDate.name]).add(Duration(days: i))
-          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![1][Cycles.cycle.name].toString())){
-
-        if(!DateFormat('yyyy-MM-dd').parse(j.cycles![1][Cycles.startDate.name])
-            .add(Duration(days: i)).isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()))){
-
-          temp["repottingDays"].add(DateFormat('yyyy-MM-dd').parse(DateFormat('yyyy-MM-dd').parse(j.cycles![1][Cycles.startDate.name])
+          temp["wateringDays"].add(DateFormat('yyyy-MM-dd').parse(DateFormat('yyyy-MM-dd').parse(j.watering![Cycles.startDate.name])
               .add(Duration(days: i)).toString()));
 
         }
@@ -103,11 +88,6 @@ class _Calendar extends State<Calendar>{
       for(DateTime i in j["wateringDays"]){
         if(DateFormat('yyyy-MM-dd').parse(i.toString()) == DateFormat('yyyy-MM-dd').parse(day.toString())){
           result.add({"plant" : j["plant"] , "cycle" : "물주기"});
-        }
-      }
-      for(DateTime i in j["repottingDays"]){
-        if(DateFormat('yyyy-MM-dd').parse(i.toString()) == DateFormat('yyyy-MM-dd').parse(day.toString())){
-          result.add({"plant" : j["plant"] , "cycle" : "분갈이"});
         }
       }
 
@@ -136,32 +116,20 @@ class _Calendar extends State<Calendar>{
       Map temp = {
         "plant" : j,
         "wateringDays" : List.empty(growable: true),
-        "repottingDays" : List.empty(growable: true),
       };
-      for(int i = 0; DateFormat('yyyy-MM-dd').parse(j!.cycles![0][Cycles.startDate.name]).add(Duration(days: i))
-          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![0][Cycles.cycle.name].toString())){
+      for(int i = 0; DateFormat('yyyy-MM-dd').parse(j!.watering![Cycles.startDate.name]).add(Duration(days: i))
+          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.watering![Cycles.cycle.name].toString())){
 
-        if(!DateFormat('yyyy-MM-dd').parse(j.cycles![0][Cycles.startDate.name])
+        if(!DateFormat('yyyy-MM-dd').parse(j.watering![Cycles.startDate.name])
             .add(Duration(days: i)).isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()))){
 
-          temp["wateringDays"].add(DateFormat('yyyy-MM-dd').parse(DateFormat('yyyy-MM-dd').parse(j.cycles![0][Cycles.startDate.name])
+          temp["wateringDays"].add(DateFormat('yyyy-MM-dd').parse(DateFormat('yyyy-MM-dd').parse(j.watering![Cycles.startDate.name])
               .add(Duration(days: i)).toString()));
 
         }
 
       }
-      for(int i = 0; DateFormat('yyyy-MM-dd').parse(j.cycles![1][Cycles.startDate.name]).add(Duration(days: i))
-          .isBefore(DateTime(DateTime.now().year+1).subtract(Duration(days: 1))); i+= int.parse(j.cycles![1][Cycles.cycle.name].toString())){
 
-        if(!DateFormat('yyyy-MM-dd').parse(j.cycles![1][Cycles.startDate.name])
-            .add(Duration(days: i)).isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()))){
-
-          temp["repottingDays"].add(DateFormat('yyyy-MM-dd').parse(DateFormat('yyyy-MM-dd').parse(j.cycles![1][Cycles.startDate.name])
-              .add(Duration(days: i)).toString()));
-
-        }
-
-      }
       plants.add(temp);
     }
     _selectedEvents!.value = _getEventsForDay(_selectedDay!);
@@ -236,7 +204,7 @@ class _Calendar extends State<Calendar>{
                             width: 24,
                             iconStyle: IconStyle(
                               color: Colors.white,
-                              iconData: value[index]["cycle"] != null ? value[index]["cycle"] == "물주기" || value[index]["cycle"] == "분갈이"
+                              iconData: value[index]["cycle"] != null ? value[index]["cycle"] == "물주기"
                                   ? Icons.notifications_active : Icons.edit_note : Icons.edit_calendar_outlined
                             ),
                           ),
