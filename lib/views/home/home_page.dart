@@ -41,7 +41,8 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
 
   static const List<IconData> floatingIcons = [ Icons.calendar_month_outlined, Icons.comment ];
 
-  bool isEditable = false;
+  bool isPlantEditable = false;
+  bool isInfoEditable = false;
   bool isNewPlant = false;
   bool isCustomType = false;
 
@@ -98,7 +99,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
       body: Stack(
         children: [
           PageView.builder(
-              physics: isEditable ? NeverScrollableScrollPhysics() : null,
+              physics: isPlantEditable ? NeverScrollableScrollPhysics() : null,
               itemCount: widget.person.plants!.length +1,
               pageSnapping: true,
               controller: pageController,
@@ -127,6 +128,13 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                 final TextEditingController wateringStartDateController = TextEditingController();
                 final TextEditingController wateringCycleController = TextEditingController();
 
+                final TextEditingController flowerLanguageController = TextEditingController();
+                final TextEditingController temperatureController = TextEditingController();
+                final TextEditingController humidityController = TextEditingController();
+                final TextEditingController sunlightController = TextEditingController();
+                final TextEditingController wateringController = TextEditingController();
+                final TextEditingController transplantingController = TextEditingController();
+
                 var image;
 
                 late String beforeName;
@@ -143,6 +151,13 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
 
                   wateringStartDateController.text = widget.person.plants![index]!.watering![Cycles.startDate.name];
                   wateringCycleController.text = widget.person.plants![index]!.watering![Cycles.cycle.name].toString();
+
+                  flowerLanguageController.text = widget.person.plants![index]!.info?["flowerLanguage"];
+                  temperatureController.text = widget.person.plants![index]!.info?["temperature"];
+                  humidityController.text = widget.person.plants![index]!.info?["humidity"];
+                  sunlightController.text = widget.person.plants![index]!.info?["sunlight"];
+                  wateringController.text = widget.person.plants![index]!.info?["watering"];
+                  transplantingController.text = widget.person.plants![index]!.info?["transplanting"];
 
                 }
 
@@ -170,11 +185,11 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                     controller: nameController,
                                     maxLines: 1,
                                     maxLength: 6,
-                                    readOnly: !isEditable,
+                                    readOnly: !isPlantEditable,
                                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                                     decoration: InputDecoration(
                                       isDense: true,
-                                      border: isEditable ? null : InputBorder.none,
+                                      border: isPlantEditable ? null : InputBorder.none,
                                       counterText: "",
                                       hintStyle: const  TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                                       hintText: widget.person.plants![index]!.name!,
@@ -208,10 +223,10 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                     maxLines: 1,
                                     style: TextStyle(fontSize: 14),
                                     maxLength: 25,
-                                    readOnly: !isEditable || (isEditable && !isCustomType),
+                                    readOnly: !isPlantEditable || (isPlantEditable && !isCustomType),
                                     decoration: InputDecoration(
                                         isDense: true,
-                                        border: isEditable ? null : InputBorder.none,
+                                        border: isPlantEditable ? null : InputBorder.none,
                                         counterText: "",
                                         hintText: widget.person.plants![index]!.type!
                                     ),
@@ -223,7 +238,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                       }
                                     },
                                     onTap: (){
-                                      if((isEditable || isNewPlant) && !isCustomType){
+                                      if((isPlantEditable || isNewPlant) && !isCustomType){
                                         showDialog(context: context, builder: (context) {
                                           return AlertDialog(
                                             shape: RoundedRectangleBorder(
@@ -279,6 +294,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                                           ),
                                                         ),
                                                         onTap: (){
+
                                                           setState(() {
                                                             if(position > widget.plantsInfo.indexOf(widget.plantsInfo.last)){
                                                               isCustomType = true;
@@ -286,6 +302,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                                               widget.person.plants![index]!.type = widget.plantsInfo[position]["enName"];
                                                             }
                                                           });
+
                                                           Get.back();
                                                         },
                                                       )
@@ -308,7 +325,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                       hintText: "식물 종류",
                                     ),
                                     onTap: (){
-                                      if((isEditable || isNewPlant) && isCustomType){
+                                      if((isPlantEditable || isNewPlant) && isCustomType){
                                         showDialog(context: context, builder: (context) {
                                           return AlertDialog(
                                             shape: RoundedRectangleBorder(
@@ -322,7 +339,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                                     onPressed: (){
                                                       Get.back();
                                                     },
-                                                    icon: Icon(Icons.close,color: Colors.black54,)
+                                                    icon: Icon(Icons.close,color: Color(0xff404040),)
                                                 )
                                               ],
                                             ),
@@ -425,7 +442,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                         children: [
                                           GestureDetector(
                                             onTap: () async{
-                                              if(isEditable){
+                                              if(isPlantEditable){
                                                 await showCupertinoModalPopup(
                                                     context: context,
                                                     builder: (BuildContext builder) {
@@ -463,15 +480,15 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                                           mode: CupertinoDatePickerMode.date,
                                                           onDateTimeChanged: (value) {
                                                             if (DateFormat('yyyy-MM-dd').format(value) != newDateController.text) {
-                                                              newDateController.text = DateFormat('yyyy-MM-dd').format(value);
+                                                              setState(() {
+                                                                newDateController.text = DateFormat('yyyy-MM-dd').format(value);
+                                                              });
                                                             }
                                                           },
                                                         ),
                                                       );
                                                     }
-                                                ).then((value) {
-                                                  setState(() {});
-                                                });
+                                                );
                                               }
                                             },
                                             child: Row(
@@ -480,7 +497,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                                   style: TextStyle(color: Color(0xff404040),fontWeight: FontWeight.bold),)
                                                     : Text(dateController.text != "" ? dateController.text : DateFormat('yyyy-MM-dd').format(DateTime.now()) ,
                                                   style: TextStyle(color: Color(0xff404040),fontWeight: FontWeight.bold),),
-                                                isEditable || isNewPlant ? Padding(
+                                                isPlantEditable || isNewPlant ? Padding(
                                                   padding: const EdgeInsets.only(right: 8, left: 8),
                                                   child: Icon(
                                                       Icons.edit_note,
@@ -490,7 +507,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                               ],
                                             ),
                                           ),
-                                          !isEditable ? PopupMenuButton<String>(
+                                          !isPlantEditable && !isNewPlant ? PopupMenuButton<String>(
                                             child: Container(
                                               width: MediaQuery.of(context).size.width * 0.1,
                                               alignment: Alignment.centerRight,
@@ -502,97 +519,135 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                               switch (value) {
                                                 case '수정':
                                                   setState((){
-                                                    isEditable = true;
+                                                    isPlantEditable = true;
                                                   });
                                                   break;
                                                 case '정보':
-                                                  if(!isEditable || isNewPlant){
-                                                    await showDialog(context: context, barrierColor: Colors.black54,builder: (context) {
-                                                      return AlertDialog(
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.circular(20),
-                                                        ),
-                                                        contentPadding: EdgeInsets.only(right: 18,left: 18,top: 18),
-                                                        title: const Text("식물 정보"),
-                                                        content: SizedBox(
-                                                          child: SingleChildScrollView(
-                                                            child: Column(
+                                                  await showDialog(context: context, barrierColor: Colors.black54,builder: (context) {
+                                                    return StatefulBuilder(
+                                                        builder: (context, setState) {
+                                                          return AlertDialog(
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius.circular(20),
+                                                            ),
+                                                            contentPadding: EdgeInsets.only(right: 18,left: 18,top: 18),
+                                                            title: Row(
+                                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                               children: [
-                                                                TextField(
-                                                                  decoration: InputDecoration(
-                                                                    labelStyle: TextStyle(height:0.1),
-                                                                    labelText: "꽃말",
-                                                                  ),
+                                                                IconButton(
+                                                                    onPressed: (){
+                                                                      Get.back();
+                                                                    },
+                                                                    icon: Icon(Icons.arrow_back_ios_rounded,)
                                                                 ),
-                                                                SizedBox(
-                                                                  height: 10,
-                                                                ),
-                                                                TextField(
-                                                                  decoration: InputDecoration(
-                                                                    labelStyle: const TextStyle(height:0.1),
-                                                                    labelText: "온도",
-                                                                  ),
-                                                                ),
-                                                                SizedBox(
-                                                                  height: 10,
-                                                                ),
-                                                                TextField(
-                                                                  decoration: InputDecoration(
-                                                                    labelStyle: const TextStyle(height:0.1),
-                                                                    labelText: "습도",
-                                                                  ),
-                                                                ),
-                                                                SizedBox(
-                                                                  height: 10,
-                                                                ),
-                                                                TextField(
-                                                                  decoration: InputDecoration(
-                                                                    labelStyle: const TextStyle(height:0.1),
-                                                                    labelText: "햇빛",
-                                                                  ),
-                                                                ),
-                                                                SizedBox(
-                                                                  height: 10,
-                                                                ),
-                                                                TextField(
-                                                                  decoration: InputDecoration(
-                                                                    labelStyle: const TextStyle(height:0.1),
-                                                                    labelText: "물 주기",
-                                                                  ),
-                                                                ),
-                                                                SizedBox(
-                                                                  height: 10,
-                                                                ),
-                                                                TextField(
-                                                                  decoration: InputDecoration(
-                                                                    labelStyle: const TextStyle(height:0.1),
-                                                                    labelText: "분갈이 주기",
-                                                                  ),
-                                                                ),
-                                                                SizedBox(
-                                                                  height: 10,
-                                                                ),
+                                                                Text("식물 정보"),
+                                                                IconButton(
+                                                                    onPressed: () async{
+                                                                      if(isInfoEditable){
+                                                                        setState((){
+                                                                          isInfoEditable = !isInfoEditable;
+                                                                        });
+                                                                        widget.person.plants![index]!.info!["flowerLanguage"] = flowerLanguageController.text;
+                                                                        widget.person.plants![index]!.info!["temperature"] = temperatureController.text;
+                                                                        widget.person.plants![index]!.info!["humidity"] = humidityController.text;
+                                                                        widget.person.plants![index]!.info!["watering"] = wateringController.text;
+                                                                        widget.person.plants![index]!.info!["transplanting"] = transplantingController.text;
+                                                                        widget.person.plants![index]!.info!["sunlight"] = sunlightController.text;
+                                                                        var usersCollection = firestore.collection('users');
+                                                                        await usersCollection.doc(widget.person.uid).update(
+                                                                            {
+                                                                              "plants": widget.person.plantsToJson(widget.person.plants!)
+                                                                            });
+                                                                      }else{
+                                                                        setState((){
+                                                                          isInfoEditable = !isInfoEditable;
+                                                                        });
+                                                                      }
+                                                                    },
+                                                                    icon: isInfoEditable
+                                                                        ? Icon(Icons.check)
+                                                                        : Icon(Icons.edit_note)
+                                                                )
                                                               ],
                                                             ),
-                                                          ),
-                                                        ),
-                                                        actions: [
-                                                          TextButton(
-                                                            child: const Text('취소'),
-                                                            onPressed: () {
-                                                              Get.back();
-                                                            },
-                                                          ),
-                                                          TextButton(
-                                                            child: const Text('확인',style: TextStyle(color: Colors.red)),
-                                                            onPressed: () async{
-                                                              Get.back();
-                                                            },
-                                                          ),
-                                                        ],
-                                                      );
-                                                    });
-                                                  }
+                                                            content: SizedBox(
+                                                              child: SingleChildScrollView(
+                                                                child: Column(
+                                                                  children: [
+                                                                    TextField(
+                                                                      readOnly: !isInfoEditable,
+                                                                      controller: flowerLanguageController,
+                                                                      decoration: InputDecoration(
+                                                                        labelStyle: TextStyle(height:0.1),
+                                                                        labelText: "꽃말",
+                                                                      ),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height: 10,
+                                                                    ),
+                                                                    TextField(
+                                                                      controller: temperatureController,
+                                                                      readOnly: !isInfoEditable,
+                                                                      decoration: InputDecoration(
+                                                                        labelStyle: const TextStyle(height:0.1),
+                                                                        labelText: "온도",
+                                                                      ),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height: 10,
+                                                                    ),
+                                                                    TextField(
+                                                                      controller: humidityController,
+                                                                      readOnly: !isInfoEditable,
+                                                                      decoration: InputDecoration(
+                                                                        labelStyle: const TextStyle(height:0.1),
+                                                                        labelText: "습도",
+                                                                      ),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height: 10,
+                                                                    ),
+                                                                    TextField(
+                                                                      controller: sunlightController,
+                                                                      readOnly: !isInfoEditable,
+                                                                      decoration: InputDecoration(
+                                                                        labelStyle: const TextStyle(height:0.1),
+                                                                        labelText: "햇빛",
+                                                                      ),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height: 10,
+                                                                    ),
+                                                                    TextField(
+                                                                      controller:  wateringController,
+                                                                      readOnly: !isInfoEditable,
+                                                                      decoration: InputDecoration(
+                                                                        labelStyle: const TextStyle(height:0.1),
+                                                                        labelText: "물 주기",
+                                                                      ),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height: 10,
+                                                                    ),
+                                                                    TextField(
+                                                                      controller: transplantingController,
+                                                                      readOnly: !isInfoEditable,
+                                                                      decoration: InputDecoration(
+                                                                        labelStyle: const TextStyle(height:0.1),
+                                                                        labelText: "분갈이 주기",
+                                                                      ),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height: 30,
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          );
+                                                        }
+                                                    );
+                                                  }).then((value) => setState((){ isInfoEditable = false;}));
                                                   break;
                                                 case '삭제':
                                                   showDialog(barrierColor: Colors.black54, context: context, builder: (context) {
@@ -629,7 +684,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                                   break;
                                               }
                                             },
-                                            itemBuilder: (context) => !isEditable && !isNewPlant ? [
+                                            itemBuilder: (context) => [
                                               PopupMenuItem<String>(
                                                 height: MediaQuery.of(context).size.height * 0.05,
                                                 value: '수정',
@@ -647,13 +702,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                                 value: '삭제',
                                                 child: Text('삭제'),
                                               ),
-                                            ] : [
-                                              PopupMenuItem<String>(
-                                                height: MediaQuery.of(context).size.height * 0.05,
-                                                value: '정보',
-                                                child: Text('정보'),
-                                              ),
-                                            ],
+                                            ]
                                           ) : Container(),
                                         ],
                                       ),
@@ -664,7 +713,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                       padding: const EdgeInsets.only(right: 18,left: 18),
                                       child: GestureDetector(
                                         onTap: (){
-                                          if(isEditable || isNewPlant){
+                                          if(isPlantEditable || isNewPlant){
                                             var picker = ImagePicker();
                                             showCupertinoModalPopup(
                                               barrierColor: Colors.black54,
@@ -680,7 +729,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                                               .then((value) async{
                                                             image = await value?.readAsBytes();
                                                             setState(() {
-                                                              if(isEditable){
+                                                              if(isPlantEditable){
                                                                 widget.person.plants![index]!.image = base64Encode(image);
                                                               }else if(isNewPlant){
                                                                 newImage =  base64Encode(image);
@@ -697,7 +746,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                                               .then((value) async{
                                                             image = await value?.readAsBytes();
                                                             setState(() {
-                                                              if(isEditable){
+                                                              if(isPlantEditable){
                                                                 widget.person.plants![index]!.image = base64Encode(image);
                                                               }else if(isNewPlant){
                                                                 newImage =  base64Encode(image);
@@ -747,8 +796,10 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                         ),
                                       ),
                                       child: widget.person.plants!.isNotEmpty && index <= widget.person.plants!.indexOf(widget.person.plants!.last)
-                                          ? wateringCycleTile(widget.person.plants![index]!.watering!, widget.person.plants![index]!.name!, wateringStartDateController, wateringCycleController)
-                                          : wateringCycleTile(newCycles,nameController.text, newWateringStartDateController, newWateringCycleController),
+                                          ? wateringCycleTile(widget.person.plants![index]!.watering!,
+                                          widget.person.plants![index]!.name!,typeController, wateringStartDateController, wateringCycleController)
+                                          : wateringCycleTile(newCycles,nameController.text,newTypeController,
+                                          newWateringStartDateController, newWateringCycleController),
                                     ),
                                   ),
                                 ],
@@ -774,12 +825,12 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
           ) : Container()
         ],
       ),
-      floatingActionButton: isEditable || isNewPlant ? FloatingActionButton.extended(
+      floatingActionButton: isPlantEditable || isNewPlant ? FloatingActionButton.extended(
         backgroundColor: primaryColor,
         label: Text("완료"),
         icon: Icon(Icons.check),
         onPressed: () async{
-          if(isEditable){
+          if(isPlantEditable){
 
             var usersCollection = firestore.collection('users');
             await usersCollection.doc(widget.person.uid).update(
@@ -791,11 +842,26 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                   "\"${widget.person.plants![pageIndex]!.name}\"에게 물을 줄 시간입니다!", getFastWateringDate(widget.person.plants![pageIndex]!.watering!));
             });
             setState(() {
-              isEditable = false;
+              isPlantEditable = false;
               isCustomType = false;
             });
 
           }else if(isNewPlant){
+
+            Map? info = {
+              'flowerLanguage' : "",
+              'temperature' : "",
+              'humidity' : "",
+              'sunlight' : "",
+              'watering' : "",
+              'transplanting' : ""
+            };
+
+            for(Map i in widget.plantsInfo){
+              if(i["enName"] == newTypeController.text){
+                info = i;
+              }
+            }
 
             if(newNameController.text == ""){
               showCupertinoDialog(context: context, builder: (context) {
@@ -842,7 +908,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                     date: newDateController.text,
                     watering: newCycles,
                     image: newImage,
-                    info: null,
+                    info: info,
                     timelines: List.empty(growable: true),
                   )
               );
@@ -948,7 +1014,14 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
     );
   }
 
-  Widget wateringCycleTile(Map cycles,String plantName, TextEditingController startDateController, TextEditingController cycleController){
+  Widget wateringCycleTile(Map cycles,String plantName,TextEditingController plantTypeController , TextEditingController startDateController, TextEditingController cycleController){
+
+    Map? plantInfo;
+    for(Map i in widget.plantsInfo){
+      if(i["enName"] == plantTypeController.text){
+        plantInfo = i;
+      }
+    }
 
     return GestureDetector(
       child: SizedBox(
@@ -963,7 +1036,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                 padding: const EdgeInsets.all(8.0),
                 child: Text("물주기",style: TextStyle(color: Colors.black87))
             ),
-            (isNewPlant || isEditable) ?  Icon(Icons.edit_note)
+            (isNewPlant || isPlantEditable) ?  Icon(Icons.edit_note)
                 : (DateFormat('yyyy-MM-dd').parse(cycles[Cycles.initDate.name]))
                 .isBefore(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString())) &&
                 getFastWateringDate(cycles) == cycles[Cycles.cycle.name]
@@ -996,7 +1069,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
         ),
       ),
       onTap: () async{
-        if(isEditable || isNewPlant){
+        if(isPlantEditable || isNewPlant){
           await showDialog(context: context, barrierColor: Colors.black54,builder: (context) {
             return AlertDialog(
               shape: RoundedRectangleBorder(
@@ -1004,78 +1077,77 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
               ),
               contentPadding: EdgeInsets.only(right: 18,left: 18,top: 18),
               title: const Text("주기 설정"),
-              content: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.2,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      TextField(
-                        readOnly: true,
-                        controller: startDateController,
-                        decoration: InputDecoration(
-                          labelStyle: TextStyle(height:0.1),
-                          labelText: "시작일",
-                          hintText:  cycles[Cycles.startDate.name],
-                        ),
-                        onTap: () async{
-                          await showCupertinoModalPopup(
-                              context: context,
-                              builder: (BuildContext builder) {
-                                return Container(
-                                  height: MediaQuery.of(context).copyWith().size.height*0.25,
-                                  color: Colors.white,
-                                  child: CupertinoDatePicker(
-                                    initialDateTime: DateFormat('yyyy-MM-dd').parse(startDateController.text),
-                                    maximumDate: DateTime.now(), //마지막일
-                                    mode: CupertinoDatePickerMode.date,
-                                    onDateTimeChanged: (value) {
-                                      if (DateFormat('yyyy-MM-dd').format(value) != startDateController.text) {
-                                        startDateController.text = DateFormat('yyyy-MM-dd').format(value);
-                                      }
-                                    },
-                                  ),
-                                );
-                              });
-                        },
+              content: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      readOnly: true,
+                      controller: startDateController,
+                      decoration: InputDecoration(
+                        labelStyle: TextStyle(height:0.1),
+                        labelText: "시작일",
+                        hintText:  cycles[Cycles.startDate.name],
                       ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      TextField(
-                        controller: cycleController,
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          labelStyle: const TextStyle(height:0.1),
-                          labelText: "주기(일)",
-                          hintText: cycles[Cycles.cycle.name].toString(),
-                        ),
-                        onTap: () async{
-                          await showCupertinoModalPopup(
-                              context: context,
-                              builder: (BuildContext builder) {
-                            return SizedBox(
-                              height: 200,
-                              child: Center(
-                                child: CupertinoPicker(
-                                  scrollController: FixedExtentScrollController(initialItem:  int.parse(cycleController.text)-1),
-                                  backgroundColor: Colors.white,
-                                  onSelectedItemChanged: (value){
-                                    cycleController.text = (value+1).toString();
+                      onTap: () async{
+                        await showCupertinoModalPopup(
+                            context: context,
+                            builder: (BuildContext builder) {
+                              return Container(
+                                height: MediaQuery.of(context).copyWith().size.height*0.25,
+                                color: Colors.white,
+                                child: CupertinoDatePicker(
+                                  initialDateTime: DateFormat('yyyy-MM-dd').parse(startDateController.text),
+                                  maximumDate: DateTime.now(), //마지막일
+                                  mode: CupertinoDatePickerMode.date,
+                                  onDateTimeChanged: (value) {
+                                    if (DateFormat('yyyy-MM-dd').format(value) != startDateController.text) {
+                                      startDateController.text = DateFormat('yyyy-MM-dd').format(value);
+                                    }
                                   },
-                                  itemExtent: 32,
-                                  diameterRatio:1,
-                                  children: List.generate(100, (index) => Text("${index+1}일 마다")),
                                 ),
+                              );
+                            });
+                      },
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    TextField(
+                      controller: cycleController,
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        labelStyle: const TextStyle(height:0.1),
+                        labelText: "주기(일)",
+                        hintText: cycles[Cycles.cycle.name].toString(),
+                      ),
+                      onTap: () async{
+                        await showCupertinoModalPopup(
+                            context: context,
+                            builder: (BuildContext builder) {
+                          return SizedBox(
+                            height: 200,
+                            child: Center(
+                              child: CupertinoPicker(
+                                scrollController: FixedExtentScrollController(initialItem:  int.parse(cycleController.text)-1),
+                                backgroundColor: Colors.white,
+                                onSelectedItemChanged: (value){
+                                  cycleController.text = (value+1).toString();
+                                },
+                                itemExtent: 32,
+                                diameterRatio:1,
+                                children: List.generate(100, (index) => Text("${index+1}일 마다")),
                               ),
-                            );
-                          });
-                        },
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                    ],
-                  ),
+                            ),
+                          );
+                        });
+                      },
+                    ),
+                    plantInfo != null ? Padding(
+                      padding: const EdgeInsets.only(top: 18),
+                      child: Text("추천: \"${plantInfo["watering"]}\"",style: TextStyle(fontSize: 14,color: Color(0xff404040)),),
+                    ) : Container(),
+                  ],
                 ),
               ),
               actions: [
