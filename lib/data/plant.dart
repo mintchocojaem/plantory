@@ -6,33 +6,30 @@ class Plant{
   Plant({
     this.id,
     this.image,
-    this.pinned,
     this.name,
     this.type,
     this.date,
-    this.note,
+    this.info,
     this.watering,
     this.timelines
   });
 
   int? id;
   String? image;
-  bool? pinned;
   String? name;
   String? type;
   String? date;
-  String? note;
   Map? watering;
+  Map? info;
   List? timelines;
 
   Plant.fromJson(Map<String, dynamic> json)
       : id = json["id"],
         image = json['image'],
-        pinned = json['pinned'],
         name = json["name"],
         type = json["type"],
         date = json["date"],
-        note = json["note"],
+        info = json["info"],
         watering = json["watering"],
         timelines = json["timelines"];
 
@@ -40,11 +37,10 @@ class Plant{
       {
         'id' : id,
         'image': image,
-        'pinned': pinned,
         'name' : name,
         'type' : type,
         'date' : date,
-        'note' : note,
+        'info' : info,
         'watering' : watering,
         'timelines' : timelines,
       };

@@ -11,7 +11,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:plantory/binding/binding.dart';
 import 'package:plantory/views/auth/auth_page.dart';
 import 'package:plantory/views/auth/lang/ko.dart';
-import 'package:plantory/views/index_page.dart';
 import 'package:plantory/views/notification/notification.dart';
 import 'firebase_options.dart';
 

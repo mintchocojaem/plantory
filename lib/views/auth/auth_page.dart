@@ -1,48 +1,12 @@
-//dart 기본 패키지
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-
-//dart firebase
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutterfire_ui/auth.dart';
-import 'package:plantory/views/index_page.dart';
+import 'package:plantory/views/home/home_page.dart';
 
 import '../../data/person.dart';
 import '../../data/plant.dart';
-
-/*
-List<Plant> plantList = [
-
-  Plant(
-    id: 0,
-    image: null,
-    pinned: true,
-    name: "로꼬",
-    type: "다육이",
-    date: "2022-07-27",
-    note: null,
-    cycles:[
-      {
-        Cycles.id.name : 0,
-        Cycles.type.name : "물",
-        Cycles.cycle.name : "7",
-        Cycles.startDate.name : "2022-07-27",
-        Cycles.init.name : false,
-      },
-      {
-        Cycles.id.name : 1,
-        Cycles.type.name : "분갈이",
-        Cycles.cycle.name : "30",
-        Cycles.startDate.name : "2022-07-28",
-        Cycles.init.name : false
-      },
-    ],
-    timelines: List.empty(growable: true),
-  ),
-
-];
-*/
 
 class AuthPage extends StatelessWidget {
   AuthPage({Key? key}) : super(key: key);
@@ -81,7 +45,7 @@ class AuthPage extends StatelessWidget {
                       }else if(snapshot.hasError){
                         return CircularProgressIndicator();
                       }else{
-                        return IndexPage(person: snapshot.data,);
+                        return HomePage(person: snapshot.data[0], plantsInfo: snapshot.data[1]);
                       }
                     }
                   ),
@@ -93,10 +57,11 @@ class AuthPage extends StatelessWidget {
     );
   }
 
-  Future<Person> getUserData(User user) async{
+  Future<List> getUserData(User user) async{
     late Person person;
     CollectionReference usersCollection = firestore.collection('users');
     DocumentSnapshot userData = await usersCollection.doc(user.uid).get();
+    var plantsInfo = await firestore.collection('plants').get().then((value) => value.docs.map((e) => e.data()).toList());
     if(userData.exists){
       person = Person(
         uid: userData["uid"],
@@ -124,7 +89,7 @@ class AuthPage extends StatelessWidget {
         print("Init user");
       });
     }
-    return person;
+    return [person, plantsInfo];
   }
 
   List<Plant> plantsFromJson(List? plants){
