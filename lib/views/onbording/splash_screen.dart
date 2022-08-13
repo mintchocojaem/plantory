@@ -4,7 +4,6 @@ import 'package:delayed_display/delayed_display.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:plantory/views/auth/auth_page.dart';
-import 'package:unicons/unicons.dart';
 
 import '../../utils/colors.dart';
 
@@ -47,7 +46,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     backgroundColor: primaryColor,
                     child: Center(
                         child: Icon(
-                      UniconsLine.flower,
+                      Icons.insert_emoticon,
                       size: 55,
                       color: splashScreenTextColor,
                     )),

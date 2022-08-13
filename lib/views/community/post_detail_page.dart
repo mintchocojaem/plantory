@@ -181,17 +181,9 @@ class _PostDetailPage extends State<PostDetailPage>{
                                           post.image != null ? Padding(
                                             padding: const EdgeInsets.all(8.0),
                                             child: Center(
-                                              child: Container(
-                                                  width: MediaQuery.of(context).size.width * 0.6,
-                                                  height: MediaQuery.of(context).size.width * 0.6,
-                                                  decoration: BoxDecoration(
-                                                      image: DecorationImage(
-                                                        fit: BoxFit.cover,
-                                                        image: Image.memory(base64Decode(post.image!),
-                                                          fit: BoxFit.cover,).image,
-                                                      ),
-                                                      borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
-                                                  )
+                                              child: ClipRRect(
+                                                  child: Image.memory(base64Decode(post.image!),gaplessPlayback: true,fit: BoxFit.cover,),
+                                                borderRadius: BorderRadius.circular(10),
                                               ),
                                             ),
                                           ) : Container(),

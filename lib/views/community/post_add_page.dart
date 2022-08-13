@@ -33,196 +33,167 @@ class _PostAddPage extends State<PostAddPage>{
 
   final _formKey = GlobalKey<FormState>();
 
+  final ScrollController controller = ScrollController();
+
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
+
   var image;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+
     // TODO: implement build
     return Scaffold(
-      backgroundColor: Color(0xffEEF1F1),
-      appBar: AppBar(
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        backgroundColor: Color(0xffEEF1F1),
-        title: const Text(
-          "Add Post",
-          style: TextStyle(color: primaryColor),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black54,),
-          onPressed: () { Navigator.pop(context); },
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(left: 12, right: 12),
-            child: IconButton(
-                onPressed: () async{
-                  if(_formKey.currentState!.validate()){
-                    var boardCollection = firestore.collection('board');
-                    String random = getRandomString(12);
-                    var usersCollection = firestore.collection('users');
-                    var userData = await usersCollection.doc(widget.person.uid).get().then((value) => value.data()!);
-                    if((await boardCollection.doc(widget.person.uid).get()).exists){
-                      await boardCollection.doc(widget.person.uid).update(
-                          {
-                            random : Post(
-                              userPermission: userData["userPermission"],
-                              userName: userData["userName"],
-                              uid: widget.person.uid,
-                              id: random,
-                              image: image != null ? base64Encode(image) : null,
-                              date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()),
-                              title: titleController.text,
-                              content: contentController.text,
-                              like: List.empty(growable: true),
-                              comments: List.empty(growable: true),
-                              theNumberOfComments: 0,
-                            ).toJson()
-                          }).then((value) => Get.back());
-                    }else{
-                      await boardCollection.doc(widget.person.uid).set(
-                          {
-                            random : Post(
-                              userPermission: userData["userPermission"],
-                              userName: userData["userName"],
-                              uid: widget.person.uid,
-                              id: random,
-                              image: image != null ? base64Encode(image) : null,
-                              date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()),
-                              title: titleController.text,
-                              content: contentController.text,
-                              like: List.empty(growable: true),
-                              comments: List.empty(growable: true),
-                              theNumberOfComments: 0,
-                            ).toJson()
-                          }).then((value) => Get.back());
-                    }
-                  }
-                },
-                icon: Icon(Icons.check, color: Colors.black54,)
-            ),
-          )
-        ],
-      ),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              Container(
-                margin: EdgeInsets.only(left: 20, right: 20),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
                     children: [
                       Center(
-                          child: GestureDetector(
-                            child: image == null ? Container() : Container(
-                              width: MediaQuery.of(context).size.width * 0.6,
-                              height: MediaQuery.of(context).size.width * 0.6,
-                              decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: Image.memory(image, fit: BoxFit.cover,).image,
-                                  ),
-                                  borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.1))
-                              ),
-                            ),
-                            onTap: () {
-                              var picker = ImagePicker();
-                              showDialog(
-                                barrierColor: Colors.black54,
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  title: Center(child: Text("사진 선택")),
-                                  titlePadding: EdgeInsets.all(15),
-                                  content: SizedBox(
-                                    width: double.infinity,
-                                    height: MediaQuery.of(context).size.height * 0.2,
-                                    child: SingleChildScrollView(
-                                      child: Column(
-                                        children: [
-                                          Divider(thickness: 1,color: Colors.black54,),
-                                          ListTile(title: Text("카메라"),
-                                            leading: Icon(Icons.camera_alt_outlined),
-                                            onTap: () async{
-                                              await picker.pickImage(source: ImageSource.camera)
-                                                  .then((value) =>  Navigator.of(context).pop(value));},
-
-                                          ),
-                                          Divider(thickness: 1),
-                                          ListTile(title: Text("갤러리"),
-                                            leading: Icon(Icons.photo_camera_back),
-                                            onTap: () async{
-                                              await picker.pickImage(source: ImageSource.gallery)
-                                                  .then((value) =>  Navigator.of(context).pop(value));},
-                                          ),
-                                          Divider(thickness: 1),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  contentPadding: EdgeInsets.all(0),
-                                  actions: [
-                                    TextButton(
-                                      child: const Text('취소'),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ).then((value) async{
-                                if(value != null){
-                                  image = await value.readAsBytes();
-                                  setState(() {});
-                                }
-                              });
-                            },
+                          child: image == null ? Container(height: MediaQuery.of(context).size.height * 0.08,) : SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              height: MediaQuery.of(context).size.width,
+                              child: Scrollbar(
+                                  thickness: 5,
+                                  radius: Radius.circular(10),
+                                  controller: controller,
+                                  thumbVisibility: true,
+                                  child: SingleChildScrollView(
+                                      controller: controller,
+                                      child: Image.memory(image, fit: BoxFit.cover,)
+                                  )
+                              )
                           )
                       ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      TextFormField(
-                        controller: titleController,
-                        keyboardType: TextInputType.multiline,
-                        maxLength: 20,
-                        validator: (value){
-                          if (value.toString().isEmpty) {
-                            return '제목을 입력해주세요';
-                          }
-                        },
-                        decoration: InputDecoration(
-                          labelStyle: const TextStyle(height:0.1),
-                          labelText: "제목",
-                        ),
-                      ),
-                      TextFormField(
-                        controller: contentController,
-                        keyboardType: TextInputType.multiline,
-                        maxLength: 200,
-                        maxLines: 5,
-                        validator: (value){
-                          if (value.toString().isEmpty) {
-                            return '내용을 입력해주세요';
-                          }
-                        },
-                        decoration: InputDecoration(
-                          labelStyle: const TextStyle(height:0.1),
-                          labelText: "내용",
-                          alignLabelWithHint: true
+                      Form(
+                        key: _formKey,
+                        child: Container(
+                          margin: EdgeInsets.only(left: 20, right: 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              TextFormField(
+                                controller: titleController,
+                                keyboardType: TextInputType.multiline,
+                                maxLength: 20,
+                                validator: (value){
+                                  if (value.toString().isEmpty) {
+                                    return '제목을 입력해주세요';
+                                  }
+                                },
+                                decoration: InputDecoration(
+                                  labelStyle: const TextStyle(height:0.1),
+                                  labelText: "제목",
+                                ),
+                              ),
+                              TextFormField(
+                                controller: contentController,
+                                keyboardType: TextInputType.multiline,
+                                maxLength: 200,
+                                maxLines: 5,
+                                validator: (value){
+                                  if (value.toString().isEmpty) {
+                                    return '내용을 입력해주세요';
+                                  }
+                                },
+                                decoration: InputDecoration(
+                                  labelStyle: const TextStyle(height:0.1),
+                                  labelText: "내용",
+                                  alignLabelWithHint: true
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
+                ],
+              ),
+              Container(height: MediaQuery.of(context).size.height * 0.08,
+                color: Colors.white54,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.arrow_back, color: Colors.black54,),
+                      onPressed: () { Navigator.pop(context); },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 12, right: 12),
+                      child: IconButton(
+                          onPressed: () async{
+                            Padding(
+                              padding: const EdgeInsets.only(left: 12, right: 12),
+                              child: IconButton(
+                                  onPressed: () async{
+                                    if(_formKey.currentState!.validate()){
+                                      var boardCollection = firestore.collection('board');
+                                      String random = getRandomString(12);
+                                      var usersCollection = firestore.collection('users');
+                                      var userData = await usersCollection.doc(widget.person.uid).get().then((value) => value.data()!);
+                                      if((await boardCollection.doc(widget.person.uid).get()).exists){
+                                        await boardCollection.doc(widget.person.uid).update(
+                                            {
+                                              random : Post(
+                                                userPermission: userData["userPermission"],
+                                                userName: userData["userName"],
+                                                uid: widget.person.uid,
+                                                id: random,
+                                                image: image != null ? base64Encode(image) : null,
+                                                date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()),
+                                                title: titleController.text,
+                                                content: contentController.text,
+                                                like: List.empty(growable: true),
+                                                comments: List.empty(growable: true),
+                                                theNumberOfComments: 0,
+                                              ).toJson()
+                                            }).then((value) => Get.back());
+                                      }else{
+                                        await boardCollection.doc(widget.person.uid).set(
+                                            {
+                                              random : Post(
+                                                userPermission: userData["userPermission"],
+                                                userName: userData["userName"],
+                                                uid: widget.person.uid,
+                                                id: random,
+                                                image: image != null ? base64Encode(image) : null,
+                                                date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()),
+                                                title: titleController.text,
+                                                content: contentController.text,
+                                                like: List.empty(growable: true),
+                                                comments: List.empty(growable: true),
+                                                theNumberOfComments: 0,
+                                              ).toJson()
+                                            }).then((value) => Get.back());
+                                      }
+                                    }
+                                  },
+                                  icon: Icon(Icons.check, color: Colors.black54,)
+                              ),
+                            );
+                          },
+                          icon: Icon(Icons.check, color: Colors.black54,)
+                      ),
+                    )
+                  ],
                 ),
               ),
             ],
@@ -232,57 +203,45 @@ class _PostAddPage extends State<PostAddPage>{
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           var picker = ImagePicker();
-          showDialog(
+          showCupertinoModalPopup(
             barrierColor: Colors.black54,
             context: context,
-            builder: (context) => AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              title: Center(child: Text("사진 선택")),
-              titlePadding: EdgeInsets.all(15),
-              content: SizedBox(
-                width: double.infinity,
-                height: MediaQuery.of(context).size.height * 0.2,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Divider(thickness: 1,color: Colors.black54,),
-                      ListTile(title: Text("카메라"),
-                        leading: Icon(Icons.camera_alt_outlined),
-                        onTap: () async{
-                          await picker.pickImage(source: ImageSource.camera,maxWidth: 1024, maxHeight: 1024)
-                              .then((value) =>  Navigator.of(context).pop(value));},
-
-                      ),
-                      Divider(thickness: 1),
-                      ListTile(title: Text("갤러리"),
-                        leading: Icon(Icons.photo_camera_back),
-                        onTap: () async{
-                          await picker.pickImage(source: ImageSource.gallery,maxWidth: 1024, maxHeight: 1024)
-                              .then((value) =>  Navigator.of(context).pop(value));},
-                      ),
-                      Divider(thickness: 1),
-                    ],
-                  ),
-                ),
-              ),
-              contentPadding: EdgeInsets.all(0),
-              actions: [
-                TextButton(
-                  child: const Text('취소'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
+            builder: (BuildContext context) => Padding(
+              padding: const EdgeInsets.only(left: 16,right: 16),
+              child: CupertinoActionSheet(
+                  actions: <Widget>[
+                    CupertinoActionSheetAction(
+                      child: const Text('갤러리에서 가져오기'),
+                      onPressed: () async{
+                        await picker.pickImage(source: ImageSource.gallery,maxWidth: 1024, maxHeight: 1024)
+                            .then((value) async{
+                          image = await value?.readAsBytes();
+                          setState(() {});
+                          Get.back();
+                        });
+                      },
+                    ),
+                    CupertinoActionSheetAction(
+                      child: const Text('사진 찍기'),
+                      onPressed: () async{
+                        await picker.pickImage(source: ImageSource.camera,maxWidth: 1024, maxHeight: 1024)
+                            .then((value) async{
+                          image = await value?.readAsBytes();
+                          setState(() {});
+                          Get.back();
+                        });
+                      },
+                    )
+                  ],
+                  cancelButton: CupertinoActionSheetAction(
+                    child: const Text('Cancel'),
+                    isDefaultAction: true,
+                    onPressed: () {
+                      Navigator.pop(context, 'Cancel');
+                    },
+                  )),
             ),
-          ).then((value) async{
-            if(value != null){
-              image = await value.readAsBytes();
-              setState(() {});
-            }
-          });
+          );
         },
         heroTag: null,
         child: Icon(Icons.camera_alt_outlined,),backgroundColor: primaryColor,),

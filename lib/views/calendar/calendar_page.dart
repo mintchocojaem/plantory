@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:plantory/views/calendar/timeline_add_page.dart';
-import 'package:unicons/unicons.dart';
 import '../../../utils/colors.dart';
 import '../../data/person.dart';
 import 'calendar.dart';
@@ -59,7 +58,7 @@ class _CalendarPage extends State<CalendarPage>{
       ),
       floatingActionButton: widget.person.plants!.isNotEmpty ? FloatingActionButton(
         onPressed: () {
-          Get.to(() => TimelineAddPage(person : widget.person,))?.then((value) => setState((){}));
+          Get.to(() => TimelineAddPage(person : widget.person,),transition: Transition.downToUp)?.then((value) => setState((){}));
         },
         heroTag: null,
         child: Icon(Icons.add),backgroundColor: primaryColor,)

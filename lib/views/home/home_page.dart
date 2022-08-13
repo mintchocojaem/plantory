@@ -976,10 +976,10 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                   });
                   switch(index){
                     case 0 :
-                      Get.to(() => CalendarPage(person: widget.person));
+                      Get.to(() => CalendarPage(person: widget.person),transition: Transition.downToUp);
                       break;
                     case 1 :
-                      Get.to(() => CommunityPage(person: widget.person));
+                      Get.to(() => CommunityPage(person: widget.person),transition:  Transition.downToUp);
                       break;
                   }
                 },
@@ -1145,7 +1145,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                     ),
                     plantInfo != null ? Padding(
                       padding: const EdgeInsets.only(top: 18),
-                      child: Text("추천: \"${plantInfo["watering"]}\"",style: TextStyle(fontSize: 14,color: Color(0xff404040)),),
+                      child: Text("추천: ${plantInfo["watering"]}",style: TextStyle(fontSize: 14,color: Color(0xff404040)),),
                     ) : Container(),
                   ],
                 ),

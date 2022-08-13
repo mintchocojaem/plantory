@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:unicons/unicons.dart';
 import 'colors.dart';
 
 //this is a reusable common button function in all screens.

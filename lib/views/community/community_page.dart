@@ -5,7 +5,6 @@ import 'package:get/instance_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:plantory/views/community/post_add_page.dart';
 import 'package:plantory/views/community/post_detail_page.dart';
-import 'package:unicons/unicons.dart';
 import '../../../utils/colors.dart';
 import '../../data/person.dart';
 import '../../data/post.dart';
@@ -243,7 +242,7 @@ class _CommunityPage extends State<CommunityPage>{
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Get.to(() => PostAddPage(person: widget.person,))?.then((value) => setState((){}));
+          Get.to(() => PostAddPage(person: widget.person,),transition: Transition.downToUp)?.then((value) => setState((){}));
         },
         heroTag: null,
         child: Icon(Icons.add),backgroundColor: primaryColor,),
