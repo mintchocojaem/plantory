@@ -76,7 +76,7 @@ class PlantNotification {
             id,
             title,
             content,
-            tz.TZDateTime.from(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()), tz.local).add(Duration(seconds: days)),
+            tz.TZDateTime.from(DateFormat('yyyy-MM-dd').parse(DateTime.now().toString()), tz.local).add(Duration(days: days)),
             //tz.TZDateTime.from(DateTime.now(), tz.local).add(Duration(seconds: 5)),
             details,
             androidAllowWhileIdle: true,
