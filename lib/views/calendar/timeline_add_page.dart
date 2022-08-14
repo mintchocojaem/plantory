@@ -122,16 +122,20 @@ class _TimelineAddPage extends State<TimelineAddPage>{
                                              children: [
                                                Divider(thickness: 1,),
                                                GestureDetector(
-                                                 child: Row(children: [
-                                                   Padding(
-                                                     padding: const EdgeInsets.all(8.0),
-                                                     child: Text(widget.person.plants![index]!.name!,style: TextStyle(fontWeight: FontWeight.bold),),
-                                                   ),
-                                                   Padding(
-                                                     padding: const EdgeInsets.all(8.0),
-                                                     child: Text(widget.person.plants![index]!.type!),
-                                                   ),
-                                                 ],),
+                                                 child: Row(
+                                                   children: [
+                                                     Padding(
+                                                       padding: const EdgeInsets.all(8.0),
+                                                       child: Text(widget.person.plants![index]!.name!,style: TextStyle(fontWeight: FontWeight.bold),),
+                                                     ),
+                                                     Expanded(
+                                                       child: Padding(
+                                                         padding: const EdgeInsets.all(8.0),
+                                                         child: Text(widget.person.plants![index]!.type!,overflow: TextOverflow.ellipsis),
+                                                       ),
+                                                     ),
+                                                  ],
+                                                 ),
                                                  onTap: (){
                                                    setState(() {
                                                      plant = widget.person.plants![index]!;
