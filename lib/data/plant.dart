@@ -1,5 +1,5 @@
 
-enum Cycles{id,type,cycle,startDate,initDate}
+enum Cycles{type,cycle,startDate,initDate}
 
 class Plant{
 
@@ -54,25 +54,6 @@ int generateID(List plantList){
   if(plantList.isNotEmpty){
     for(Plant i in plantList){
       idList.add(i.id!);
-    }
-    for(int j = 0; j < 128; j++){
-      if(!idList.contains(j)){
-        id = j;
-        break;
-      }
-    }
-  }
-
-  return id;
-}
-
-int generateCycleID(List plantList){
-
-  int id = 0;
-  List<int> idList = List.empty(growable: true);
-  if(plantList.isNotEmpty){
-    for(Plant i in plantList){
-      idList.add(i.watering![Cycles.id.name]);
     }
     for(int j = 0; j < 128; j++){
       if(!idList.contains(j)){
