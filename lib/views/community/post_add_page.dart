@@ -91,7 +91,7 @@ class _PostAddPage extends State<PostAddPage>{
                               TextFormField(
                                 controller: titleController,
                                 keyboardType: TextInputType.multiline,
-                                maxLength: 20,
+                                maxLength: 50,
                                 validator: (value){
                                   if (value.toString().isEmpty) {
                                     return '제목을 입력해주세요';

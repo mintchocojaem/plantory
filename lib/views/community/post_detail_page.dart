@@ -60,10 +60,6 @@ class _PostDetailPage extends State<PostDetailPage>{
             elevation: 0,
             automaticallyImplyLeading: false,
             backgroundColor: Color(0xffEEF1F1),
-            title: const Text(
-              "Post",
-              style: TextStyle(color: primaryColor),
-            ),
             actions: [
               widget.uid == widget.person.uid ? PopupMenuButton<String>(
                 icon: Icon(Icons.more_vert,color: Colors.black87,),

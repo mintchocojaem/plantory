@@ -91,7 +91,6 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
 
     if(widget.person.plants!.isEmpty){
       isNewPlant = true;
-      isCustomType = true;
     }
 
     return Scaffold(
@@ -110,12 +109,10 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                   if(!isNewPlant && index > widget.person.plants!.indexOf(widget.person.plants!.last)){
                     setState(() {
                       isNewPlant = true;
-                      isCustomType = true;
                     });
                   }else if(isNewPlant){
                     setState(() {
                       isNewPlant = false;
-                      isCustomType = false;
                       FocusScope.of(context).unfocus();
                     });
                   }
@@ -314,7 +311,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                       }
                                     },
                                   ) : TextFormField(
-                                    readOnly: isCustomType,
+                                    readOnly: !isCustomType,
                                     autofocus: false,
                                     controller: newTypeController,
                                     maxLines: 1,
@@ -326,7 +323,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                       hintText: "식물 종류",
                                     ),
                                     onTap: (){
-                                      if((isPlantEditable || isNewPlant) && isCustomType){
+                                      if((isPlantEditable || isNewPlant) && !isCustomType){
                                         showDialog(context: context, builder: (context) {
                                           return AlertDialog(
                                             shape: RoundedRectangleBorder(
@@ -384,7 +381,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                                                         onTap: (){
                                                           setState(() {
                                                             if(position > widget.plantsInfo.indexOf(widget.plantsInfo.last)){
-                                                              isCustomType = false;
+                                                              isCustomType = true;
                                                             }else{
                                                               newTypeController.text = widget.plantsInfo[position]["enName"];
                                                             }
@@ -833,18 +830,31 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
         onPressed: () async{
           if(isPlantEditable){
 
-            var usersCollection = firestore.collection('users');
-            await usersCollection.doc(widget.person.uid).update(
-                {
-                  "plants": widget.person.plantsToJson(widget.person.plants!)
-                }).then((value) {
-                  plantNotification.zonedMidnightSchedule(widget.person.plants![pageIndex]!.id!, "Plantory 알림",
-                  "\"${widget.person.plants![pageIndex]!.name}\"에게 물을 줄 시간입니다!", getFastWateringDate(widget.person.plants![pageIndex]!.watering!));
-            });
-            setState(() {
-              isPlantEditable = false;
-              isCustomType = false;
-            });
+            if(!widget.person.plants![pageIndex]!.type!.replaceAll(" ", "").isAlphabetOnly){
+              showCupertinoDialog(context: context, builder: (context) {
+                return CupertinoAlertDialog(
+                  content: Text("식물 종류는 영문으로만 입력 가능합니다."),
+                  actions: [
+                    CupertinoDialogAction(isDefaultAction: true, child: Text("확인"), onPressed: () {
+                      Navigator.pop(context);
+                    })
+                  ],
+                );
+              });
+            }else{
+              var usersCollection = firestore.collection('users');
+              await usersCollection.doc(widget.person.uid).update(
+                  {
+                    "plants": widget.person.plantsToJson(widget.person.plants!)
+                  }).then((value) {
+                plantNotification.zonedMidnightSchedule(widget.person.plants![pageIndex]!.id!, "Plantory 알림",
+                    "\"${widget.person.plants![pageIndex]!.name}\"에게 물을 줄 시간입니다!", getFastWateringDate(widget.person.plants![pageIndex]!.watering!));
+              });
+              setState(() {
+                isPlantEditable = false;
+                isCustomType = false;
+              });
+            }
 
           }else if(isNewPlant){
 

@@ -284,8 +284,11 @@ class _CommunityPage extends State<CommunityPage>{
       }
     }
     posts = temp;
+
     posts.sort((b,a) => (DateFormat('yyyy-MM-dd hh:mm').parse(a.date!))
         .compareTo((DateFormat('yyyy-MM-dd hh:mm').parse(b.date!))));
+
+    posts.sort((a,b) => a.userPermission!.compareTo(b.userPermission!));
 
     return true;
   }
