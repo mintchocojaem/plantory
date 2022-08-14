@@ -181,7 +181,7 @@ class _CommunityPage extends State<CommunityPage>{
                                         Text(posts[index].title!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.034))
                                       ],
                                     ),
-                                    subtitle: Text(posts[index].content!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.032),),
+                                    subtitle: Text(posts[index].content!,style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.032),maxLines: 2,overflow: TextOverflow.ellipsis,),
                                   ),
                                 ),
                                 Row(

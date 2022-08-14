@@ -150,8 +150,8 @@ class _Calendar extends State<Calendar>{
                 data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
                 child: ExpansionTile(
                   initiallyExpanded: true,
-                  leading: Icon(Icons.calendar_month_outlined),
-                  title: Text(DateFormat('yyyy-MM-dd').format(_selectedDay!)),
+                  leading: Icon(Icons.calendar_month_outlined,color: Color(0xff404040),),
+                  title: Text(DateFormat('yyyy-MM-dd').format(_selectedDay!),style: TextStyle(color: Color(0xff404040)),),
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(left: 24, right: 24, bottom: 24),
@@ -167,7 +167,7 @@ class _Calendar extends State<Calendar>{
                           outsideDaysVisible: false,
                         ),
                         headerStyle: HeaderStyle(
-                          formatButtonVisible: false,
+                            formatButtonVisible: false,
                           titleCentered: true
                         ),
                         onPageChanged: (focusedDay) {

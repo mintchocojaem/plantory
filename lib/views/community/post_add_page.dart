@@ -140,55 +140,47 @@ class _PostAddPage extends State<PostAddPage>{
                       padding: const EdgeInsets.only(left: 12, right: 12),
                       child: IconButton(
                           onPressed: () async{
-                            Padding(
-                              padding: const EdgeInsets.only(left: 12, right: 12),
-                              child: IconButton(
-                                  onPressed: () async{
-                                    if(_formKey.currentState!.validate()){
-                                      var boardCollection = firestore.collection('board');
-                                      String random = getRandomString(12);
-                                      var usersCollection = firestore.collection('users');
-                                      var userData = await usersCollection.doc(widget.person.uid).get().then((value) => value.data()!);
-                                      if((await boardCollection.doc(widget.person.uid).get()).exists){
-                                        await boardCollection.doc(widget.person.uid).update(
-                                            {
-                                              random : Post(
-                                                userPermission: userData["userPermission"],
-                                                userName: userData["userName"],
-                                                uid: widget.person.uid,
-                                                id: random,
-                                                image: image != null ? base64Encode(image) : null,
-                                                date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()),
-                                                title: titleController.text,
-                                                content: contentController.text,
-                                                like: List.empty(growable: true),
-                                                comments: List.empty(growable: true),
-                                                theNumberOfComments: 0,
-                                              ).toJson()
-                                            }).then((value) => Get.back());
-                                      }else{
-                                        await boardCollection.doc(widget.person.uid).set(
-                                            {
-                                              random : Post(
-                                                userPermission: userData["userPermission"],
-                                                userName: userData["userName"],
-                                                uid: widget.person.uid,
-                                                id: random,
-                                                image: image != null ? base64Encode(image) : null,
-                                                date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()),
-                                                title: titleController.text,
-                                                content: contentController.text,
-                                                like: List.empty(growable: true),
-                                                comments: List.empty(growable: true),
-                                                theNumberOfComments: 0,
-                                              ).toJson()
-                                            }).then((value) => Get.back());
-                                      }
-                                    }
-                                  },
-                                  icon: Icon(Icons.check, color: Colors.black54,)
-                              ),
-                            );
+                            if(_formKey.currentState!.validate()){
+                              var boardCollection = firestore.collection('board');
+                              String random = getRandomString(12);
+                              var usersCollection = firestore.collection('users');
+                              var userData = await usersCollection.doc(widget.person.uid).get().then((value) => value.data()!);
+                              if((await boardCollection.doc(widget.person.uid).get()).exists){
+                                await boardCollection.doc(widget.person.uid).update(
+                                    {
+                                      random : Post(
+                                        userPermission: userData["userPermission"],
+                                        userName: userData["userName"],
+                                        uid: widget.person.uid,
+                                        id: random,
+                                        image: image != null ? base64Encode(image) : null,
+                                        date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()),
+                                        title: titleController.text,
+                                        content: contentController.text,
+                                        like: List.empty(growable: true),
+                                        comments: List.empty(growable: true),
+                                        theNumberOfComments: 0,
+                                      ).toJson()
+                                    }).then((value) => Get.back());
+                              }else{
+                                await boardCollection.doc(widget.person.uid).set(
+                                    {
+                                      random : Post(
+                                        userPermission: userData["userPermission"],
+                                        userName: userData["userName"],
+                                        uid: widget.person.uid,
+                                        id: random,
+                                        image: image != null ? base64Encode(image) : null,
+                                        date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()),
+                                        title: titleController.text,
+                                        content: contentController.text,
+                                        like: List.empty(growable: true),
+                                        comments: List.empty(growable: true),
+                                        theNumberOfComments: 0,
+                                      ).toJson()
+                                    }).then((value) => Get.back());
+                              }
+                            }
                           },
                           icon: Icon(Icons.check, color: Colors.black54,)
                       ),
