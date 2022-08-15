@@ -161,18 +161,26 @@ class _TimelineAddPage extends State<TimelineAddPage>{
                           ),
                           InputField(
                             onTap: () async{
-                              dateController.text = await showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(), //초기값
-                                firstDate: DateTime(DateTime.now().year-1), //시작일
-                                lastDate: DateTime(DateTime.now().year+1), //마지막일
-                                builder: (BuildContext context, Widget? child) {
-                                  return Theme(
-                                    data: ThemeData.light(), //다크 테마
-                                    child: child!,
-                                  );
-                                },
-                              ).then((value) => value != null ? DateFormat('yyyy-MM-dd').format(value) : dateController.text );
+                              await showCupertinoModalPopup(
+                                  context: context,
+                                  builder: (BuildContext builder) {
+                                    return Container(
+                                      height: MediaQuery.of(context).copyWith().size.height*0.25,
+                                      color: Colors.white,
+                                      child: CupertinoDatePicker(
+                                        initialDateTime: DateFormat('yyyy-MM-dd').parse(dateController.text), //초기값
+                                        maximumDate: DateTime(DateTime.now().year+1), //마지막일
+                                        minimumDate: DateTime(DateTime.now().year-1),
+                                        mode: CupertinoDatePickerMode.date,
+                                        onDateTimeChanged: (value) {
+                                          setState(() {
+                                            dateController.text = DateFormat('yyyy-MM-dd').format(value);
+                                          });
+                                        },
+                                      ),
+                                    );
+                                  }
+                              );
                             },
                             controller: dateController,
                             isEditable: false,
