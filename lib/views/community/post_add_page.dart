@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -30,6 +32,7 @@ class PostAddPage extends StatefulWidget{
 class _PostAddPage extends State<PostAddPage>{
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final storageRef = FirebaseStorage.instance.ref();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -38,7 +41,7 @@ class _PostAddPage extends State<PostAddPage>{
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
 
-  var image;
+  Uint8List? image;
 
   @override
   void initState() {
@@ -72,7 +75,7 @@ class _PostAddPage extends State<PostAddPage>{
                                   thumbVisibility: true,
                                   child: SingleChildScrollView(
                                       controller: controller,
-                                      child: Image.memory(image, fit: BoxFit.cover,)
+                                      child: Image.memory(image!, fit: BoxFit.cover,)
                                   )
                               )
                           )
@@ -140,12 +143,23 @@ class _PostAddPage extends State<PostAddPage>{
                       padding: const EdgeInsets.only(left: 12, right: 12),
                       child: IconButton(
                           onPressed: () async{
+
                             if(_formKey.currentState!.validate()){
                               var boardCollection = firestore.collection('board');
+
                               String random = getRandomString(12);
+
                               var usersCollection = firestore.collection('users');
                               var userData = await usersCollection.doc(widget.person.uid).get().then((value) => value.data()!);
+
+                              final imageRef = storageRef.child("boards/$random/image.text");
+
                               if((await boardCollection.doc(widget.person.uid).get()).exists){
+
+                                if(image != null){
+                                  await imageRef.putData(image!);
+                                }
+
                                 await boardCollection.doc(widget.person.uid).update(
                                     {
                                       random : Post(
@@ -153,7 +167,7 @@ class _PostAddPage extends State<PostAddPage>{
                                         userName: userData["userName"],
                                         uid: widget.person.uid,
                                         id: random,
-                                        image: image != null ? base64Encode(image) : null,
+                                        image: image != null ? await imageRef.getDownloadURL() : null,
                                         date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()),
                                         title: titleController.text,
                                         content: contentController.text,
@@ -170,7 +184,8 @@ class _PostAddPage extends State<PostAddPage>{
                                         userName: userData["userName"],
                                         uid: widget.person.uid,
                                         id: random,
-                                        image: image != null ? base64Encode(image) : null,
+                                        image: image != null ? await imageRef.getDownloadURL() : null,
+                                        //image: image != null ? base64Encode(image) : null,
                                         date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()),
                                         title: titleController.text,
                                         content: contentController.text,

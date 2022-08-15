@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -41,7 +43,7 @@ class _TimelineAddPage extends State<TimelineAddPage>{
   final ScrollController controller = ScrollController();
 
   late Plant plant;
-  var image;
+  Uint8List? image;
 
   @override
   initState() {
@@ -71,7 +73,7 @@ class _TimelineAddPage extends State<TimelineAddPage>{
                         controller: controller,
                         child: SingleChildScrollView(
                           controller: controller,
-                            child: Image.memory(image, fit: BoxFit.cover)
+                            child: Image.memory(image!, fit: BoxFit.cover)
                         )
                     ),
                   ),
@@ -233,9 +235,21 @@ class _TimelineAddPage extends State<TimelineAddPage>{
                       padding: const EdgeInsets.only(left: 12, right: 12),
                       child: IconButton(
                           onPressed: () async{
+                            final storageRef = FirebaseStorage.instance.ref();
+                            int id = 0;
+                            if(plant.timelines!.isNotEmpty){
+                              id = plant.timelines!.indexOf(plant.timelines!.last) +1;
+                            }
+                            final imageRef = storageRef.child("users/${widget.person.uid}/timeLines/$id/image.text");
+
+                            if(image != null){
+                              await imageRef.putData(image!);
+                            }
+
                             if(_formKey.currentState!.validate()){
                               plant.timelines!.add({
-                                'image': image != null ? base64Encode(image) : null,
+                                'id' : id,
+                                'image': image != null ? await imageRef.getDownloadURL() : null,
                                 'date': dateController.text,
                                 'title' : titleController.text,
                                 'content' : contentController.text

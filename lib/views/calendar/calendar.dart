@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -231,20 +232,19 @@ class _Calendar extends State<Calendar>{
                                     margin: EdgeInsets.only(left: 10),
                                     child: value[index]["cycle"] != null ? ListTile(
                                       leading: value[index]["plant"].image != null ? ClipOval(
-                                          child: Image.memory(base64Decode(value[index]["plant"].image),
+                                          child: Image.network(value[index]["plant"].image,
                                             width: MediaQuery.of(context).size.width * 0.15,
                                             height: MediaQuery.of(context).size.width * 0.15,
                                             fit: BoxFit.cover,
                                             gaplessPlayback: true,
                                           )
                                       ) :
-                                      Container(
-                                          width: MediaQuery.of(context).size.width * 0.15,
-                                          height: MediaQuery.of(context).size.width * 0.15,
-                                          decoration: BoxDecoration(
-                                              color: Color(0xffC9D9CF),
-                                              borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.14))),
-                                          child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.08,color: Colors.black54,)
+                                      ClipOval(
+                                          child: Image.asset("assets/images/default_plant6_512.png",
+                                              width: MediaQuery.of(context).size.width * 0.15,
+                                        height: MediaQuery.of(context).size.width * 0.15,
+                                        fit: BoxFit.scaleDown,
+                                        gaplessPlayback: true,),
                                       ),
                                       title: Text('${ value[index]["plant"].name}'),
                                       subtitle: Text(value[index]["cycle"]),
@@ -267,7 +267,7 @@ class _Calendar extends State<Calendar>{
                                         children: [
                                           ListTile(
                                             leading: value[index]["plant"].image != null ? ClipOval(
-                                                child: Image.memory(base64Decode(value[index]["plant"].image),
+                                                child: Image.network(value[index]["plant"].image,
                                                   width: MediaQuery.of(context).size.width * 0.15,
                                                   height: MediaQuery.of(context).size.width * 0.15,
                                                   fit: BoxFit.cover,
@@ -303,6 +303,8 @@ class _Calendar extends State<Calendar>{
                                                           CupertinoDialogAction(isDefaultAction: false, child: const Text("확인",style: TextStyle(color: Colors.red),),
                                                               onPressed: () async {
 
+                                                                await FirebaseStorage.instance.refFromURL(value[index]["timelines"]["image"]).delete();
+
                                                                 widget.person.plants![widget.person.plants!.indexOf(value[index]["plant"])]!.timelines!.remove(value[index]["timelines"]);
 
                                                                 var usersCollection = firestore.collection('users');
@@ -329,7 +331,7 @@ class _Calendar extends State<Calendar>{
                                               height: MediaQuery.of(context).size.width * 0.6,
                                               child: ClipRRect(
                                                 borderRadius: BorderRadius.circular(10),
-                                                child: Image.memory(base64Decode(value[index]["timelines"]["image"]),gaplessPlayback: true,
+                                                child: Image.network(value[index]["timelines"]["image"],gaplessPlayback: true,
                                                   fit: BoxFit.cover,),
                                               ),
                                           ) : Container(),

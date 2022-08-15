@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -28,7 +30,8 @@ class PostDetailPage extends StatefulWidget{
 
 class _PostDetailPage extends State<PostDetailPage>{
 
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final storageRef = FirebaseStorage.instance.ref();
 
   late Post post;
 
@@ -77,6 +80,9 @@ class _PostDetailPage extends State<PostDetailPage>{
                           }),
                           CupertinoDialogAction(isDefaultAction: false, child: const Text("확인"),
                             onPressed: () async{
+                              if(post.image != null){
+                                await storageRef.child("boards/${widget.id}/image.text").delete();
+                              }
                               await firestore.collection('board').doc(widget.uid).update({
                                 post.id! : FieldValue.delete()
                               }).whenComplete(() {
@@ -178,7 +184,7 @@ class _PostDetailPage extends State<PostDetailPage>{
                                             padding: const EdgeInsets.all(8.0),
                                             child: Center(
                                               child: ClipRRect(
-                                                  child: Image.memory(base64Decode(post.image!),gaplessPlayback: true,fit: BoxFit.cover,),
+                                                  child: Image.network(post.image!,gaplessPlayback: true,fit: BoxFit.cover,),
                                                 borderRadius: BorderRadius.circular(10),
                                               ),
                                             ),
@@ -312,7 +318,7 @@ class _PostDetailPage extends State<PostDetailPage>{
                                                                             await firestore.collection('board').doc(widget.uid).update({
                                                                               "${widget.id}.comments" : postCommentsJson,
                                                                               "${widget.id}.theNumberOfComments" : post.theNumberOfComments! -1
-                                                                            }).whenComplete(() {
+                                                                            }).whenComplete(() async{
                                                                                 setState((){
                                                                                   Get.back();
                                                                                   focusNode.unfocus();
