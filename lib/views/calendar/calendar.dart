@@ -303,17 +303,17 @@ class _Calendar extends State<Calendar>{
                                                           CupertinoDialogAction(isDefaultAction: false, child: const Text("확인",style: TextStyle(color: Colors.red),),
                                                               onPressed: () async {
 
-                                                                await FirebaseStorage.instance.refFromURL(value[index]["timelines"]["image"]).delete();
+                                                                await FirebaseStorage.instance.refFromURL(value[index]["timelines"]["image"]).delete().whenComplete(() async {
+                                                                  widget.person.plants![widget.person.plants!.indexOf(value[index]["plant"])]!.timelines!.remove(value[index]["timelines"]);
 
-                                                                widget.person.plants![widget.person.plants!.indexOf(value[index]["plant"])]!.timelines!.remove(value[index]["timelines"]);
-
-                                                                var usersCollection = firestore.collection('users');
-                                                                await usersCollection.doc(widget.person.uid).update(
-                                                                    {
-                                                                      "plants": widget.person.plantsToJson(widget.person.plants!)
-                                                                    }).then((value) {
-                                                                  setState(() {
-                                                                    Get.back();
+                                                                  var usersCollection = firestore.collection('users');
+                                                                  await usersCollection.doc(widget.person.uid).update(
+                                                                      {
+                                                                        "plants": widget.person.plantsToJson(widget.person.plants!)
+                                                                      }).then((value) {
+                                                                    setState(() {
+                                                                      Get.back();
+                                                                    });
                                                                   });
                                                                 });
 
