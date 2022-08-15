@@ -79,8 +79,6 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
     newWateringStartDateController.text = newCycles[Cycles.startDate.name];
     newWateringCycleController.text = newCycles[Cycles.cycle.name].toString();
 
-    id = generateID(widget.person.plants!);
-
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
@@ -95,6 +93,8 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
     if(widget.person.plants!.isEmpty){
       isNewPlant = true;
     }
+
+    id = generateID(widget.person.plants!);
 
     return Scaffold(
       backgroundColor: Color(0xffEEF1F1),
@@ -978,6 +978,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                 newTypeController.text = "";
                 newDateController.text = "";
                 newImage = null;
+                id = generateID(widget.person.plants!);
 
                 newDateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
 

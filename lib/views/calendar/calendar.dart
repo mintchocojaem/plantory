@@ -192,159 +192,175 @@ class _Calendar extends State<Calendar>{
                     shrinkWrap: true,
                     itemCount: value.length,
                     itemBuilder: (context, index) {
-                      return TimelineTile(
-                        alignment: TimelineAlign.start,
-                        afterLineStyle: LineStyle(
-                          color: primaryColor
-                        ),
-                        beforeLineStyle: LineStyle(
-                          color: primaryColor
-                        ),
-                        indicatorStyle: IndicatorStyle(
-                          color: primaryColor,
-                          width: 24,
-                          iconStyle: IconStyle(
-                            color: Colors.white,
-                            iconData: value[index]["cycle"] != null ? value[index]["cycle"] == "물주기"
-                                ? Icons.notifications_active : Icons.edit_note : Icons.edit_calendar_outlined
-                          ),
-                        ),
-                        endChild: Padding(
-                          padding: const EdgeInsets.only(top: 4, bottom: 4),
-                          child: AnimationConfiguration.staggeredList(
-                            position: index,
-                            duration: const Duration(milliseconds: 400),
-                            child: SlideAnimation(
-                              horizontalOffset: 400.0,
-                              child: FadeInAnimation(
-                                child: Card(
-                                  color: Color(0xffC9D9CF),
-                                  elevation: 3,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.only(
-                                            bottomRight: Radius.circular(10),
-                                            topRight: Radius.circular(10))),
-                                    margin: EdgeInsets.only(left: 10),
-                                    child: value[index]["cycle"] != null ? ListTile(
-                                      leading: value[index]["plant"].image != null ? ClipOval(
-                                          child: Image.network(value[index]["plant"].image,
-                                            width: MediaQuery.of(context).size.width * 0.15,
-                                            height: MediaQuery.of(context).size.width * 0.15,
-                                            fit: BoxFit.cover,
-                                            gaplessPlayback: true,
-                                          )
-                                      ) :
-                                      ClipOval(
-                                          child: Image.asset("assets/images/default_plant6_512.png",
-                                              width: MediaQuery.of(context).size.width * 0.15,
-                                        height: MediaQuery.of(context).size.width * 0.15,
-                                        fit: BoxFit.scaleDown,
-                                        gaplessPlayback: true,),
-                                      ),
-                                      title: Text('${ value[index]["plant"].name}'),
-                                      subtitle: Text(value[index]["cycle"]),
+                      return Column(
+                        children: [
+                          TimelineTile(
+                            alignment: TimelineAlign.start,
+                            afterLineStyle: LineStyle(
+                              color: primaryColor
+                            ),
+                            beforeLineStyle: LineStyle(
+                              color: primaryColor
+                            ),
+                            indicatorStyle: IndicatorStyle(
+                              color: primaryColor,
+                              width: 24,
+                              iconStyle: IconStyle(
+                                color: Colors.white,
+                                iconData: value[index]["cycle"] != null ? value[index]["cycle"] == "물주기"
+                                    ? Icons.notifications_active : Icons.edit_note : Icons.edit_calendar_outlined
+                              ),
+                            ),
+                            endChild: Padding(
+                              padding: const EdgeInsets.only(top: 4, bottom: 4),
+                              child: AnimationConfiguration.staggeredList(
+                                position: index,
+                                duration: const Duration(milliseconds: 400),
+                                child: SlideAnimation(
+                                  horizontalOffset: 400.0,
+                                  child: FadeInAnimation(
+                                    child: Card(
+                                      color: Color(0xffC9D9CF),
+                                      elevation: 3,
                                       shape: RoundedRectangleBorder(
-                                        side: BorderSide(color: Colors.black38, width: 1),
-                                        borderRadius: BorderRadius.circular(20),
+                                        borderRadius: BorderRadius.circular(10),
                                       ),
-                                      trailing: value[index]["cycle"] != null ? SizedBox(
-                                        width: MediaQuery.of(context).size.width * 0.1,
-                                        height: MediaQuery.of(context).size.width * 0.1,
-                                        child: IconButton(
-                                          icon: value[index]["cycle"] == "물주기" ? Icon(Icons.water_drop) : Icon(UniconsLine.shovel),
-                                          onPressed: (){
-
-                                            },),
-                                      ) : Container(),
-                                    ) : Theme(
-                                      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-                                      child: Column(
-                                        children: [
-                                          ListTile(
-                                            leading: value[index]["plant"].image != null ? ClipOval(
-                                                child: Image.network(value[index]["plant"].image,
-                                                  width: MediaQuery.of(context).size.width * 0.15,
-                                                  height: MediaQuery.of(context).size.width * 0.15,
-                                                  fit: BoxFit.cover,
-                                                )
-                                            ) :
-                                            Container(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.only(
+                                                bottomRight: Radius.circular(10),
+                                                topRight: Radius.circular(10))),
+                                        margin: EdgeInsets.only(left: 10),
+                                        child: value[index]["cycle"] != null ? ListTile(
+                                          leading: value[index]["plant"].image != null ? ClipOval(
+                                              child: Image.network(value[index]["plant"].image,
                                                 width: MediaQuery.of(context).size.width * 0.15,
                                                 height: MediaQuery.of(context).size.width * 0.15,
-                                                decoration: BoxDecoration(
-                                                    color: Color(0xffC9D9CF),
-                                                    borderRadius: BorderRadius.all(Radius.circular(MediaQuery.of(context).size.width * 0.14))),
-                                                child: Icon(UniconsLine.flower,size: MediaQuery.of(context).size.width * 0.08,color: Colors.black54,)
-                                            ),
-                                            title: Text(value[index]["timelines"]["title"]),
-                                            subtitle: Text(value[index]["plant"].name),
-                                            trailing: SizedBox(
-                                                width: MediaQuery.of(context).size.width * 0.1,
-                                                height: MediaQuery.of(context).size.width * 0.1,
-                                                child: IconButton(
-                                                  icon: Icon(Icons.delete_outline),
-                                                  onPressed: (){
-                                                    showDialog(barrierColor: Colors.black54, context: context, builder: (context) {
-                                                      return CupertinoAlertDialog(
-                                                        title: const Text("타임라인 삭제"),
-                                                        content: Padding(
-                                                          padding: const EdgeInsets.only(top: 8),
-                                                          child: Text("해당 타임라인을 삭제하시겠습니까?"),
-                                                        ),
-                                                        actions: [
-                                                          CupertinoDialogAction(isDefaultAction: false, child: Text("취소"), onPressed: () {
-                                                            Navigator.pop(context);
-                                                          }),
-                                                          CupertinoDialogAction(isDefaultAction: false, child: const Text("확인",style: TextStyle(color: Colors.red),),
-                                                              onPressed: () async {
-
-                                                                await FirebaseStorage.instance.refFromURL(value[index]["timelines"]["image"]).delete().whenComplete(() async {
-                                                                  widget.person.plants![widget.person.plants!.indexOf(value[index]["plant"])]!.timelines!.remove(value[index]["timelines"]);
-
-                                                                  var usersCollection = firestore.collection('users');
-                                                                  await usersCollection.doc(widget.person.uid).update(
-                                                                      {
-                                                                        "plants": widget.person.plantsToJson(widget.person.plants!)
-                                                                      }).then((value) {
-                                                                    setState(() {
-                                                                      Get.back();
-                                                                    });
-                                                                  });
-                                                                });
-
-                                                              }
-                                                          ),
-                                                        ],
-                                                      );
-                                                    });
-                                                  },)
-                                            ),
+                                                fit: BoxFit.cover,
+                                                gaplessPlayback: true,
+                                              )
+                                          ) :
+                                          ClipOval(
+                                              child: Image.asset("assets/images/default_plant6_512.png",
+                                                  width: MediaQuery.of(context).size.width * 0.15,
+                                            height: MediaQuery.of(context).size.width * 0.15,
+                                            fit: BoxFit.scaleDown,
+                                            gaplessPlayback: true,),
                                           ),
-                                          value[index]["timelines"]["image"] != null
-                                              ? SizedBox(
-                                              width: MediaQuery.of(context).size.width * 0.6,
-                                              height: MediaQuery.of(context).size.width * 0.6,
-                                              child: ClipRRect(
-                                                borderRadius: BorderRadius.circular(10),
-                                                child: Image.network(value[index]["timelines"]["image"],gaplessPlayback: true,
-                                                  fit: BoxFit.cover,),
-                                              ),
+                                          title: Text('${ value[index]["plant"].name}',style: TextStyle(fontSize: 14)),
+                                          subtitle: Text(value[index]["cycle"]),
+                                          shape: RoundedRectangleBorder(
+                                            side: BorderSide(color: Colors.black38, width: 1),
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                          trailing: value[index]["cycle"] != null ? SizedBox(
+                                            width: MediaQuery.of(context).size.width * 0.1,
+                                            height: MediaQuery.of(context).size.width * 0.1,
+                                            child: IconButton(
+                                              icon: value[index]["cycle"] == "물주기" ? Icon(Icons.water_drop) : Icon(UniconsLine.shovel),
+                                              onPressed: (){
+
+                                                },),
                                           ) : Container(),
-                                          Padding(
-                                            padding: EdgeInsets.only(
-                                              top: MediaQuery.of(context).size.height * 0.02,
-                                              bottom: MediaQuery.of(context).size.height * 0.02,
-                                              right: MediaQuery.of(context).size.width * 0.1,
-                                              left: MediaQuery.of(context).size.width * 0.1,
-                                            ),
-                                            child: Center(child: Text( value[index]["timelines"]["content"],style: TextStyle(fontSize: 16),)),
+                                        ) : Theme(
+                                          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                                          child: Column(
+                                            children: [
+                                              ListTile(
+                                                leading: value[index]["plant"].image != null ? ClipOval(
+                                                    child: Image.network(value[index]["plant"].image,
+                                                      width: MediaQuery.of(context).size.width * 0.15,
+                                                      height: MediaQuery.of(context).size.width * 0.15,
+                                                      fit: BoxFit.cover,
+                                                    )
+                                                ) :
+                                                ClipOval(
+                                                  child: Image.asset("assets/images/default_plant6_512.png",
+                                                    width: MediaQuery.of(context).size.width * 0.15,
+                                                    height: MediaQuery.of(context).size.width * 0.15,
+                                                    fit: BoxFit.scaleDown,
+                                                    gaplessPlayback: true,),
+                                                ),
+                                                title: Text(value[index]["timelines"]["title"],style: TextStyle(fontSize: 14),),
+                                                subtitle: Text(value[index]["plant"].name),
+                                                trailing: SizedBox(
+                                                    width: MediaQuery.of(context).size.width * 0.1,
+                                                    height: MediaQuery.of(context).size.width * 0.1,
+                                                    child: IconButton(
+                                                      icon: Icon(Icons.delete_outline),
+                                                      onPressed: (){
+                                                        showDialog(barrierColor: Colors.black54, context: context, builder: (context) {
+                                                          return CupertinoAlertDialog(
+                                                            title: const Text("타임라인 삭제"),
+                                                            content: Padding(
+                                                              padding: const EdgeInsets.only(top: 8),
+                                                              child: Text("해당 타임라인을 삭제하시겠습니까?"),
+                                                            ),
+                                                            actions: [
+                                                              CupertinoDialogAction(isDefaultAction: false, child: Text("취소"), onPressed: () {
+                                                                Navigator.pop(context);
+                                                              }),
+                                                              CupertinoDialogAction(isDefaultAction: false, child: const Text("확인",style: TextStyle(color: Colors.red),),
+                                                                  onPressed: () async {
+                                                                    if(value[index]["timelines"]["image"] != null){
+                                                                      await FirebaseStorage.instance.refFromURL(value[index]["timelines"]["image"]).delete().whenComplete(() async {
+                                                                        widget.person.plants![widget.person.plants!.indexOf(value[index]["plant"])]!.timelines!.remove(value[index]["timelines"]);
+
+                                                                        var usersCollection = firestore.collection('users');
+                                                                        await usersCollection.doc(widget.person.uid).update(
+                                                                            {
+                                                                              "plants": widget.person.plantsToJson(widget.person.plants!)
+                                                                            }).then((value) {
+                                                                          setState(() {
+                                                                            Get.back();
+                                                                          });
+                                                                        });
+                                                                      });
+                                                                    }else{
+                                                                      widget.person.plants![widget.person.plants!.indexOf(value[index]["plant"])]!.timelines!.remove(value[index]["timelines"]);
+
+                                                                      var usersCollection = firestore.collection('users');
+                                                                      await usersCollection.doc(widget.person.uid).update(
+                                                                          {
+                                                                            "plants": widget.person.plantsToJson(widget.person.plants!)
+                                                                          }).then((value) {
+                                                                        setState(() {
+                                                                          Get.back();
+                                                                        });
+                                                                      });
+                                                                    }
+
+                                                                  }
+                                                              ),
+                                                            ],
+                                                          );
+                                                        });
+                                                      },)
+                                                ),
+                                              ),
+                                              value[index]["timelines"]["image"] != null
+                                                  ? SizedBox(
+                                                  width: MediaQuery.of(context).size.width * 0.6,
+                                                  height: MediaQuery.of(context).size.width * 0.6,
+                                                  child: ClipRRect(
+                                                    borderRadius: BorderRadius.circular(10),
+                                                    child: Image.network(value[index]["timelines"]["image"],gaplessPlayback: true,
+                                                      fit: BoxFit.cover,),
+                                                  ),
+                                              ) : Container(),
+                                              Padding(
+                                                padding: EdgeInsets.only(
+                                                  top: MediaQuery.of(context).size.height * 0.02,
+                                                  bottom: MediaQuery.of(context).size.height * 0.02,
+                                                  right: MediaQuery.of(context).size.width * 0.1,
+                                                  left: MediaQuery.of(context).size.width * 0.1,
+                                                ),
+                                                child: Center(child: Text( value[index]["timelines"]["content"],style: TextStyle(fontSize: 16),)),
+                                              ),
+                                            ],
                                           ),
-                                        ],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -352,7 +368,7 @@ class _Calendar extends State<Calendar>{
                               ),
                             ),
                           ),
-                        ),
+                        ],
                       );
                     },
                   );
