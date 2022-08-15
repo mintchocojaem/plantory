@@ -55,229 +55,220 @@ class _TimelineAddPage extends State<TimelineAddPage>{
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text("Add Timeline",style: TextStyle(color: primaryColor),),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        leading:  IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black54,),
+          onPressed: () { Navigator.pop(context); },
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(left: 12, right: 12),
+            child: IconButton(
+                onPressed: () async{
+                  final storageRef = FirebaseStorage.instance.ref();
+                  int id = 0;
+                  if(plant.timelines!.isNotEmpty){
+                    id = plant.timelines!.indexOf(plant.timelines!.last) +1;
+                  }
+                  final imageRef = storageRef.child("users/${widget.person.uid}/timeLines/$id/image.text");
+
+                  if(image != null){
+                    await imageRef.putData(image!);
+                  }
+
+                  if(_formKey.currentState!.validate()){
+                    plant.timelines!.add({
+                      'id' : id,
+                      'image': image != null ? await imageRef.getDownloadURL() : null,
+                      'date': dateController.text,
+                      'title' : titleController.text,
+                      'content' : contentController.text
+                    });
+
+                    var usersCollection = firestore.collection('users');
+                    await usersCollection.doc(widget.person.uid).update(
+                        {
+                          "plants": widget.person.plantsToJson(widget.person.plants!)
+                        }).then((value) => Get.back());
+                  }
+                },
+                icon: Icon(Icons.check, color: Colors.black54,)
+            ),
+          )
+        ],
+      ),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Stack(
+          child:  Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  image == null ? Container(height: MediaQuery.of(context).size.height * 0.08,) : SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.width,
-                    child: Scrollbar(
-                        thickness: 5,
-                        radius: Radius.circular(10),
-                        thumbVisibility: true,
-                        controller: controller,
-                        child: SingleChildScrollView(
-                          controller: controller,
-                            child: Image.memory(image!, fit: BoxFit.cover)
-                        )
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(left: 20, right: 20),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          InputField(
-                            isEditable: false,
-                            label: "식물",
-                            hint: "",
-                            controller: nameController,
-                            emptyText: false,
-                            icon: Icon(UniconsLine.flower),
-                            onTap: (){
-                              showDialog(context: context, builder: (context) {
-                                return AlertDialog(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  title: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text("식물 선택"),
-                                      IconButton(
-                                          onPressed: (){
-                                            Get.back();
-                                          },
-                                          icon: Icon(Icons.close,color: Colors.black54,)
-                                      )
-                                    ],
-                                  ),
-                                  content: SizedBox(
-                                    height: MediaQuery.of(context).size.height * 0.4,
-                                    width: MediaQuery.of(context).size.width * 0.4,
-                                    child: ListView.builder(
-                                      shrinkWrap: true,
-                                      itemCount: widget.person.plants!.length,
-                                      itemBuilder: (BuildContext context, int index) =>
-                                           Column(
-                                             children: [
-                                               Divider(thickness: 1,),
-                                               GestureDetector(
-                                                 child: Row(
-                                                   children: [
-                                                     Padding(
-                                                       padding: const EdgeInsets.all(8.0),
-                                                       child: Text(widget.person.plants![index]!.name!,style: TextStyle(fontWeight: FontWeight.bold),),
-                                                     ),
-                                                     Expanded(
-                                                       child: Padding(
-                                                         padding: const EdgeInsets.all(8.0),
-                                                         child: Text(widget.person.plants![index]!.type!,overflow: TextOverflow.ellipsis),
-                                                       ),
-                                                     ),
-                                                  ],
-                                                 ),
-                                                 onTap: (){
-                                                   setState(() {
-                                                     plant = widget.person.plants![index]!;
-                                                     nameController.text = widget.person.plants![index]!.name!;
-                                                   });
-                                                   Navigator.of(context).pop();
-                                                 },
+              image != null ? Scrollbar(
+                  thickness: 5,
+                  radius: Radius.circular(10),
+                  thumbVisibility: true,
+                  controller: controller,
+                  child: SingleChildScrollView(
+                      controller: controller,
+                      child: Image.memory(image!, fit: BoxFit.cover)
+                  )
+              ) : Container(),
+              const SizedBox(
+                height: 20,
+              ),
+              Container(
+                margin: EdgeInsets.only(left: 20, right: 20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      InputField(
+                        isEditable: false,
+                        label: "식물",
+                        hint: "",
+                        controller: nameController,
+                        emptyText: false,
+                        icon: Icon(UniconsLine.flower),
+                        onTap: (){
+                          showDialog(context: context, builder: (context) {
+                            return AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              title: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("식물 선택"),
+                                  IconButton(
+                                      onPressed: (){
+                                        Get.back();
+                                      },
+                                      icon: Icon(Icons.close,color: Colors.black54,)
+                                  )
+                                ],
+                              ),
+                              content: SizedBox(
+                                height: MediaQuery.of(context).size.height * 0.4,
+                                width: MediaQuery.of(context).size.width * 0.4,
+                                child: ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: widget.person.plants!.length,
+                                    itemBuilder: (BuildContext context, int index) =>
+                                        Column(
+                                          children: [
+                                            Divider(thickness: 1,),
+                                            GestureDetector(
+                                              child: Row(
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets.all(8.0),
+                                                    child: Text(widget.person.plants![index]!.name!,style: TextStyle(fontWeight: FontWeight.bold),),
+                                                  ),
+                                                  Expanded(
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.all(8.0),
+                                                      child: Text(widget.person.plants![index]!.type!,overflow: TextOverflow.ellipsis),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              onTap: (){
+                                                setState(() {
+                                                  plant = widget.person.plants![index]!;
+                                                  nameController.text = widget.person.plants![index]!.name!;
+                                                });
+                                                Navigator.of(context).pop();
+                                              },
 
-                                               ),
-                                               index == widget.person.plants!.indexOf(widget.person.plants!.last) ? Divider(thickness: 1,) : Container(),
-                                             ],
-                                           )
-                                    ),
+                                            ),
+                                            index == widget.person.plants!.indexOf(widget.person.plants!.last) ? Divider(thickness: 1,) : Container(),
+                                          ],
+                                        )
+                                ),
+                              ),
+                            );
+                          });
+                        },
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      InputField(
+                        onTap: () async{
+                          await showCupertinoModalPopup(
+                              context: context,
+                              builder: (BuildContext builder) {
+                                return Container(
+                                  height: MediaQuery.of(context).copyWith().size.height*0.25,
+                                  color: Colors.white,
+                                  child: CupertinoDatePicker(
+                                    initialDateTime: DateFormat('yyyy-MM-dd').parse(dateController.text), //초기값
+                                    maximumDate: DateTime(DateTime.now().year+1), //마지막일
+                                    minimumDate: DateTime(DateTime.now().year-1),
+                                    mode: CupertinoDatePickerMode.date,
+                                    onDateTimeChanged: (value) {
+                                      setState(() {
+                                        dateController.text = DateFormat('yyyy-MM-dd').format(value);
+                                      });
+                                    },
                                   ),
                                 );
-                              });
-                            },
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          InputField(
-                            onTap: () async{
-                              await showCupertinoModalPopup(
-                                  context: context,
-                                  builder: (BuildContext builder) {
-                                    return Container(
-                                      height: MediaQuery.of(context).copyWith().size.height*0.25,
-                                      color: Colors.white,
-                                      child: CupertinoDatePicker(
-                                        initialDateTime: DateFormat('yyyy-MM-dd').parse(dateController.text), //초기값
-                                        maximumDate: DateTime(DateTime.now().year+1), //마지막일
-                                        minimumDate: DateTime(DateTime.now().year-1),
-                                        mode: CupertinoDatePickerMode.date,
-                                        onDateTimeChanged: (value) {
-                                          setState(() {
-                                            dateController.text = DateFormat('yyyy-MM-dd').format(value);
-                                          });
-                                        },
-                                      ),
-                                    );
-                                  }
-                              );
-                            },
-                            controller: dateController,
-                            isEditable: false,
-                            label: '날짜',
-                            emptyText: false,
-                            icon: Icon(Icons.calendar_month_outlined),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          TextFormField(
-                            controller: titleController,
-                            maxLength: 20,
-                            validator: (value){
-                              if (value.toString().isEmpty) {
-                                return '제목을 입력해주세요';
                               }
-                            },
-                            decoration: InputDecoration(
-                              labelStyle: const TextStyle(height:0.1),
-                              labelText: "제목",
-                            ),
-                          ),
-                          TextFormField(
-                            controller: contentController,
-                            keyboardType: TextInputType.multiline,
-                            maxLength: 50,
-                            maxLines: null,
-                            validator: (value){
-                              if (value.toString().isEmpty) {
-                                return '내용을 입력해주세요';
-                              }
-                            },
-                            decoration: InputDecoration(
-                              labelStyle: const TextStyle(height:0.1),
-                              labelText: "내용",
-                              hintText:  "식물에게 하고 싶은말, 변화 등을 적어보세요!",
-                            ),
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.08,
-                          ),
-                        ],
+                          );
+                        },
+                        controller: dateController,
+                        isEditable: false,
+                        label: '날짜',
+                        emptyText: false,
+                        icon: Icon(Icons.calendar_month_outlined),
                       ),
-                    ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      TextFormField(
+                        controller: titleController,
+                        maxLength: 20,
+                        validator: (value){
+                          if (value.toString().isEmpty) {
+                            return '제목을 입력해주세요';
+                          }
+                        },
+                        decoration: InputDecoration(
+                          labelStyle: const TextStyle(height:0.1),
+                          labelText: "제목",
+                        ),
+                      ),
+                      TextFormField(
+                        controller: contentController,
+                        keyboardType: TextInputType.multiline,
+                        maxLength: 50,
+                        maxLines: null,
+                        validator: (value){
+                          if (value.toString().isEmpty) {
+                            return '내용을 입력해주세요';
+                          }
+                        },
+                        decoration: InputDecoration(
+                          labelStyle: const TextStyle(height:0.1),
+                          labelText: "내용",
+                          hintText:  "식물에게 하고 싶은말, 변화 등을 적어보세요!",
+                        ),
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.08,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              Container(height: MediaQuery.of(context).size.height * 0.08,
-                color: Colors.white54,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back, color: Colors.black54,),
-                      onPressed: () { Navigator.pop(context); },
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 12, right: 12),
-                      child: IconButton(
-                          onPressed: () async{
-                            final storageRef = FirebaseStorage.instance.ref();
-                            int id = 0;
-                            if(plant.timelines!.isNotEmpty){
-                              id = plant.timelines!.indexOf(plant.timelines!.last) +1;
-                            }
-                            final imageRef = storageRef.child("users/${widget.person.uid}/timeLines/$id/image.text");
-
-                            if(image != null){
-                              await imageRef.putData(image!);
-                            }
-
-                            if(_formKey.currentState!.validate()){
-                              plant.timelines!.add({
-                                'id' : id,
-                                'image': image != null ? await imageRef.getDownloadURL() : null,
-                                'date': dateController.text,
-                                'title' : titleController.text,
-                                'content' : contentController.text
-                              });
-
-                              var usersCollection = firestore.collection('users');
-                              await usersCollection.doc(widget.person.uid).update(
-                                  {
-                                    "plants": widget.person.plantsToJson(widget.person.plants!)
-                                  }).then((value) => Get.back());
-                            }
-                          },
-                          icon: Icon(Icons.check, color: Colors.black54,)
-                      ),
-                    )
-                  ],
                 ),
               ),
             ],
-          ),
+          )
         ),
       ),
       floatingActionButton: FloatingActionButton(

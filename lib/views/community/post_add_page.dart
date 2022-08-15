@@ -54,154 +54,145 @@ class _PostAddPage extends State<PostAddPage>{
 
     // TODO: implement build
     return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text("Add Post",style: TextStyle(color: primaryColor),),
+        elevation: 0,
+        leading:  IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black54,),
+          onPressed: () { Navigator.pop(context); },
+        ),
+        backgroundColor: Colors.white,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(left: 12, right: 12),
+            child: IconButton(
+                onPressed: () async{
+
+                  if(_formKey.currentState!.validate()){
+                    var boardCollection = firestore.collection('board');
+
+                    String random = getRandomString(12);
+
+                    var usersCollection = firestore.collection('users');
+                    var userData = await usersCollection.doc(widget.person.uid).get().then((value) => value.data()!);
+
+                    final imageRef = storageRef.child("boards/$random/image.text");
+
+                    if((await boardCollection.doc(widget.person.uid).get()).exists){
+
+                      if(image != null){
+                        await imageRef.putData(image!);
+                      }
+
+                      await boardCollection.doc(widget.person.uid).update(
+                          {
+                            random : Post(
+                              userPermission: userData["userPermission"],
+                              userName: userData["userName"],
+                              uid: widget.person.uid,
+                              id: random,
+                              image: image != null ? await imageRef.getDownloadURL() : null,
+                              date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()),
+                              title: titleController.text,
+                              content: contentController.text,
+                              like: List.empty(growable: true),
+                              comments: List.empty(growable: true),
+                              theNumberOfComments: 0,
+                            ).toJson()
+                          }).then((value) => Get.back());
+                    }else{
+                      await boardCollection.doc(widget.person.uid).set(
+                          {
+                            random : Post(
+                              userPermission: userData["userPermission"],
+                              userName: userData["userName"],
+                              uid: widget.person.uid,
+                              id: random,
+                              image: image != null ? await imageRef.getDownloadURL() : null,
+                              //image: image != null ? base64Encode(image) : null,
+                              date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()),
+                              title: titleController.text,
+                              content: contentController.text,
+                              like: List.empty(growable: true),
+                              comments: List.empty(growable: true),
+                              theNumberOfComments: 0,
+                            ).toJson()
+                          }).then((value) => Get.back());
+                    }
+                  }
+                },
+                icon: Icon(Icons.check, color: Colors.black54,)
+            ),
+          )
+        ],
+      ),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Stack(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    children: [
-                      Center(
-                          child: image == null ? Container(height: MediaQuery.of(context).size.height * 0.08,) : SizedBox(
-                              width: MediaQuery.of(context).size.width,
-                              height: MediaQuery.of(context).size.width,
-                              child: Scrollbar(
-                                  thickness: 5,
-                                  radius: Radius.circular(10),
-                                  controller: controller,
-                                  thumbVisibility: true,
-                                  child: SingleChildScrollView(
-                                      controller: controller,
-                                      child: Image.memory(image!, fit: BoxFit.cover,)
-                                  )
-                              )
+                  image != null ? SizedBox(
+                      child: Scrollbar(
+                          thickness: 5,
+                          radius: Radius.circular(10),
+                          controller: controller,
+                          thumbVisibility: true,
+                          child: SingleChildScrollView(
+                              controller: controller,
+                              child: Image.memory(image!, fit: BoxFit.cover,)
                           )
-                      ),
-                      Form(
-                        key: _formKey,
-                        child: Container(
-                          margin: EdgeInsets.only(left: 20, right: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              TextFormField(
-                                controller: titleController,
-                                keyboardType: TextInputType.multiline,
-                                maxLength: 50,
-                                validator: (value){
-                                  if (value.toString().isEmpty) {
-                                    return '제목을 입력해주세요';
-                                  }
-                                },
-                                decoration: InputDecoration(
-                                  labelStyle: const TextStyle(height:0.1),
-                                  labelText: "제목",
-                                ),
-                              ),
-                              TextFormField(
-                                controller: contentController,
-                                keyboardType: TextInputType.multiline,
-                                maxLength: 200,
-                                maxLines: 5,
-                                validator: (value){
-                                  if (value.toString().isEmpty) {
-                                    return '내용을 입력해주세요';
-                                  }
-                                },
-                                decoration: InputDecoration(
-                                  labelStyle: const TextStyle(height:0.1),
-                                  labelText: "내용",
-                                  alignLabelWithHint: true
-                                ),
-                              ),
-                            ],
+                      )
+                  ) : Container(),
+                  Form(
+                    key: _formKey,
+                    child: Container(
+                      margin: EdgeInsets.only(left: 20, right: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(
+                            height: 20,
                           ),
-                        ),
+                          TextFormField(
+                            controller: titleController,
+                            keyboardType: TextInputType.multiline,
+                            maxLength: 50,
+                            validator: (value){
+                              if (value.toString().isEmpty) {
+                                return '제목을 입력해주세요';
+                              }
+                            },
+                            decoration: InputDecoration(
+                              labelStyle: const TextStyle(height:0.1),
+                              labelText: "제목",
+                            ),
+                          ),
+                          TextFormField(
+                            controller: contentController,
+                            keyboardType: TextInputType.multiline,
+                            maxLength: 200,
+                            maxLines: 5,
+                            validator: (value){
+                              if (value.toString().isEmpty) {
+                                return '내용을 입력해주세요';
+                              }
+                            },
+                            decoration: InputDecoration(
+                              labelStyle: const TextStyle(height:0.1),
+                              labelText: "내용",
+                              alignLabelWithHint: true
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ],
-              ),
-              Container(height: MediaQuery.of(context).size.height * 0.08,
-                color: Colors.white54,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back, color: Colors.black54,),
-                      onPressed: () { Navigator.pop(context); },
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 12, right: 12),
-                      child: IconButton(
-                          onPressed: () async{
-
-                            if(_formKey.currentState!.validate()){
-                              var boardCollection = firestore.collection('board');
-
-                              String random = getRandomString(12);
-
-                              var usersCollection = firestore.collection('users');
-                              var userData = await usersCollection.doc(widget.person.uid).get().then((value) => value.data()!);
-
-                              final imageRef = storageRef.child("boards/$random/image.text");
-
-                              if((await boardCollection.doc(widget.person.uid).get()).exists){
-
-                                if(image != null){
-                                  await imageRef.putData(image!);
-                                }
-
-                                await boardCollection.doc(widget.person.uid).update(
-                                    {
-                                      random : Post(
-                                        userPermission: userData["userPermission"],
-                                        userName: userData["userName"],
-                                        uid: widget.person.uid,
-                                        id: random,
-                                        image: image != null ? await imageRef.getDownloadURL() : null,
-                                        date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()),
-                                        title: titleController.text,
-                                        content: contentController.text,
-                                        like: List.empty(growable: true),
-                                        comments: List.empty(growable: true),
-                                        theNumberOfComments: 0,
-                                      ).toJson()
-                                    }).then((value) => Get.back());
-                              }else{
-                                await boardCollection.doc(widget.person.uid).set(
-                                    {
-                                      random : Post(
-                                        userPermission: userData["userPermission"],
-                                        userName: userData["userName"],
-                                        uid: widget.person.uid,
-                                        id: random,
-                                        image: image != null ? await imageRef.getDownloadURL() : null,
-                                        //image: image != null ? base64Encode(image) : null,
-                                        date: DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()),
-                                        title: titleController.text,
-                                        content: contentController.text,
-                                        like: List.empty(growable: true),
-                                        comments: List.empty(growable: true),
-                                        theNumberOfComments: 0,
-                                      ).toJson()
-                                    }).then((value) => Get.back());
-                              }
-                            }
-                          },
-                          icon: Icon(Icons.check, color: Colors.black54,)
-                      ),
-                    )
-                  ],
-                ),
               ),
             ],
           ),
