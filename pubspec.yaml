@@ -57,6 +57,7 @@ dependencies:
   timeline_tile: ^2.0.0
   google_fonts: ^3.0.1
   firebase_storage: ^10.3.5
+  flutter_native_splash: ^2.2.7
 
 
 dev_dependencies:
@@ -88,6 +89,8 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/splash/
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
@@ -113,3 +116,6 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+flutter_native_splash:
+  image: assets/splash/plantory_splash.png
+  color: "#8BBD87"
