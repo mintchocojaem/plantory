@@ -49,6 +49,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
   bool isInfoEditable = false;
   bool isNewPlant = false;
   bool isCustomType = false;
+  bool isSubmitting = false;
 
   int pageIndex = 0;
 
@@ -861,6 +862,9 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
         label: Text("완료"),
         icon: Icon(Icons.check),
         onPressed: () async{
+          if(!isSubmitting){
+            isSubmitting = true;
+
           if(isPlantEditable){
 
             if(!widget.person.plants![pageIndex]!.type!.replaceAll(" ", "").isAlphabetOnly){
@@ -883,120 +887,127 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                   }).then((value) {
                 plantNotification.zonedMidnightSchedule(widget.person.plants![pageIndex]!.id!, "Plantory 알림",
                     "\"${widget.person.plants![pageIndex]!.name}\"에게 물을 줄 시간입니다!", getFastWateringDate(widget.person.plants![pageIndex]!.watering!));
-              });
-              setState(() {
-                isPlantEditable = false;
-                isCustomType = false;
+              }).whenComplete(() {
+                setState(() {
+                  isSubmitting = true;
+                  isPlantEditable = false;
+                  isCustomType = false;
+                });
               });
             }
 
           }else if(isNewPlant){
 
-            Map? info = {
-              'flowerLanguage' : "",
-              'temperature' : "",
-              'humidity' : "",
-              'sunlight' : "",
-              'watering' : "",
-              'transplanting' : ""
-            };
+              Map? info = {
+                'flowerLanguage' : "",
+                'temperature' : "",
+                'humidity' : "",
+                'sunlight' : "",
+                'watering' : "",
+                'transplanting' : ""
+              };
 
-            for(Map i in widget.plantsInfo){
-              if(i["enName"] == newTypeController.text){
-                info = i;
-              }
-            }
-
-            if(newNameController.text == ""){
-              showCupertinoDialog(context: context, builder: (context) {
-                return CupertinoAlertDialog(
-                  content: Text("식물 이름을 입력해주세요"),
-                  actions: [
-                    CupertinoDialogAction(isDefaultAction: true, child: Text("확인"), onPressed: () {
-                      Navigator.pop(context);
-                    })
-                  ],
-                );
-              });
-            }else if(newTypeController.text == ""){
-              showCupertinoDialog(context: context, builder: (context) {
-                return CupertinoAlertDialog(
-                  content: Text("식물 종류를 입력해주세요"),
-                  actions: [
-                    CupertinoDialogAction(isDefaultAction: true, child: Text("확인"), onPressed: () {
-                      Navigator.pop(context);
-                    })
-                  ],
-                );
-              });
-            }else if(!newTypeController.text.replaceAll(" ", "").isAlphabetOnly){
-              showCupertinoDialog(context: context, builder: (context) {
-                return CupertinoAlertDialog(
-                  content: Text("식물 종류는 영문으로만 입력 가능합니다."),
-                  actions: [
-                    CupertinoDialogAction(isDefaultAction: true, child: Text("확인"), onPressed: () {
-                      Navigator.pop(context);
-                    })
-                  ],
-                );
-              });
-            } else{
-
-              final imageRef = storageRef.child("users/${widget.person.uid}/plants/$id/image.text");
-
-              if(newImage != null){
-                await imageRef.putData(newImage!);
+              for(Map i in widget.plantsInfo){
+                if(i["enName"] == newTypeController.text){
+                  info = i;
+                }
               }
 
-              Plant plant = Plant(
-                id: id,
-                name: newNameController.text,
-                type: newTypeController.text,
-                date: newDateController.text,
-                watering: newCycles,
-                image: newImage != null ?  await imageRef.getDownloadURL() : null,
-                info: info,
-                timelines: List.empty(growable: true),
-              );
+              if(newNameController.text == ""){
+                showCupertinoDialog(context: context, builder: (context) {
+                  return CupertinoAlertDialog(
+                    content: Text("식물 이름을 입력해주세요"),
+                    actions: [
+                      CupertinoDialogAction(isDefaultAction: true, child: Text("확인"), onPressed: () {
+                        Navigator.pop(context);
+                      })
+                    ],
+                  );
+                });
+              }else if(newTypeController.text == ""){
+                showCupertinoDialog(context: context, builder: (context) {
+                  return CupertinoAlertDialog(
+                    content: Text("식물 종류를 입력해주세요"),
+                    actions: [
+                      CupertinoDialogAction(isDefaultAction: true, child: Text("확인"), onPressed: () {
+                        Navigator.pop(context);
+                      })
+                    ],
+                  );
+                });
+              }else if(!newTypeController.text.replaceAll(" ", "").isAlphabetOnly){
+                showCupertinoDialog(context: context, builder: (context) {
+                  return CupertinoAlertDialog(
+                    content: Text("식물 종류는 영문으로만 입력 가능합니다."),
+                    actions: [
+                      CupertinoDialogAction(isDefaultAction: true, child: Text("확인"), onPressed: () {
+                        Navigator.pop(context);
+                      })
+                    ],
+                  );
+                });
+              } else{
 
-              isNewPlant = false;
-              isCustomType = false;
+                final imageRef = storageRef.child("users/${widget.person.uid}/plants/$id/image.text");
 
-              widget.person.plants!.add(
-                  plant
-              );
+                if(newImage != null){
+                  await imageRef.putData(newImage!);
+                }
 
-              var usersCollection = firestore.collection('users');
-              await usersCollection.doc(widget.person.uid).update(
-                  {
-                    "plants": widget.person.plantsToJson(widget.person.plants!)
-                  }).whenComplete(() => pageController.jumpToPage(pageIndex+1)).then((value) {
+                Plant plant = Plant(
+                  id: id,
+                  name: newNameController.text,
+                  type: newTypeController.text,
+                  date: newDateController.text,
+                  watering: newCycles,
+                  image: newImage != null ?  await imageRef.getDownloadURL() : null,
+                  info: info,
+                  timelines: List.empty(growable: true),
+                );
 
-                pageController.animateToPage(pageIndex, duration: Duration(milliseconds: 500), curve: Curves.ease).whenComplete(() {
-                  plantNotification.zonedMidnightSchedule(plant.id!, "Plantory 알림",
-                      "\"${plant.name}\"에게 물을 줄 시간입니다!", getFastWateringDate(widget.person.plants![pageIndex]!.watering!));
+                isNewPlant = false;
+                isCustomType = false;
+
+                widget.person.plants!.add(
+                    plant
+                );
+
+                var usersCollection = firestore.collection('users');
+                await usersCollection.doc(widget.person.uid).update(
+                    {
+                      "plants": widget.person.plantsToJson(widget.person.plants!)
+                    }).whenComplete(() => pageController.jumpToPage(pageIndex+1)).then((value) {
+
+                  pageController.animateToPage(pageIndex, duration: Duration(milliseconds: 500), curve: Curves.ease).whenComplete(() {
+                    plantNotification.zonedMidnightSchedule(plant.id!, "Plantory 알림",
+                        "\"${plant.name}\"에게 물을 줄 시간입니다!", getFastWateringDate(widget.person.plants![pageIndex]!.watering!));
+                  });
+
+                  newNameController.text = "";
+                  newTypeController.text = "";
+                  newDateController.text = "";
+                  newImage = null;
+                  id = generateID(widget.person.plants!);
+
+                  newDateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+                  newCycles = {
+                    Cycles.type.name : "물",
+                    Cycles.cycle.name : 14,
+                    Cycles.startDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                    Cycles.initDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                  };
+
+                  newWateringStartDateController.text = newCycles[Cycles.startDate.name];
+                  newWateringCycleController.text = newCycles[Cycles.cycle.name].toString();
+
+                }).whenComplete(() {
+                  setState(() {
+                    isSubmitting = false;
+                  });
                 });
 
-                newNameController.text = "";
-                newTypeController.text = "";
-                newDateController.text = "";
-                newImage = null;
-                id = generateID(widget.person.plants!);
-
-                newDateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
-
-                newCycles = {
-                  Cycles.type.name : "물",
-                  Cycles.cycle.name : 14,
-                  Cycles.startDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-                  Cycles.initDate.name : DateFormat('yyyy-MM-dd').format(DateTime.now()),
-                };
-
-                newWateringStartDateController.text = newCycles[Cycles.startDate.name];
-                newWateringCycleController.text = newCycles[Cycles.cycle.name].toString();
-
-              }).whenComplete(() => setState(() {}));
-
+              }
             }
           }
         },
