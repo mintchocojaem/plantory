@@ -43,7 +43,10 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
 
   late AnimationController _controller;
 
-  static const List<IconData> floatingIcons = [ Icons.calendar_month_outlined, Icons.comment ];
+  static const List<IconData> floatingIcons = [
+    Icons.calendar_month_outlined,
+    //Icons.comment
+  ];
 
   bool isPlantEditable = false;
   bool isInfoEditable = false;
@@ -76,7 +79,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
   @override
   void initState() {
 
-    Future.delayed(const Duration(milliseconds: 500)).then((value) => FlutterNativeSplash.remove());
+    Future.delayed(const Duration(milliseconds: 300)).then((value) => FlutterNativeSplash.remove());
 
     newDateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
@@ -889,7 +892,7 @@ class _HomePage extends State<HomePage> with TickerProviderStateMixin{
                     "\"${widget.person.plants![pageIndex]!.name}\"에게 물을 줄 시간입니다!", getFastWateringDate(widget.person.plants![pageIndex]!.watering!));
               }).whenComplete(() {
                 setState(() {
-                  isSubmitting = true;
+                  isSubmitting = false;
                   isPlantEditable = false;
                   isCustomType = false;
                 });

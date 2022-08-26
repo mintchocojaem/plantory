@@ -51,9 +51,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.light,
         textTheme: GoogleFonts.gowunDodumTextTheme(),
       ),
-      home: //SplashScreen(),
-            //IndexPage(),
-            AuthPage(),
+      home: AuthPage(),
       initialBinding: InitBinding(),
     );
   }
