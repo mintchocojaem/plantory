@@ -1,16 +1,12 @@
-# plantory
+# Plantory
 
-A new Flutter project.
+경영경제대학 X SW융합대학 연합해커톤
+수상 내역: 우수상
 
-## Getting Started
+<img width="1080" alt="plantory" src="https://raw.githubusercontent.com/chocojaem/plantory/main/Plantory_explain.jpeg">
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<br>
+개발 : 이관현, 이정현, 이재민
+<br>
+기획 : 최아영, 이준혜
+<br>
