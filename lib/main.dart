@@ -3,7 +3,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutterfire_ui/i10n.dart';
 import 'package:get/instance_manager.dart';
 import 'package:get/route_manager.dart';
@@ -22,9 +21,6 @@ void main() async{
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
   await GetStorage.init();
   await initNotification();
-
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   runApp(const MyApp());
 }
