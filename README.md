@@ -1,5 +1,5 @@
 # Plantory
-경영경제대학 X SW융합대학 연합해커톤
+DKU 경소톤(경영 + 소프트웨어 해커톤) 반려 식물 앱
 <br>
 
 <img width="1080" alt="plantory" src="https://raw.githubusercontent.com/chocojaem/plantory/main/Plantory_explain.jpeg">
